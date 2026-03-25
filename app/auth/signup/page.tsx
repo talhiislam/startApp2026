@@ -1,0 +1,122 @@
+"use client";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import Link from "next/link";
+import Card from "@/components/Card";
+
+export default function Signup() {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const form = e.currentTarget;
+    const email = (form.email as HTMLInputElement).value;
+    const username = (form.username as HTMLInputElement).value;
+    const password = (form.password as HTMLInputElement).value;
+    const confirmPassword = (form.confirmPassword as HTMLInputElement).value;
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match")
+      setLoading(false);
+      return;
+    }
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, username, password }),
+    });
+
+    const result = await res.json();
+    setLoading(false);
+
+    if (!res.ok) {
+      setError(result.error);
+      return;
+    }
+
+    await signIn("credentials", { email, password, callbackUrl: "/" });
+  }
+
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-[#0a0e17]">
+      <Card className="p-8 w-full max-w-sm flex flex-col gap-6">
+
+        {/* Header */}
+        <div className="flex flex-col items-center gap-2">
+          <h1 className="text-xl font-bold text-slate-100">Create account</h1>
+          <p className="text-sm text-slate-400">Start planning your adventures</p>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <p className="text-red-400 text-sm text-center bg-red-400/10 py-2 px-4 rounded-lg">
+            {error}
+          </p>
+        )}
+
+        {/* Form */}
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            className="bg-white/5 border border-white/[0.08] text-slate-100 placeholder:text-slate-500 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+          />
+          <input
+            name="username"
+            type="text"
+            placeholder="Username"
+            className="bg-white/5 border border-white/[0.08] text-slate-100 placeholder:text-slate-500 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            className="bg-white/5 border border-white/[0.08] text-slate-100 placeholder:text-slate-500 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+          />
+          <input
+            name="confirmPassword"
+            type="password"
+            placeholder="Confirm password"
+            className="bg-white/5 border border-white/[0.08] text-slate-100 placeholder:text-slate-500 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-orange-500 text-white p-3 rounded-lg font-medium hover:bg-orange-600 transition disabled:opacity-50"
+          >
+            {loading ? "Creating account..." : "Sign Up"}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-white/[0.08]" />
+          <span className="text-slate-500 text-xs">or continue with</span>
+          <div className="flex-1 h-px bg-white/[0.08]" />
+        </div>
+
+        {/* Google */}
+        <button
+          onClick={() => signIn("google", { callbackUrl: "/" })}
+          className="flex items-center justify-center gap-3 bg-white/5 border border-white/[0.08] text-slate-300 p-3 rounded-lg hover:bg-white/10 transition"
+        >
+          <img src="https://www.google.com/favicon.ico" className="w-4 h-4" />
+          Continue with Google
+        </button>
+
+        <p className="text-sm text-center text-slate-400">
+          Already have an account?{" "}
+          <Link href="/auth/login" className="text-orange-500 hover:underline">
+            Sign in
+          </Link>
+        </p>
+      </Card>
+    </main>
+  );
+}

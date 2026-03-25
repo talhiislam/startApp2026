@@ -1,31 +1,18 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
+import Providers from "@/components/Providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Camping Planner",
-  description: "Plan, organize, and book camping trips",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased `}>
-        <main className="p-8 antialiased bg-green-200 text-black">
-          {children}
-        </main>
+      <body>
+        <Providers>
+          <Navbar />
+          <main className="pt-[72px] min-h-screen bg-[#0a0e17]">
+            {children}
+          </main>
+        </Providers>
       </body>
     </html>
   );

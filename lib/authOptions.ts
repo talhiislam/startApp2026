@@ -1,0 +1,93 @@
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import bcrypt from "bcryptjs";
+import { connectToDatabase } from "@/lib/mongodb";
+import User from "@/models/User";
+import type { NextAuthOptions, User as NextAuthUser } from "next-auth";
+
+interface AuthUser extends NextAuthUser {
+    username: string;
+    role: "camper" | "owner" | "admin";
+}
+
+export const authOptions: NextAuthOptions = {
+    providers: [
+        CredentialsProvider({
+            name: "Credentials",
+            credentials: {
+                email: {},
+                password: {},
+            },
+            async authorize(credentials) {
+                if (!credentials?.email || !credentials?.password)
+                    return null;
+                await connectToDatabase();
+                const  user = await User.findOne({ email: credentials.email });
+                if (!user || !user.password)
+                    return null;
+                const isMatch = await bcrypt.compare(credentials.password, user.password);
+                if (!isMatch)
+                    return null;
+                return {
+                    id: user._id.toString(),
+                    email: user.email,
+                    username: user.username,
+                    role: user.role,
+                };
+            },
+        }),
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
+    ],
+    callbacks: {
+        async signIn({ user, account }) {
+            if (account?.provider === "google") {
+                if (!user.email) return false;
+
+                await connectToDatabase();
+                const existing = await User.findOne({ email: user.email });
+                if (!existing) {
+                    await User.create({
+                        email: user.email,
+                        username: user.name?.replace(/\s+/g, "").toLowerCase() ?? user.email?.split("@")[0],
+                        role: "camper",
+                    });
+                }
+            }
+            return true;
+        },
+        async jwt({ token, user }) {
+            if (user) {
+                const u = user as AuthUser;
+                token.username = u.username;
+                token.role = u.role;
+            }
+
+            if (!token.username && token.email) {
+                await connectToDatabase();
+                const dbUser = await User.findOne({ email: token.email });
+                if (dbUser) {
+                    token.username = dbUser.username;
+                    token.role = dbUser.role;
+                }
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.username = token.username as string;
+                session.user.role = token.role as "camper" | "owner" | "admin";
+            }
+            return session;
+        },
+    },
+    pages: {
+        signIn: "auth/login",
+    },
+    session: {
+        strategy: "jwt",
+    },
+    secret: process.env.NEXTAUTH_SECRET,
+};
