@@ -91,7 +91,7 @@ export default function Navbar() {
                         </li>
                         <li>
                             <Link
-                                href="/auth/register"
+                                href="/auth/signup"
                                 className="px-4 py-2 rounded-lg text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300"
                             >
                                 Sign Up
