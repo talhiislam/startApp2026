@@ -20,12 +20,10 @@ export default function Navbar() {
         
             {/* Logo */}
             <Link href="/">
-                <Image 
-                    src="/logo.png"
+                <img
+                    src="/logo_dark.png"
                     alt="SahaTour"
-                    className="h-10 w-auto object-contain"
-                    width={40}
-                    height={40}
+                    className="h-10 w-auto object-contain rounded-lg"
                 />
             </Link>
 

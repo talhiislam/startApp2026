@@ -6,6 +6,10 @@ export interface IUser extends Document {
   password?: string;
   role: "camper" | "owner" | "admin";
   phone?: string;
+  fullName?: string;
+  city?: string;
+  dateOfBirth?: Date;
+  avatar?: string;
   createdAt: Date;
 }
 
@@ -20,6 +24,10 @@ const UserSchema = new Schema<IUser>(
       default: "camper"
     },
     phone: { type: String },
+    fullName: { type: String },
+    city: { type: String },
+    dateOfBirth: { type: Date },
+    avatar: { type: String },
   },
   { timestamps: true }
 );

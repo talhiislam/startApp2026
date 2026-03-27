@@ -8,6 +8,8 @@ import type { NextAuthOptions, User as NextAuthUser } from "next-auth";
 interface AuthUser extends NextAuthUser {
     username: string;
     role: "camper" | "owner" | "admin";
+    avatar?: string;
+    city?: string;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -61,24 +63,33 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user }) {
             if (user) {
                 const u = user as AuthUser;
+                token.id = u.id;
                 token.username = u.username;
                 token.role = u.role;
+                token.avatar = u.avatar;
+                token.city = u.city;
             }
 
             if (!token.username && token.email) {
                 await connectToDatabase();
                 const dbUser = await User.findOne({ email: token.email });
                 if (dbUser) {
+                    token.id = dbUser._id.toString();
                     token.username = dbUser.username;
                     token.role = dbUser.role;
+                    token.avatar = dbUser.avatar;
+                    token.city = dbUser.city;
                 }
             }
             return token;
         },
         async session({ session, token }) {
             if (session.user) {
+                session.user.id = token.id as string;
                 session.user.username = token.username as string;
                 session.user.role = token.role as "camper" | "owner" | "admin";
+                session.user.avatar = token.avatar as string;
+                session.user.city = token.city as string;
             }
             return session;
         },
