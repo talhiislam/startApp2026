@@ -5,23 +5,23 @@ type CampsiteCardProps = {
     name: string;
     location: string;
     region: string;
-    type: "tent" | "rv" | "cabin" | "wild";
+    type: "tent" | "bungalow" | "wild" | "glamping";
     image: string;
     price?: number;    
 };
 
 const typeLabels = {
     tent: "Tent",
-    rv: "RV",
-    cabin: "Cabin",
+    bungalow: "Bungalow",
     wild: "Wild",
+    glamping: "Glamping"
 };
 
 const typeColors = {
     tent: "text-green-400 bg-green-400/10",
-    rv: "text-blue-400 bg-blue-400/10",
-    cabin: "text-amber-400 bg-amber-400/10",
-    wild: "text-orange-400 bg-orange-400/10"
+    bungalow: "text-blue-400 bg-blue-400/10",
+    wild: "text-amber-400 bg-amber-400/10",
+    glamping: "text-orange-400 bg-orange-400/10"
 };
 
 export default function CampsiteCard({ id, name, location, type, region, image, price }: CampsiteCardProps) {

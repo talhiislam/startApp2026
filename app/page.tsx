@@ -26,7 +26,7 @@ const featuredCampsites = [
     name: "Tikjda Mountain Camp",
     location: "Tikjda",
     region: "Kabylie",
-    type: "cabin" as const,
+    type: "bungalow" as const,
     image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&q=80",
     price: 3200,
   },
@@ -114,7 +114,7 @@ export default function Home() {
             View all →
           </Link>
         </div>
-        <div className="grid grid-cols-1 md: grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {featuredCampsites.map((campsite) => (
               <CampsiteCard key={campsite.id} {...campsite} />
             ))}
@@ -123,7 +123,7 @@ export default function Home() {
 
       {/* How it works */}
       <section className="px-6 md:px-16 py-20 bg-[#111827] flex flex-col gap-10">
-        <div className="flax flex-col gap-2 text-center">
+        <div className="flex flex-col gap-2 text-center">
           <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">Simple</span>
           <h2 className="text-3xl font-bold text-slate-100">How It Works</h2>
         </div>
