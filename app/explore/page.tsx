@@ -1,17 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import CampsiteCard from "@/components/CampsiteCard";
 
-type Campsite = {
-    _id: string;
-    name: string;
-    wilaya: string;
-    region: string;
-    type: "tent" | "bungalow" | "wild" | "glamping";
-    images: string[];
-    pricePerNight: number;
-};
+import { type Campsite } from "@/types/campsite";
+import CampsiteCard from "@/components/CampsiteCard";
 
 const regions = ["sahara", "kabylie", "hoggar", "coastal", "other"];
 const types = ["tent", "bungalow", "wild", "glamping"];

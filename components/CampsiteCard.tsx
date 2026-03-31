@@ -1,27 +1,14 @@
 import Link from "next/link";
+import { type Campsite, typeColors, typeLabels } from "@/types/campsite";
 
 type CampsiteCardProps = {
     id: string;
     name: string;
     location: string;
     region: string;
-    type: "tent" | "bungalow" | "wild" | "glamping";
+    type: Campsite["type"];
     image: string;
     price?: number;    
-};
-
-const typeLabels = {
-    tent: "Tent",
-    bungalow: "Bungalow",
-    wild: "Wild",
-    glamping: "Glamping"
-};
-
-const typeColors = {
-    tent: "text-green-400 bg-green-400/10",
-    bungalow: "text-blue-400 bg-blue-400/10",
-    wild: "text-amber-400 bg-amber-400/10",
-    glamping: "text-orange-400 bg-orange-400/10"
 };
 
 export default function CampsiteCard({ id, name, location, type, region, image, price }: CampsiteCardProps) {
@@ -46,7 +33,9 @@ export default function CampsiteCard({ id, name, location, type, region, image, 
                     <h3 className="text-slate-100 font-semibold text-sm">{name}</h3>
                     <p className="text-slate-500 text-xs">📍 {location}, {region}</p>
                     {price !== undefined && (
-                        <p className="text-orange-400 text-sm font-medium mt-1">{price} DZD <span className="text-slate-500 font-normal">/ night</span></p>
+                        <p className="text-orange-400 text-sm font-medium mt-1">
+                          {price.toLocaleString()} DZD <span className="text-slate-500 font-normal">/ night</span>
+                        </p>
                     )}
                 </div>
             </div>

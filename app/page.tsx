@@ -22,7 +22,7 @@ const featuredCampsites = [
     price: 1800,
   },
   {
-    id: "2",
+    id: "3",
     name: "Tikjda Mountain Camp",
     location: "Tikjda",
     region: "Kabylie",
