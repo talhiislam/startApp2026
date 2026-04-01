@@ -10,6 +10,7 @@ export interface IUser extends Document {
   city?: string;
   dateOfBirth?: Date;
   avatar?: string;
+  savedSites: mongoose.Types.ObjectId[];
   createdAt: Date;
 }
 
@@ -21,17 +22,19 @@ const UserSchema = new Schema<IUser>(
     role: {
       type: String,
       enum: ["camper", "owner", "admin"],
-      default: "camper"
+      default: "camper",
     },
     phone: { type: String },
     fullName: { type: String },
     city: { type: String },
     dateOfBirth: { type: Date },
     avatar: { type: String },
+    savedSites: [{ type: Schema.Types.ObjectId, ref: "CampingSite" }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
 export default User;

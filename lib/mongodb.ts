@@ -8,7 +8,12 @@ function getMongoUri(): string {
   return uri;
 }
 
+function getMongoDbName(): string {
+  return process.env.MONGODB_DB_NAME || "startup-project";
+}
+
 const MONGODB_URI = getMongoUri();
+const MONGODB_DB_NAME = getMongoDbName();
 
 declare global {
   var mongooseCache:
@@ -31,7 +36,9 @@ export async function connectToDatabase() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, { dbName: "startup-project" });
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      dbName: MONGODB_DB_NAME,
+    });
   }
 
   cached.conn = await cached.promise;
