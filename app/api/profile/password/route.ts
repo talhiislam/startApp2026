@@ -27,7 +27,7 @@ export async function PUT(req: NextRequest) {
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
         return NextResponse.json(
-            { error: "Currebt password is incorrect" },
+            { error: "Current password is incorrect" },
             { status: 400 }
         );
     }

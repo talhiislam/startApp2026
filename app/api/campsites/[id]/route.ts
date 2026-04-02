@@ -14,7 +14,7 @@ export async function GET(
 
         if (!campsite) {
             return NextResponse.json(
-                { success: false, message: "Capsite not found" },
+                { success: false, message: "Campsite not found" },
                 { status: 404 }
             );
         }

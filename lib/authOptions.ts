@@ -70,7 +70,7 @@ export const authOptions: NextAuthOptions = {
                 token.city = u.city;
             }
 
-            if (!token.username && token.email) {
+            if (token.email) {
                 await connectToDatabase();
                 const dbUser = await User.findOne({ email: token.email });
                 if (dbUser) {

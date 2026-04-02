@@ -163,7 +163,7 @@ export default function TripsPage() {
               ) : bookings.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 py-12 text-center">
                   <span className="text-4xl">🏕️</span>
-                  <p className="text-slate-400 text-sm">No bookinds yet</p>
+                  <p className="text-slate-400 text-sm">No bookings yet</p>
                   <button
                     onClick={() => router.push("/explore")}
                     className="text-orange-500 text-sm hover:underline"

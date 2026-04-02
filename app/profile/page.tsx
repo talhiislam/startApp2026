@@ -42,6 +42,8 @@ export default function ProfilePage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const [becomingOwner, setBecomingOwner] = useState(false);
+
   useEffect(() => {
     fetch("/api/profile")
       .then((res) => res.json())
@@ -101,6 +103,25 @@ export default function ProfilePage() {
       newPassword: "",
       confirmPassword: ""
     });
+  }
+
+  async function handleBecomeOwner() {
+    setError("");
+    setMessage("");
+    setBecomingOwner(true);
+
+    const res = await fetch("/api/profile/become-owner", { method: "POST" });
+    const data = await res.json();
+
+    setBecomingOwner(false);
+
+    if (!res.ok) {
+      setError(data.error);
+      return;
+    }
+
+    setMessage("You are now an owner! Sign out and back in to access your dashboard.");
+    setProfile((prev) => prev ? {...prev, role: "owner" } : prev);
   }
 
   const inputClass = "bg-white/5 border border-white/[0.08] text-slate-100 placeholder:text-slate-500 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition w-full";
@@ -190,12 +211,24 @@ export default function ProfilePage() {
                       </div>
                     ))}
                   </div>
-                  <button
-                    onClick={() => setEditing(true)}
-                    className="mt-2 self-start px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition"
-                  >
-                    Edit Profile
-                  </button>
+                  <div className="flex gap-3 mt-2">
+                    <button
+                      onClick={() => setEditing(true)}
+                      className="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition"
+                    >
+                      Edit Profile
+                    </button>
+
+                    {profile.role === "camper" && (
+                      <button
+                        onClick={handleBecomeOwner}
+                        disabled={becomingOwner}
+                        className="px-4 py-2 rounded-lg bg-white/5 border border-white/[0.08] text-slate-300 text-sm font-medium hover:bg-white/10 transition disabled:opacity-50"
+                      >
+                        {becomingOwner ? "Upgrading..." : "Become an Owner"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
