@@ -309,7 +309,7 @@ export default function CampsiteDetailPage() {
                 <textarea
                   value={reviewComment}
                   onChange={(e) => setReviewComment(e.target.value)}
-                  placeholder="Share you experience..."
+                  placeholder="Share your experience..."
                   rows={3}
                   className="bg-[#0a0e17] border border-white/[0.08] rounded-lg p-3 text-sm text-slate-300 placeholder:text-slate-600 outline-none focus:border-orange-500/40 transition resize-none"
                 />

@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 
@@ -16,8 +15,8 @@ export default function Navbar() {
     const user = session?.user;
 
     return (
-        <nav className="fixed top-0 left-0 right-0 h-[72px] flex items-center justify-between px-12 bg-[rgba(10,14,23,0.85)] backdrop-blur-x1 border-b border-white/[0.08] z-[1000]">
-        
+        <nav className="fixed top-0 left-0 right-0 h-[72px] flex items-center justify-between px-12 bg-[rgba(10,14,23,0.85)] backdrop-blur-xl border-b border-white/[0.08] z-[1000]">
+
             {/* Logo */}
             <Link href="/">
                 <img

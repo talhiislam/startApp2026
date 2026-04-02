@@ -36,13 +36,16 @@ const tabs = ["Bookings", "Saved", "Notes"];
 const NOTES_KEY = "sahatour_trip_notes";
 
 export default function TripsPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("Bookings");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [savedSites, setSavedSites] = useState<PopulatedSite[]>([]);
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem(NOTES_KEY) ?? "";
+  });
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -53,6 +56,8 @@ export default function TripsPage() {
   }, [status, router]);
 
   useEffect(() => {
+    if (status !== "authenticated") return;
+
     fetch("/api/bookings")
       .then((r) => r.json())
       .then((d) => {
@@ -66,9 +71,7 @@ export default function TripsPage() {
         if (d.success) setSavedSites(d.data);
       })
       .finally(() => setLoadingSaved(false));
-
-    setNotes(localStorage.getItem(NOTES_KEY) ?? "");
-  }, []);
+  }, [status]);
 
   async function handleCancel(bookingId: string) {
     setCancellingId(bookingId);
