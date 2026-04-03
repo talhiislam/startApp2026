@@ -106,7 +106,7 @@ export default function Signup() {
           onClick={() => signIn("google", { callbackUrl: "/" })}
           className="flex items-center justify-center gap-3 bg-white/5 border border-white/[0.08] text-slate-300 p-3 rounded-lg hover:bg-white/10 transition"
         >
-          <img src="https://www.google.com/favicon.ico" className="w-4 h-4" />
+          <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="Google" />
           Continue with Google
         </button>
 

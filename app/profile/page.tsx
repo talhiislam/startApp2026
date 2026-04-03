@@ -24,7 +24,7 @@ const roleColors = {
 }
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  useSession();
   const [activeTab, setActiveTab] = useState("Profile Info");
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editing, setEditing] = useState(false);
