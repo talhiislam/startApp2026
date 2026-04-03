@@ -24,7 +24,7 @@ const roleColors = {
 }
 
 export default function ProfilePage() {
-  useSession();
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("Profile Info");
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editing, setEditing] = useState(false);
@@ -129,6 +129,8 @@ export default function ProfilePage() {
 
   
 
+  const avatarSrc = profile?.avatar || session?.user?.avatar;
+
   if (!profile) return (
     <div className="flex items-center justify-center h-64 text-slate-400">Loading...</div>
   );
@@ -140,8 +142,8 @@ export default function ProfilePage() {
       <Card className="p-6 flex items-center gap-6">
         {/* Avatar */}
         <div className="w-20 h-20 rounded-full bg-orange-500 flex items-center justify-center text-white text-3xl font-bold shrink-0">
-          {profile.avatar ? (
-            <img src={profile.avatar} alt="avatar" className="w-full h-full rounded-full object-cover" />
+          {avatarSrc ? (
+            <img src={avatarSrc} alt="avatar" className="w-full h-full rounded-full object-cover" />
           ) : (
             profile.username[0].toUpperCase()
           )}

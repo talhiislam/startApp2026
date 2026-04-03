@@ -8,6 +8,7 @@ import Footer from "@/components/Footer"
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  variable: "--font-poppins",
 });
 
 export const playfair = Playfair_Display({
@@ -18,8 +19,8 @@ export const playfair = Playfair_Display({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${poppins.className} ${playfair.variable}`}>
-      <body className="antialiased">
+    <html lang="en" className={`${poppins.variable} ${playfair.variable}`}>
+      <body className="antialiased font-sans">
         <Providers>
           <Navbar />
           <main className="pt-[72px] min-h-screen bg-[#0a0e17]">

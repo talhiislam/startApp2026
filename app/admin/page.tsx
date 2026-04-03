@@ -24,6 +24,7 @@ type AdminUser = {
   username: string;
   email: string;
   role: "camper" | "owner" | "admin";
+  avatar?: string;
   createdAt: string;
 };
 
@@ -339,8 +340,16 @@ export default function AdminPage() {
                     className="flex items-center justify-between gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                        {u.username[0].toUpperCase()}
+                      <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
+                        {u.avatar ? (
+                          <img
+                            src={u.avatar}
+                            alt={`${u.username} avatar`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          u.username[0].toUpperCase()
+                        )}
                       </div>
                       <div className="flex flex-col gap-0.5">
                         <p className="text-slate-200 text-sm font-medium">

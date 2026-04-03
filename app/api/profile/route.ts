@@ -12,12 +12,18 @@ export async function GET() {
     );
     
     await connectToDatabase();
-    const user = await User.findOne({ username: session.user.username }).select("-password");
+    const user = await User.findById(session.user.id).select("-password");
 
     if (!user) return NextResponse.json(
         { error: "User not found" },
         { status: 404 }
     );
+
+    // Backfill avatar from auth session (e.g. Google picture) if DB is missing it.
+    if (!user.avatar && session.user.avatar) {
+        user.avatar = session.user.avatar;
+        await user.save();
+    }
 
     return NextResponse.json(user);
 }
@@ -32,8 +38,8 @@ export async function PUT(req: NextRequest) {
     const { fullName, phone, city, dateOfBirth } = await req.json();
 
     await connectToDatabase();
-    const user = await User.findOneAndUpdate(
-        { username: session.user.username },
+    const user = await User.findByIdAndUpdate(
+        session.user.id,
         { fullName, phone, city, dateOfBirth },
         { new: true }
     ).select("-password");

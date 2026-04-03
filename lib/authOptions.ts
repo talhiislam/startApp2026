@@ -50,12 +50,19 @@ export const authOptions: NextAuthOptions = {
 
                 await connectToDatabase();
                 const existing = await User.findOne({ email: user.email });
+
                 if (!existing) {
                     await User.create({
                         email: user.email,
-                        username: user.name?.replace(/\s+/g, "").toLowerCase() ?? user.email?.split("@")[0],
+                        username:
+                            user.name?.replace(/\s+/g, "").toLowerCase() ??
+                            user.email?.split("@")[0],
                         role: "camper",
+                        avatar: user.image ?? undefined,
                     });
+                } else if (user.image && existing.avatar !== user.image) {
+                    existing.avatar = user.image ?? undefined;
+                    await existing.save();
                 }
             }
             return true;
@@ -77,7 +84,7 @@ export const authOptions: NextAuthOptions = {
                     token.id = dbUser._id.toString();
                     token.username = dbUser.username;
                     token.role = dbUser.role;
-                    token.avatar = dbUser.avatar;
+                    token.avatar = dbUser.avatar || token.avatar;
                     token.city = dbUser.city;
                 }
             }
@@ -88,7 +95,8 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.id as string;
                 session.user.username = token.username as string;
                 session.user.role = token.role as "camper" | "owner" | "admin";
-                session.user.avatar = token.avatar as string;
+                session.user.avatar =
+                    (token.avatar as string) || (token.picture as string);
                 session.user.city = token.city as string;
             }
             return session;
