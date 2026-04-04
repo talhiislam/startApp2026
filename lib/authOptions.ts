@@ -75,6 +75,7 @@ export const authOptions: NextAuthOptions = {
                 token.role = u.role;
                 token.avatar = u.avatar;
                 token.city = u.city;
+                return token;
             }
 
             if (token.email) {
@@ -97,6 +98,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.role = token.role as "camper" | "owner" | "admin";
                 session.user.avatar =
                     (token.avatar as string) || (token.picture as string);
+                session.user.image = session.user.avatar || null;
                 session.user.city = token.city as string;
             }
             return session;

@@ -20,8 +20,9 @@ export async function GET() {
     );
 
     // Backfill avatar from auth session (e.g. Google picture) if DB is missing it.
-    if (!user.avatar && session.user.avatar) {
-        user.avatar = session.user.avatar;
+    const sessionAvatar = session.user.avatar || session.user.image;
+    if (!user.avatar && sessionAvatar) {
+        user.avatar = sessionAvatar;
         await user.save();
     }
 

@@ -11,6 +11,7 @@ interface CampsiteFilter {
         $gte?: number;
         $lte?: number;
     };
+    $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
 }
 
 export async function GET(req: NextRequest) {
@@ -24,6 +25,7 @@ export async function GET(req: NextRequest) {
         const type = searchParams.get("type");
         const minPrice = searchParams.get("minPrice");
         const maxPrice = searchParams.get("maxPrice");
+        const search = searchParams.get("search");
 
         const filter: CampsiteFilter = { isApproved: true}
 
@@ -34,6 +36,13 @@ export async function GET(req: NextRequest) {
             filter.pricePerNight = {};
             if (minPrice) filter.pricePerNight.$gte = Number(minPrice);
             if (maxPrice) filter.pricePerNight.$lte = Number(maxPrice);
+        }
+        if (search) {
+            filter.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { wilaya: { $regex: search, $options: "i" } },
+                { region: { $regex: search, $options: "i" } },
+            ];
         }
 
         const campsites = await CampingSite.find(filter).sort({ createdAt: -1 });

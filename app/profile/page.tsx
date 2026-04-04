@@ -43,6 +43,12 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
 
   const [becomingOwner, setBecomingOwner] = useState(false);
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+  const [stats, setStats] = useState({
+    tripsPlanned: 0,
+    tripsCompleted: 0,
+    campsitesSaved: 0,
+  });
 
   useEffect(() => {
     fetch("/api/profile")
@@ -55,6 +61,12 @@ export default function ProfilePage() {
           city: data.city ?? "",
           dateOfBirth: data.dateOfBirth ? data.dateOfBirth.split("T")[0] : "",
         });
+      });
+    
+    fetch("/api/profile/stats")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setStats(data.data);
       });
   }, []);
 
@@ -129,7 +141,7 @@ export default function ProfilePage() {
 
   
 
-  const avatarSrc = profile?.avatar || session?.user?.avatar;
+  const avatarSrc = profile?.avatar || session?.user?.avatar || session?.user?.image || "";
 
   if (!profile) return (
     <div className="flex items-center justify-center h-64 text-slate-400">Loading...</div>
@@ -142,8 +154,13 @@ export default function ProfilePage() {
       <Card className="p-6 flex items-center gap-6">
         {/* Avatar */}
         <div className="w-20 h-20 rounded-full bg-orange-500 flex items-center justify-center text-white text-3xl font-bold shrink-0">
-          {avatarSrc ? (
-            <img src={avatarSrc} alt="avatar" className="w-full h-full rounded-full object-cover" />
+          {avatarSrc && !avatarLoadFailed ? (
+            <img
+              src={avatarSrc}
+              alt="avatar"
+              className="w-full h-full rounded-full object-cover"
+              onError={() => setAvatarLoadFailed(true)}
+            />
           ) : (
             profile.username[0].toUpperCase()
           )}
@@ -272,9 +289,9 @@ export default function ProfilePage() {
               <h2 className="text-slate-100 font-semibold text-lg tracking-tight">Your Stats</h2>
               <div className="grid grid-cols-3 gap-4">
                 {[
-                  { label: "Trips Planned", value: "0" },
-                  { label: "Trips Completed", value: "0"},
-                  { label: "Campsites Saved", value: "0"},
+                  { label: "Trips Planned", value: stats.tripsPlanned },
+                  { label: "Trips Completed", value: stats.tripsCompleted },
+                  { label: "Campsites Saved", value: stats.campsitesSaved },
                 ].map(({ label, value }) => (
                   <div key={label} className="flex flex-col items-center justify-center bg-white/5 rounded-xl p-6 gap-2">
                     <span className="text-3xl font-bold text-orange-500">{value}</span>
