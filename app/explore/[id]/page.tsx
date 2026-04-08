@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { type Campsite, typeColors } from "@/types/campsite";
+import dynamic from "next/dynamic";
+
+const CampsiteMap = dynamic(() => import("@/components/CampsiteMap"), { ssr: false });
 
 type Review = {
   _id: string;
@@ -276,6 +279,33 @@ export default function CampsiteDetailPage() {
           </div>
 
           <div className="h-px bg-white/[0.06]" />
+
+          {campsite.coordinates?.lat && (
+            <>
+              <div className="flex flex-col gap-3">
+                <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+                  Location
+                </p>
+                <div className="h-64 rounded-xl overflow-hidden border border-white/[0.08]">
+                  <CampsiteMap
+                    lat={campsite.coordinates.lat}
+                    lng={campsite.coordinates.lng}
+                    name={campsite.name}
+                  />
+                </div>
+                <a
+                  href={`https://www.google.com/maps?q=${campsite.coordinates.lat},${campsite.coordinates.lng}`}
+                  target="_blank"
+                  rel="noopener noreferre"
+                  className="text-xs text-slate-500 hover:text-orange-500 transition w-fit"
+                >
+                  Open in Google Maps →
+                </a>
+              </div>
+
+              <div className="h-px bg-white/[0.06]" />
+            </>
+          )}
 
           <div className="flex flex-col gap-6">
             <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">

@@ -43,7 +43,7 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
 
   const [becomingOwner, setBecomingOwner] = useState(false);
-  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+  const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
   const [stats, setStats] = useState({
     tripsPlanned: 0,
     tripsCompleted: 0,
@@ -142,6 +142,8 @@ export default function ProfilePage() {
   
 
   const avatarSrc = profile?.avatar || session?.user?.avatar || session?.user?.image || "";
+  const proxiedAvatarSrc = avatarSrc ? "/api/profile/avatar" : "";
+  const showAvatar = Boolean(proxiedAvatarSrc) && failedAvatarSrc !== proxiedAvatarSrc;
 
   if (!profile) return (
     <div className="flex items-center justify-center h-64 text-slate-400">Loading...</div>
@@ -154,12 +156,12 @@ export default function ProfilePage() {
       <Card className="p-6 flex items-center gap-6">
         {/* Avatar */}
         <div className="w-20 h-20 rounded-full bg-orange-500 flex items-center justify-center text-white text-3xl font-bold shrink-0">
-          {avatarSrc && !avatarLoadFailed ? (
+          {showAvatar ? (
             <img
-              src={avatarSrc}
+              src={proxiedAvatarSrc}
               alt="avatar"
               className="w-full h-full rounded-full object-cover"
-              onError={() => setAvatarLoadFailed(true)}
+              onError={() => setFailedAvatarSrc(proxiedAvatarSrc)}
             />
           ) : (
             profile.username[0].toUpperCase()

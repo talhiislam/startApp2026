@@ -4,12 +4,18 @@ import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 import type { NextAuthOptions, User as NextAuthUser } from "next-auth";
+import type { Profile } from "next-auth";
 
 interface AuthUser extends NextAuthUser {
     username: string;
     role: "camper" | "owner" | "admin";
     avatar?: string;
     city?: string;
+}
+
+function getProfilePicture(profile?: Profile) {
+    const picture = (profile as { picture?: unknown } | undefined)?.picture;
+    return typeof picture === "string" ? picture : undefined;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -41,12 +47,24 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            profile(profile) {
+                return {
+                    id: profile.sub,
+                    name: profile.name,
+                    email: profile.email,
+                    image:
+                        typeof profile.picture === "string"
+                            ? profile.picture
+                            : null,
+                };
+            },
         }),
     ],
     callbacks: {
-        async signIn({ user, account }) {
+        async signIn({ user, account, profile }) {
             if (account?.provider === "google") {
                 if (!user.email) return false;
+                const googleAvatar = user.image || getProfilePicture(profile);
 
                 await connectToDatabase();
                 const existing = await User.findOne({ email: user.email });
@@ -58,24 +76,36 @@ export const authOptions: NextAuthOptions = {
                             user.name?.replace(/\s+/g, "").toLowerCase() ??
                             user.email?.split("@")[0],
                         role: "camper",
-                        avatar: user.image ?? undefined,
+                        avatar: googleAvatar,
                     });
-                } else if (user.image && existing.avatar !== user.image) {
-                    existing.avatar = user.image ?? undefined;
+                } else if (googleAvatar && existing.avatar !== googleAvatar) {
+                    existing.avatar = googleAvatar;
                     await existing.save();
                 }
             }
             return true;
         },
-        async jwt({ token, user }) {
+        async jwt({ token, user, account, profile }) {
             if (user) {
-                const u = user as AuthUser;
-                token.id = u.id;
-                token.username = u.username;
-                token.role = u.role;
-                token.avatar = u.avatar;
-                token.city = u.city;
-                return token;
+                token.email = user.email ?? token.email;
+                token.name = user.name ?? token.name;
+                token.picture =
+                    user.image ??
+                    getProfilePicture(profile) ??
+                    (typeof token.picture === "string" ? token.picture : undefined);
+                token.avatar =
+                    token.avatar ||
+                    (typeof token.picture === "string" ? token.picture : undefined);
+
+                if (account?.provider !== "google") {
+                    const u = user as AuthUser;
+                    token.id = u.id;
+                    token.username = u.username;
+                    token.role = u.role;
+                    token.avatar = u.avatar;
+                    token.city = u.city;
+                    return token;
+                }
             }
 
             if (token.email) {
@@ -85,7 +115,10 @@ export const authOptions: NextAuthOptions = {
                     token.id = dbUser._id.toString();
                     token.username = dbUser.username;
                     token.role = dbUser.role;
-                    token.avatar = dbUser.avatar || token.avatar;
+                    token.avatar =
+                        dbUser.avatar ||
+                        token.avatar ||
+                        (typeof token.picture === "string" ? token.picture : undefined);
                     token.city = dbUser.city;
                 }
             }
@@ -94,8 +127,11 @@ export const authOptions: NextAuthOptions = {
         async session({ session, token }) {
             if (session.user) {
                 session.user.id = token.id as string;
-                session.user.username = token.username as string;
-                session.user.role = token.role as "camper" | "owner" | "admin";
+                session.user.username =
+                    (token.username as string) ||
+                    session.user.name?.replace(/\s+/g, "").toLowerCase() ||
+                    "";
+                session.user.role = (token.role as "camper" | "owner" | "admin") || "camper";
                 session.user.avatar =
                     (token.avatar as string) || (token.picture as string);
                 session.user.image = session.user.avatar || null;

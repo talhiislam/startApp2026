@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { type Campsite } from "@/types/campsite";
+import dynamic from "next/dynamic";
+
 import CampsiteCard from "@/components/CampsiteCard";
 
 const regions = ["sahara", "kabylie", "hoggar", "coastal", "other"];
@@ -12,6 +14,7 @@ const prices = [
   { label: "Up to 3500 DZD", value: "3500" },
   { label: "Up to 5000 DZD", value: "5000" },
 ];
+const ExploreMap = dynamic(() => import("@/components/ExploreMap"), { ssr: false });
 
 export default function ExplorePage() {
   const [campsites, setCampsites] = useState<Campsite[]>([]);
@@ -23,6 +26,7 @@ export default function ExplorePage() {
   const [region, setRegion] = useState("");
   const [type, setType] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [view, setView] = useState<"grid" | "map">("grid");
 
   const hasActiveFilters = region !== "" || type !== "" || maxPrice !== "";
 
@@ -98,6 +102,16 @@ export default function ExplorePage() {
           {hasActiveFilters && (
             <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
           )}
+        </button>
+        <button
+          onClick={() => setView((v) => v === "grid" ? "map" : "grid")}
+          className={`flex items-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 text-sm transition ${
+            view === "map"
+              ? "border-orange-500/40 text-orange-400"
+              : "border-white/[0.08] text-slate-400 hover:text-slate-200"
+          }`}
+        >
+          {view === "grid" ? "🗺 Map view" : "⊞ Grid view"}
         </button>
       </div>
 
@@ -193,13 +207,19 @@ export default function ExplorePage() {
       </div>
 
       {/* Result count */}
-      <p className="text-slate-500 text-sm">
-        <span className="text-slate-300 font-medium">{campsites.length}</span>{" "}
-        campsites found
-      </p>
+      {view === "grid" && (
+        <p className="text-slate-500 text-sm">
+          <span className="text-slate-300 font-medium">{campsites.length}</span>{" "}
+          campsites found
+        </p>
+      )}
 
-      {/* Grid */}
-      {loading ? (
+      {/* Grid or Map */}
+      {view === "map" ? (
+        <div style={{ height: "calc(100vh - 260px)" }} className="rounded-2xl overflow-hidden border border-white/[0.08]">
+          <ExploreMap campsites={campsites} />
+        </div>
+      ) : loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div

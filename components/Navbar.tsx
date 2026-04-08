@@ -15,8 +15,14 @@ export default function Navbar() {
     const { data: session, status } = useSession();
 
     const [open, setOpen] = useState(false);
+    const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
 
     const user = session?.user;
+    const avatarSrc = user?.id
+        ? "/api/profile/avatar"
+        : user?.avatar || user?.image || "/default-avatar.png";
+    const visibleAvatarSrc =
+        failedAvatarSrc === avatarSrc ? "/default-avatar.png" : avatarSrc;
 
     const menuRef = useRef<HTMLLIElement | null>(null);
 
@@ -82,10 +88,11 @@ export default function Navbar() {
                             className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all duration-300"
                         >
                             <img
-                                src={user.avatar || user.image || "/default-avatar.png"}
+                                src={visibleAvatarSrc}
                                 alt="avatar"
                                 className="w-8 h-8 rounded-full object-cover"
                                 onError={(e) => {
+                                    setFailedAvatarSrc(avatarSrc);
                                     e.currentTarget.src = "/default-avatar.png";
                                 }}
                             />

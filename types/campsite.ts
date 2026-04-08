@@ -10,6 +10,10 @@ export type Campsite = {
     amenities: string[];
     averageRating: number;
     reviewCount: number;
+    coordinates?: {
+        lat: number;
+        lng: number;
+    };
 };
 
 export const typeColors: Record<Campsite["type"], string> = {
