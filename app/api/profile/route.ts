@@ -36,12 +36,12 @@ export async function PUT(req: NextRequest) {
         { status: 401 },
     );
 
-    const { fullName, phone, city, dateOfBirth } = await req.json();
+    const { fullName, phone, city, dateOfBirth, avatar } = await req.json();
 
     await connectToDatabase();
     const user = await User.findByIdAndUpdate(
         session.user.id,
-        { fullName, phone, city, dateOfBirth },
+        { fullName, phone, city, dateOfBirth, avatar },
         { new: true }
     ).select("-password");
 

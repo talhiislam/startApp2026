@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
 
 import Card from "@/components/Card";
 import { type Campsite, typeColors, typeLabels } from "@/types/campsite";
@@ -76,6 +77,9 @@ export default function DashboardPage() {
   const [processingBookingId, setProcessingBookingId] = useState<string | null>(
     null,
   );
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/login");
@@ -132,9 +136,57 @@ export default function DashboardPage() {
     setProcessingBookingId(null);
   }
 
+  async function handleImageUploading(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.currentTarget;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+
+    setUploadingImages(true);
+    setUploadProgress(0);
+    setError("");
+    setSuccess("");
+    const urls: string[] = [];
+    const failedFiles: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        const url = await uploadToCloudinary(file, (percent) => {
+          const filesDoneProgress = (i / files.length) * 100;
+          const thisFileProgress = percent / files.length;
+          setUploadProgress(Math.round(filesDoneProgress + thisFileProgress));
+        });
+        urls.push(url);
+      } catch (err) {
+        failedFiles.push(
+          `${file.name}: ${err instanceof Error ? err.message : "please try again"}`,
+        );
+      }
+    }
+
+    if (urls.length > 0) {
+      setUploadProgress(100);
+      setUploadedImages((prev) => [...prev, ...urls]);
+      setSuccess(
+        `${urls.length} image${urls.length > 1 ? "s" : ""} uploaded successfully.`,
+      );
+    }
+
+    if (failedFiles.length > 0) {
+      setError(`Some uploads failed: ${failedFiles.join(" | ")}`);
+    }
+
+    setTimeout(() => {
+      setUploadingImages(false);
+      setUploadProgress(0);
+      input.value = "";
+    }, urls.length > 0 ? 600 : 0);
+  }
+
   function openCreate() {
     setEditingId(null);
     setForm(emptyForm);
+    setUploadedImages([]);
     setError("");
     setSuccess("");
     setShowForm(true);
@@ -150,12 +202,13 @@ export default function DashboardPage() {
       type: c.type,
       pricePerNight: String(c.pricePerNight),
       amenities: c.amenities.join(", "),
-      images: c.images.join(", "),
+      images: "",
       coordinates: {
         lat: c.coordinates?.lat ?? 28.0339,
         lng: c.coordinates?.lng ?? 1.6596,
       },
     });
+    setUploadedImages(c.images);
     setError("");
     setSuccess("");
     setShowForm(true);
@@ -165,6 +218,7 @@ export default function DashboardPage() {
     setShowForm(false);
     setEditingId(null);
     setForm(emptyForm);
+    setUploadedImages([]);
     setError("");
   }
 
@@ -184,10 +238,7 @@ export default function DashboardPage() {
         .split(",")
         .map((a) => a.trim())
         .filter(Boolean),
-      images: form.images
-        .split(",")
-        .map((i) => i.trim())
-        .filter(Boolean),
+      images: uploadedImages,
       coordinates: form.coordinates,
     };
 
@@ -249,7 +300,6 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
           <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
@@ -270,14 +320,12 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* Success message */}
       {success && (
         <p className="text-green-400 text-sm bg-green-400/10 px-4 py-3 rounded-lg">
           {success}
         </p>
       )}
 
-      {/* Form */}
       {showForm && (
         <Card className="p-6 flex flex-col gap-5">
           <div className="flex items-center justify-between">
@@ -288,7 +336,7 @@ export default function DashboardPage() {
               onClick={closeForm}
               className="text-slate-500 hover:text-slate-300 transition text-lg"
             >
-              ✕
+              x
             </button>
           </div>
 
@@ -374,15 +422,65 @@ export default function DashboardPage() {
                 placeholder="e.g. Bonfire, Parking, Showers"
               />
             </div>
-            <div className="flex flex-col col-span-2">
-              <label className={labelClass}>Image URLs (comma separated)</label>
-              <input
-                className={inputClass}
-                value={form.images}
-                onChange={(e) => setForm({ ...form, images: e.target.value })}
-                placeholder="https://... , https://..."
-              />
+            <div className="flex flex-col col-span-2 gap-2">
+              <label className={labelClass}>Images</label>
+
+              {uploadedImages.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {uploadedImages.map((url, i) => (
+                    <div
+                      key={i}
+                      className="relative w-20 h-20 rounded-lg overflow-hidden group"
+                    >
+                      <img
+                        src={url}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setUploadedImages((prev) =>
+                            prev.filter((_, j) => j !== i),
+                          )
+                        }
+                        className="absolute inset-0 bg-black/60 text-white text-xs opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                      >
+                        x
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <label
+                className={`flex flex-col gap-2 cursor-pointer w-fit ${uploadingImages ? "cursor-not-allowed" : ""}`}
+              >
+                <div className="flex items-center gap-2 bg-white/5 border border-white/[0.08] hover:bg-white/10 transition px-4 py-2.5 rounded-lg text-sm text-slate-400">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleImageUploading}
+                    disabled={uploadingImages}
+                  />
+                  {uploadingImages
+                    ? `Uploading... ${uploadProgress}%`
+                    : "Upload Images"}
+                </div>
+
+                {uploadingImages && (
+                  <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-orange-500 rounded-full transition-all duration-200"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                )}
+              </label>
             </div>
+
             <div className="flex flex-col col-span-2">
               <label className={labelClass}>Location</label>
               <MapPicker
@@ -422,16 +520,15 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {/* Campsites list */}
       {campsites.length === 0 ? (
         <Card className="p-12 flex flex-col items-center gap-3 text-center">
-          <span className="text-4xl">🏕️</span>
+          <span className="text-4xl">No campsites</span>
           <p className="text-slate-400 text-sm">No campsites yet.</p>
           <button
             onClick={openCreate}
             className="text-orange-500 text-sm hover:underline"
           >
-            Create your first campsite →
+            Create your first campsite -&gt;
           </button>
         </Card>
       ) : (
@@ -443,9 +540,7 @@ export default function DashboardPage() {
 
             return (
               <Card key={c._id} className="overflow-hidden">
-                {/* Campsite row */}
                 <div className="p-5 flex gap-5 items-start">
-                  {/* Image */}
                   <div className="w-28 h-20 rounded-xl overflow-hidden shrink-0">
                     <img
                       src={c.images[0] ?? ""}
@@ -454,7 +549,6 @@ export default function DashboardPage() {
                     />
                   </div>
 
-                  {/* Info */}
                   <div className="flex flex-col gap-1 flex-1">
                     <div className="flex items-center gap-2">
                       <p className="text-slate-100 font-medium">{c.name}</p>
@@ -474,14 +568,13 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <p className="text-slate-500 text-xs">
-                      📍 {c.wilaya}, {c.region}
+                      {c.wilaya}, {c.region}
                     </p>
                     <p className="text-orange-400 text-sm font-medium">
                       {c.pricePerNight.toLocaleString()} DZD / night
                     </p>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex gap-2 shrink-0 items-center">
                     <button
                       onClick={() => router.push(`/explore/${c._id}`)}
@@ -503,7 +596,6 @@ export default function DashboardPage() {
                       {deletingId === c._id ? "Deleting..." : "Delete"}
                     </button>
 
-                    {/* Bookings toggle */}
                     <button
                       onClick={() =>
                         setExpandedSiteId(isExpanded ? null : c._id)
@@ -527,13 +619,12 @@ export default function DashboardPage() {
                       <span
                         className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
                       >
-                        ▾
+                        v
                       </span>
                     </button>
                   </div>
                 </div>
 
-                {/* Bookings drawer */}
                 <div
                   className={`overflow-hidden transition-all duration-300 ${
                     isExpanded
@@ -543,7 +634,7 @@ export default function DashboardPage() {
                 >
                   <div className="border-t border-white/[0.06] px-5 py-4 flex flex-col gap-3">
                     <p className="text-xs text-slate-500 uppercase tracking-widest font-medium">
-                      Bookings — {siteBookings.length} total
+                      Bookings - {siteBookings.length} total
                     </p>
 
                     {siteBookings.map((booking) => (
@@ -551,7 +642,6 @@ export default function DashboardPage() {
                         key={booking._id}
                         className="flex items-center justify-between gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3"
                       >
-                        {/* Guest info */}
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
                             {booking.user.avatar ? (
@@ -572,7 +662,7 @@ export default function DashboardPage() {
                               {new Date(booking.checkIn).toLocaleDateString(
                                 "en-GB",
                               )}{" "}
-                              →{" "}
+                              -&gt;{" "}
                               {new Date(booking.checkOut).toLocaleDateString(
                                 "en-GB",
                               )}{" "}
@@ -582,7 +672,6 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        {/* Price + status + actions */}
                         <div className="flex items-center gap-3 shrink-0">
                           <span className="text-orange-400 text-sm font-medium">
                             {booking.totalPrice.toLocaleString()} DZD
