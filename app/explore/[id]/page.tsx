@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { type Campsite, typeColors } from "@/types/campsite";
-import dynamic from "next/dynamic";
-
-const CampsiteMap = dynamic(() => import("@/components/CampsiteMap"), { ssr: false });
 
 type Review = {
   _id: string;
@@ -15,6 +12,77 @@ type Review = {
   comment: string;
   createdAt: string;
 };
+
+function CampsiteGallery({
+  images,
+  name,
+  type,
+}: {
+  images: string[];
+  name: string;
+  type: Campsite["type"];
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  if (images.length === 0) {
+    return (
+      <div className="relative w-full h-80 rounded-2xl overflow-hidden bg-[#111827] flex items-center justify-center">
+        <span className="text-slate-600 text-sm">No images available</span>
+        <span
+          className={`absolute top-4 left-4 text-xs font-medium px-3 py-1 rounded-full capitalize ${typeColors[type]}`}
+        >
+          {type}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {/* Main image */}
+      <div className="relative w-full h-80 rounded-2xl overflow-hidden">
+        <img
+          src={images[activeIndex]}
+          alt={`${name} — image ${activeIndex + 1}`}
+          className="w-full h-full object-cover transition-opacity duration-200"
+        />
+        <span
+          className={`absolute top-4 left-4 text-xs font-medium px-3 py-1 rounded-full capitalize ${typeColors[type]}`}
+        >
+          {type}
+        </span>
+        {images.length > 1 && (
+          <span className="absolute bottom-3 right-3 text-xs text-white bg-black/60 px-2.5 py-1 rounded-full">
+            {activeIndex + 1} / {images.length}
+          </span>
+        )}
+      </div>
+
+      {/* Thumbnail strip — only rendered when there are multiple images */}
+      {images.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {images.map((src, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIndex(i)}
+              className={`shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-150 focus:outline-none ${
+                i === activeIndex
+                  ? "border-orange-500"
+                  : "border-transparent opacity-60 hover:opacity-90"
+              }`}
+            >
+              <img
+                src={src}
+                alt={`${name} thumbnail ${i + 1}`}
+                className="w-full h-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function CampsiteDetailPage() {
   const { id } = useParams();
@@ -91,8 +159,8 @@ export default function CampsiteDetailPage() {
         if (session) {
           setHasReviewed(
             data.data.some(
-              (r: Review) => r.user.username === session.user.username
-            )
+              (r: Review) => r.user.username === session.user.username,
+            ),
           );
         }
       }
@@ -165,20 +233,19 @@ export default function CampsiteDetailPage() {
     setHasReviewed(true);
     setReviewRating(0);
     setReviewComment("");
-    // Update campsite rating display
     setCampsite((prev) =>
       prev
         ? {
-          ...prev,
-          reviewCount: prev.reviewCount + 1,
-          averageRating:
-            Math.round(
-              ((prev.averageRating * prev.reviewCount + reviewRating) /
-                (prev.reviewCount + 1)) *
-                10
-            ) / 10,
+            ...prev,
+            reviewCount: prev.reviewCount + 1,
+            averageRating:
+              Math.round(
+                ((prev.averageRating * prev.reviewCount + reviewRating) /
+                  (prev.reviewCount + 1)) *
+                  10,
+              ) / 10,
           }
-        : prev
+        : prev,
     );
   }
 
@@ -206,19 +273,12 @@ export default function CampsiteDetailPage() {
         ← Back to Explore
       </button>
 
-      {/* Hero image */}
-      <div className="relative w-full h-80 rounded-2xl overflow-hidden">
-        <img
-          src={campsite.images[0] ?? ""}
-          alt={campsite.name}
-          className="w-full h-full object-cover"
-        />
-        <span
-          className={`absolute top-4 left-4 text-xs font-medium px-3 py-1 rounded-full capitalize ${typeColors[campsite.type]}`}
-        >
-          {campsite.type}
-        </span>
-      </div>
+      {/* Gallery */}
+      <CampsiteGallery
+        images={campsite.images}
+        name={campsite.name}
+        type={campsite.type}
+      />
 
       {/* Body */}
       <div className="flex gap-10 items-start">
@@ -280,44 +340,18 @@ export default function CampsiteDetailPage() {
 
           <div className="h-px bg-white/[0.06]" />
 
-          {campsite.coordinates?.lat && (
-            <>
-              <div className="flex flex-col gap-3">
-                <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
-                  Location
-                </p>
-                <div className="h-64 rounded-xl overflow-hidden border border-white/[0.08]">
-                  <CampsiteMap
-                    lat={campsite.coordinates.lat}
-                    lng={campsite.coordinates.lng}
-                    name={campsite.name}
-                  />
-                </div>
-                <a
-                  href={`https://www.google.com/maps?q=${campsite.coordinates.lat},${campsite.coordinates.lng}`}
-                  target="_blank"
-                  rel="noopener noreferre"
-                  className="text-xs text-slate-500 hover:text-orange-500 transition w-fit"
-                >
-                  Open in Google Maps →
-                </a>
-              </div>
-
-              <div className="h-px bg-white/[0.06]" />
-            </>
-          )}
-
           <div className="flex flex-col gap-6">
             <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
               Reviews
             </p>
-            
+
             {/* Write a review */}
             {session && !hasReviewed && (
               <div className="flex flex-col gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
-                <p className="text-sm text-slate-300 font-medium">Write a Review</p>
+                <p className="text-sm text-slate-300 font-medium">
+                  Write a Review
+                </p>
 
-                {/* Star picker */}
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -378,7 +412,6 @@ export default function CampsiteDetailPage() {
               </p>
             )}
 
-            {/* Review list */}
             {loadingReviews ? (
               <p className="text-slate-500 text-sm">Loading reviews...</p>
             ) : reviews.length === 0 ? (
@@ -409,11 +442,14 @@ export default function CampsiteDetailPage() {
                           </span>
                         </span>
                         <span className="text-slate-600 text-xs">
-                          {new Date(review.createdAt).toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          {new Date(review.createdAt).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            },
+                          )}
                         </span>
                       </div>
                     </div>
@@ -432,7 +468,6 @@ export default function CampsiteDetailPage() {
         {/* Right - Booking card */}
         <div className="w-72 shrink-0">
           <div className="relative">
-            {/* Logged-out overlay */}
             {!session && (
               <div className="absolute inset-0 z-10 rounded-2xl flex flex-col items-center justify-center gap-4 bg-[#0a0e17]/60 backdrop-blur-sm">
                 <span className="text-3xl">🔒</span>
@@ -448,7 +483,9 @@ export default function CampsiteDetailPage() {
               </div>
             )}
 
-            <div className={`bg-[#111827] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-5 ${!session ? "blur-sm pointer-events-none select-none" : ""}`}>
+            <div
+              className={`bg-[#111827] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-5 ${!session ? "blur-sm pointer-events-none select-none" : ""}`}
+            >
               <div className="flex items-baseline gap-1.5">
                 <span className="text-2xl font-bold text-orange-400">
                   {campsite.pricePerNight.toLocaleString()} DZD
@@ -476,7 +513,6 @@ export default function CampsiteDetailPage() {
                 </div>
               ) : (
                 <>
-                  {/* Dates */}
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs text-slate-500 uppercase tracking-widest">
@@ -502,7 +538,6 @@ export default function CampsiteDetailPage() {
                     </div>
                   </div>
 
-                  {/* Guests */}
                   <div className="flex items-center justify-between bg-[#0a0e17] border border-white/[0.08] rounded-lg px-3 py-2.5">
                     <span className="text-sm text-slate-400">Guests</span>
                     <div className="flex items-center gap-3">
@@ -526,7 +561,6 @@ export default function CampsiteDetailPage() {
 
                   <div className="h-px bg-white/[0.06]" />
 
-                  {/* Summary */}
                   <div className="flex flex-col gap-2">
                     {nights > 0 ? (
                       <>
