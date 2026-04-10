@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import { type Campsite, typeColors } from "@/types/campsite";
+
+const CampsiteMap = dynamic(() => import("@/components/CampsiteMap"), {
+  ssr: false,
+});
 
 type Review = {
   _id: string;
@@ -337,6 +342,28 @@ export default function CampsiteDetailPage() {
               ))}
             </div>
           </div>
+
+          {/* Location section */}
+          {campsite.coordinates?.lat && campsite.coordinates?.lng && (
+            <>
+              <div className="h-px bg-white/[0.06]" />
+              <div className="flex flex-col gap-3">
+                <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+                  Location
+                </p>
+                <div className="h-64 rounded-2xl overflow-hidden border border-white/[0.08]">
+                  <CampsiteMap
+                    lat={campsite.coordinates.lat}
+                    lng={campsite.coordinates.lng}
+                    name={campsite.name}
+                  />
+                </div>
+                <p className="text-xs text-slate-500">
+                  {campsite.wilaya}, {campsite.region}
+                </p>
+              </div>
+            </>
+          )}
 
           <div className="h-px bg-white/[0.06]" />
 
