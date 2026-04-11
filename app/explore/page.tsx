@@ -14,7 +14,21 @@ const prices = [
   { label: "Up to 3500 DZD", value: "3500" },
   { label: "Up to 5000 DZD", value: "5000" },
 ];
-const ExploreMap = dynamic(() => import("@/components/ExploreMap"), { ssr: false });
+const minPrices = [
+  { label: "Any", value: "" },
+  { label: "From 1000 DZD", value: "1000" },
+  { label: "From 2000 DZD", value: "2000" },
+  { label: "From 3500 DZD", value: "3500" },
+];
+const sortOptions = [
+  { label: "Newest", value: "newest" },
+  { label: "Top Rated", value: "rating" },
+  { label: "Price: low → high", value: "price_asc" },
+  { label: "Price: high → low", value: "price_desc" },
+];
+const ExploreMap = dynamic(() => import("@/components/ExploreMap"), {
+  ssr: false,
+});
 
 export default function ExplorePage() {
   const [campsites, setCampsites] = useState<Campsite[]>([]);
@@ -26,9 +40,12 @@ export default function ExplorePage() {
   const [region, setRegion] = useState("");
   const [type, setType] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [sort, setSort] = useState("newest");
   const [view, setView] = useState<"grid" | "map">("grid");
 
-  const hasActiveFilters = region !== "" || type !== "" || maxPrice !== "";
+  const hasActiveFilters =
+    region !== "" || type !== "" || maxPrice !== "" || minPrice !== "";
 
   // Debounce search input — waits 400ms after user stops typing
   useEffect(() => {
@@ -45,14 +62,16 @@ export default function ExplorePage() {
     if (debouncedSearch) params.set("search", debouncedSearch);
     if (region) params.set("region", region);
     if (type) params.set("type", type);
+    if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
+    if (sort !== "newest") params.set("sort", sort);
 
     const res = await fetch(`/api/campsites?${params.toString()}`);
     const data = await res.json();
 
     if (data.success) setCampsites(data.data);
     setLoading(false);
-  }, [debouncedSearch, region, type, maxPrice]);
+  }, [debouncedSearch, region, type, minPrice, maxPrice, sort]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -66,6 +85,7 @@ export default function ExplorePage() {
     setRegion("");
     setType("");
     setMaxPrice("");
+    setMinPrice("");
   };
 
   return (
@@ -103,8 +123,19 @@ export default function ExplorePage() {
             <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
           )}
         </button>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-400 outline-none focus:border-orange-500/40 transition"
+        >
+          {sortOptions.map((o) => (
+            <option key={o.value} value={o.value} className="bg-[#111827]">
+              {o.label}
+            </option>
+          ))}
+        </select>
         <button
-          onClick={() => setView((v) => v === "grid" ? "map" : "grid")}
+          onClick={() => setView((v) => (v === "grid" ? "map" : "grid"))}
           className={`flex items-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 text-sm transition ${
             view === "map"
               ? "border-orange-500/40 text-orange-400"
@@ -170,6 +201,24 @@ export default function ExplorePage() {
 
           <div className="w-px self-stretch bg-white/[0.06]" />
 
+          {/* Min Price */}
+          <div className="flex flex-col gap-2">
+            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">
+              Min Price
+            </span>
+            {minPrices.map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setMinPrice(p.value)}
+                className={`text-left text-sm px-3 py-1.5 rounded-lg transition ${minPrice === p.value ? "bg-orange-500/20 text-orange-400" : "text-slate-400 hover:text-slate-200"}`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="w-px self-stretch bg-white/[0.06]" />
+
           {/* Max Price */}
           <div className="flex flex-col gap-2">
             <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">
@@ -216,7 +265,10 @@ export default function ExplorePage() {
 
       {/* Grid or Map */}
       {view === "map" ? (
-        <div style={{ height: "calc(100vh - 260px)" }} className="rounded-2xl overflow-hidden border border-white/[0.08]">
+        <div
+          style={{ height: "calc(100vh - 260px)" }}
+          className="rounded-2xl overflow-hidden border border-white/[0.08]"
+        >
           <ExploreMap campsites={campsites} />
         </div>
       ) : loading ? (

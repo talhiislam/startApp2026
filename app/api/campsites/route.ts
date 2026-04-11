@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import CampingSite from "@/models/CampingSite";
+import type { SortOrder } from "mongoose";
 
 interface CampsiteFilter {
     isApproved: boolean;
@@ -14,6 +15,13 @@ interface CampsiteFilter {
     $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
 }
 
+const sortOptions: Record<string, Record<string, SortOrder>> = {
+    newest:     { createdAt: -1 },
+    rating:     { averageRating: -1 },
+    price_asc:  { pricePerNight: 1 },
+    price_desc: { pricePerNight: -1 },
+};
+
 export async function GET(req: NextRequest) {
     try {
         await connectToDatabase();
@@ -26,8 +34,9 @@ export async function GET(req: NextRequest) {
         const minPrice = searchParams.get("minPrice");
         const maxPrice = searchParams.get("maxPrice");
         const search = searchParams.get("search");
+        const sort = searchParams.get("sort") ?? "newest";
 
-        const filter: CampsiteFilter = { isApproved: true}
+        const filter: CampsiteFilter = { isApproved: true};
 
         if (region) filter.region = region;
         if (wilaya) filter.wilaya = wilaya;
@@ -45,7 +54,8 @@ export async function GET(req: NextRequest) {
             ];
         }
 
-        const campsites = await CampingSite.find(filter).sort({ createdAt: -1 });
+        const sortQuery = sortOptions[sort] ?? sortOptions.newest;
+        const campsites = await CampingSite.find(filter).sort(sortQuery);
         return NextResponse.json({ success: true, data: campsites });
     } catch (error) {
         console.error("GET /api/campsites error:", error);

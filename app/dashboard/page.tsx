@@ -118,9 +118,23 @@ export default function DashboardPage() {
     ).length;
   }
 
+  function getSiteStats(siteId: string) {
+    const siteBookings = bookings.filter((b) => b.site._id === siteId);
+    const revenue = siteBookings
+      .filter((b) => b.status === "confirmed" || b.status === "completed")
+      .reduce((sum, b) => sum + b.totalPrice, 0);
+    const confirmed = siteBookings.filter(
+      (b) => b.status === "confirmed",
+    ).length;
+    const completed = siteBookings.filter(
+      (b) => b.status === "completed",
+    ).length;
+    return { revenue, confirmed, completed, total: siteBookings.length };
+  }
+
   async function handleBookingAction(
     bookingId: string,
-    newStatus: "confirmed" | "cancelled",
+    newStatus: "confirmed" | "cancelled" | "completed",
   ) {
     setProcessingBookingId(bookingId);
     const res = await fetch(`/api/dashboard/bookings/${bookingId}`, {
@@ -178,11 +192,14 @@ export default function DashboardPage() {
       setError(`Some uploads failed: ${failedFiles.join(" | ")}`);
     }
 
-    setTimeout(() => {
-      setUploadingImages(false);
-      setUploadProgress(0);
-      input.value = "";
-    }, urls.length > 0 ? 600 : 0);
+    setTimeout(
+      () => {
+        setUploadingImages(false);
+        setUploadProgress(0);
+        input.value = "";
+      },
+      urls.length > 0 ? 600 : 0,
+    );
   }
 
   function openCreate() {
@@ -312,8 +329,14 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold text-slate-100">My Campsites</h1>
           <p className="text-slate-500 text-sm">
             {campsites.length} campsite{campsites.length !== 1 ? "s" : ""} ·{" "}
-            {bookings.filter((b) => b.status === "pending").length} pending
-            bookings
+            {bookings.filter((b) => b.status === "pending").length} pending ·{" "}
+            <span className="text-orange-400/80">
+              {bookings
+                .filter((b) => b.status === "confirmed" || b.status === "completed")
+                .reduce((sum, b) => sum + b.totalPrice,0)
+                .toLocaleString()}{" "}
+              DZD total earned
+            </span>
           </p>
         </div>
         <button
@@ -423,9 +446,7 @@ export default function DashboardPage() {
                 type="number"
                 min="1"
                 value={form.capacity}
-                onChange={(e) =>
-                  setForm({ ...form, capacity: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, capacity: e.target.value })}
                 placeholder="e.g. 10"
               />
             </div>
@@ -591,9 +612,28 @@ export default function DashboardPage() {
                     <p className="text-orange-400 text-sm font-medium">
                       {c.pricePerNight.toLocaleString()} DZD / night
                     </p>
-                    <p className="text-slate-600 text-xs">
-                      Capacity: {c.capacity ?? 10} guests
-                    </p>
+                    {(() => {
+                      const stats = getSiteStats(c._id);
+                      return (
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-slate-600 text-xs">
+                            Capacity: {c.capacity ?? 10}
+                          </span>
+                          <span className="text-white/[0.06]">·</span>
+                          <span className="text-slate-600 text-xs">
+                            {stats.confirmed} confirmed
+                          </span>
+                          <span className="text-white/[0.06]">·</span>
+                          <span className="text-slate-600 text-xs">
+                            {stats.completed} completed
+                          </span>
+                          <span className="text-white/[0.06]">·</span>
+                          <span className="text-orange-400/70 text-xs font-medium">
+                            {stats.revenue.toLocaleString()} DZD earned
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <div className="flex gap-2 shrink-0 items-center">
@@ -727,15 +767,26 @@ export default function DashboardPage() {
                           )}
 
                           {booking.status === "confirmed" && (
-                            <button
-                              onClick={() =>
-                                handleBookingAction(booking._id, "cancelled")
-                              }
-                              disabled={processingBookingId === booking._id}
-                              className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1 rounded-lg transition disabled:opacity-50"
-                            >
-                              Cancel
-                            </button>
+                            <>
+                              <button
+                                onClick={() =>
+                                  handleBookingAction(booking._id, "completed")
+                                }
+                                disabled={processingBookingId === booking._id}
+                                className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1 rounded-lg transition disabled:opacity-50"
+                              >
+                                Complete
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleBookingAction(booking._id, "cancelled")
+                                }
+                                disabled={processingBookingId === booking._id}
+                                className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1 rounded-lg transition disabled:opacity-50"
+                              >
+                                Cancel
+                              </button>
+                            </>
                           )}
                         </div>
                       </div>

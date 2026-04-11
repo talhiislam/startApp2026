@@ -1,11 +1,18 @@
 export type Campsite = {
     _id: string;
+    owner?: {
+        _id: string;
+        username: string;
+        createdAt: string;
+        avatar?: string;
+    };
     name: string;
     wilaya: string;
     region: string;
     type: "tent" | "bungalow" | "wild" | "glamping";
     images: string[];
     pricePerNight: number;
+    capacity: number;
     description: string;
     amenities: string[];
     averageRating: number;

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { DateRange } from "react-day-picker";
 
+type DateRange = { from?: Date; to?: Date };
 type DayData = { booked: number; status: "partial" | "full" };
 
 type Props = {

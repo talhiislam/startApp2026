@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import { DateRange } from "react-day-picker";
 
 import { type Campsite, typeColors } from "@/types/campsite";
 
@@ -24,6 +23,8 @@ type Review = {
   comment: string;
   createdAt: string;
 };
+
+type DateRange = { from?: Date; to?: Date };
 
 function CampsiteGallery({
   images,
@@ -355,6 +356,45 @@ export default function CampsiteDetailPage() {
             </div>
           </div>
 
+          <div className="h-px bg-white/[0.06]" />
+
+          {/* Owner section*/}
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+              Hosted by
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold shrink-0 overflow-hidden">
+                {campsite.owner?.avatar ? (
+                  <img
+                    src={campsite.owner.avatar}
+                    alt={campsite.owner.username}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  (campsite.owner?.username?.[0]?.toUpperCase() ?? "?")
+                )}
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <p className="text-slate-200 text-sm font-medium">
+                  {campsite.owner?.username ?? "Unknown"}
+                </p>
+                <p className="text-slate-500 text-xs">
+                  Member since{" "}
+                  {campsite.owner?.createdAt
+                    ? new Date(campsite.owner.createdAt).toLocaleDateString(
+                        "en-GB",
+                        {
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )
+                    : "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Location section */}
           {campsite.coordinates?.lat && campsite.coordinates?.lng && (
             <>
@@ -572,7 +612,9 @@ export default function CampsiteDetailPage() {
                         {guests}
                       </span>
                       <button
-                        onClick={() => setGuests((g) => Math.min(10, g + 1))}
+                        onClick={() =>
+                          setGuests((g) => Math.min(campsite.capacity, g + 1))
+                        }
                         className="w-6 h-6 rounded-full border border-white/[0.08] text-slate-400 hover:text-slate-200 transition text-sm flex items-center justify-center"
                       >
                         +
