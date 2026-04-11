@@ -4,11 +4,18 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import { DateRange } from "react-day-picker";
+
 import { type Campsite, typeColors } from "@/types/campsite";
 
 const CampsiteMap = dynamic(() => import("@/components/CampsiteMap"), {
   ssr: false,
 });
+
+const AvailabilityCalendar = dynamic(
+  () => import("@/components/AvailabilityCalendar"),
+  { ssr: false },
+);
 
 type Review = {
   _id: string;
@@ -98,8 +105,8 @@ export default function CampsiteDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+
   const [guests, setGuests] = useState(2);
 
   const [booking, setBooking] = useState(false);
@@ -119,11 +126,11 @@ export default function CampsiteDetailPage() {
   const [hoveredStar, setHoveredStar] = useState(0);
 
   const nights =
-    checkIn && checkOut
+    dateRange?.from && dateRange?.to
       ? Math.max(
           0,
           Math.round(
-            (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
+            (dateRange.to.getTime() - dateRange.from.getTime()) /
               (1000 * 60 * 60 * 24),
           ),
         )
@@ -180,7 +187,7 @@ export default function CampsiteDetailPage() {
       router.push("/auth/login");
       return;
     }
-    if (!checkIn || !checkOut) {
+    if (!dateRange?.from || !dateRange?.to) {
       setBookingError("Please select check-in and check-out dates.");
       return;
     }
@@ -193,7 +200,12 @@ export default function CampsiteDetailPage() {
     const res = await fetch("/api/bookings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ siteId: id, checkIn, checkOut, guests }),
+      body: JSON.stringify({
+        siteId: id,
+        checkIn: dateRange!.from!.toISOString(),
+        checkOut: dateRange!.to!.toISOString(),
+        guests,
+      }),
     });
     const data = await res.json();
     setBooking(false);
@@ -540,30 +552,12 @@ export default function CampsiteDetailPage() {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs text-slate-500 uppercase tracking-widest">
-                        Check in
-                      </label>
-                      <input
-                        type="date"
-                        value={checkIn}
-                        onChange={(e) => setCheckIn(e.target.value)}
-                        className="bg-[#0a0e17] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-slate-300 outline-none focus:border-orange-500/40 transition"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs text-slate-500 uppercase tracking-widest">
-                        Check out
-                      </label>
-                      <input
-                        type="date"
-                        value={checkOut}
-                        onChange={(e) => setCheckOut(e.target.value)}
-                        className="bg-[#0a0e17] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-slate-300 outline-none focus:border-orange-500/40 transition"
-                      />
-                    </div>
-                  </div>
+                  <AvailabilityCalendar
+                    campsiteId={id as string}
+                    guests={guests}
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                  />
 
                   <div className="flex items-center justify-between bg-[#0a0e17] border border-white/[0.08] rounded-lg px-3 py-2.5">
                     <span className="text-sm text-slate-400">Guests</span>

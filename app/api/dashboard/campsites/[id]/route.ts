@@ -7,12 +7,12 @@ import CampingSite from "@/models/CampingSite";
 
 export async function PUT(
     req: NextRequest,
-    { params }: { params: Promise<{ id: string }>}
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
-    if(!session) return NextResponse.json({ error: "Unauthorized"}, { status: 401 });
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (session.user.role !== "owner" && session.user.role !== "admin") {
-        return NextResponse.json({ error: "Forbidden"}, { status: 403 });
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     await connectToDatabase();
@@ -21,15 +21,14 @@ export async function PUT(
     const campsite = await CampingSite.findById(id);
     if (!campsite) return NextResponse.json({ error: "Campsite not found" }, { status: 404 });
 
-    // Owner can only edit their own campsites
     if (campsite.owner.toString() !== session.user.id && session.user.role !== "admin") {
-        return NextResponse.json({ error: "Forbidden"}, { status: 403 });
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await req.json();
     const {
         name, description, wilaya, region,
-        type, pricePerNight, amenities, images, coordinates,
+        type, pricePerNight, capacity, amenities, images, coordinates,
     } = body;
 
     const updated = await CampingSite.findByIdAndUpdate(
@@ -41,6 +40,7 @@ export async function PUT(
             region,
             type,
             pricePerNight: Number(pricePerNight),
+            capacity: capacity ? Number(capacity) : campsite.capacity,
             amenities,
             images,
             coordinates,

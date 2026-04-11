@@ -12,6 +12,7 @@ import { type Campsite, typeColors, typeLabels } from "@/types/campsite";
 type OwnerCampsite = Campsite & {
   isApproved: boolean;
   createdAt: string;
+  capacity: number;
 };
 
 type BookingUser = {
@@ -47,6 +48,7 @@ const emptyForm = {
   region: "sahara",
   type: "tent",
   pricePerNight: "",
+  capacity: "10",
   amenities: "",
   images: "",
   coordinates: { lat: 28.0339, lng: 1.6596 },
@@ -201,6 +203,7 @@ export default function DashboardPage() {
       region: c.region,
       type: c.type,
       pricePerNight: String(c.pricePerNight),
+      capacity: String(c.capacity ?? 10),
       amenities: c.amenities.join(", "),
       images: "",
       coordinates: {
@@ -234,6 +237,7 @@ export default function DashboardPage() {
       region: form.region,
       type: form.type,
       pricePerNight: Number(form.pricePerNight),
+      capacity: Number(form.capacity),
       amenities: form.amenities
         .split(",")
         .map((a) => a.trim())
@@ -404,11 +408,25 @@ export default function DashboardPage() {
               <input
                 className={inputClass}
                 type="number"
+                min="0"
                 value={form.pricePerNight}
                 onChange={(e) =>
                   setForm({ ...form, pricePerNight: e.target.value })
                 }
                 placeholder="e.g. 2500"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className={labelClass}>Capacity (max guests)</label>
+              <input
+                className={inputClass}
+                type="number"
+                min="1"
+                value={form.capacity}
+                onChange={(e) =>
+                  setForm({ ...form, capacity: e.target.value })
+                }
+                placeholder="e.g. 10"
               />
             </div>
             <div className="flex flex-col col-span-2">
@@ -573,6 +591,9 @@ export default function DashboardPage() {
                     <p className="text-orange-400 text-sm font-medium">
                       {c.pricePerNight.toLocaleString()} DZD / night
                     </p>
+                    <p className="text-slate-600 text-xs">
+                      Capacity: {c.capacity ?? 10} guests
+                    </p>
                   </div>
 
                   <div className="flex gap-2 shrink-0 items-center">
@@ -602,13 +623,13 @@ export default function DashboardPage() {
                       }
                       disabled={siteBookings.length === 0}
                       className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition disabled:opacity-30 disabled:cursor-not-allowed
-                                                ${
-                                                  isExpanded
-                                                    ? "bg-orange-500/10 border-orange-500/40 text-orange-400"
-                                                    : activeCount > 0
-                                                      ? "border-orange-500/40 text-orange-400 hover:bg-orange-500/10"
-                                                      : "border-white/[0.08] text-slate-400 hover:text-slate-200"
-                                                }`}
+                        ${
+                          isExpanded
+                            ? "bg-orange-500/10 border-orange-500/40 text-orange-400"
+                            : activeCount > 0
+                              ? "border-orange-500/40 text-orange-400 hover:bg-orange-500/10"
+                              : "border-white/[0.08] text-slate-400 hover:text-slate-200"
+                        }`}
                     >
                       Bookings
                       {activeCount > 0 && (
@@ -662,7 +683,7 @@ export default function DashboardPage() {
                               {new Date(booking.checkIn).toLocaleDateString(
                                 "en-GB",
                               )}{" "}
-                              -&gt;{" "}
+                              →{" "}
                               {new Date(booking.checkOut).toLocaleDateString(
                                 "en-GB",
                               )}{" "}

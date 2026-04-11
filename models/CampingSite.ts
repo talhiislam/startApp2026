@@ -45,6 +45,7 @@ const CampingSiteSchema = new Schema<ICampingSite>(
             required: true,
         },
         owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        capacity: { type: Number, default: 10 },
         isApproved: { type: Boolean, default: false },
         averageRating: { type: Number, default: 0 },
         reviewCount: { type: Number, default: 0 },
