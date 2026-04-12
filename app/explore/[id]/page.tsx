@@ -282,7 +282,7 @@ export default function CampsiteDetailPage() {
     );
 
   return (
-    <div className="min-h-screen px-6 md:px-16 py-12 flex flex-col gap-8">
+    <div className="min-h-screen px-6 md:px-16 pt-6 pb-12 md:py-12 flex flex-col gap-8 overflow-x-hidden">
       {/* Back */}
       <button
         onClick={() => router.back()}
@@ -299,9 +299,9 @@ export default function CampsiteDetailPage() {
       />
 
       {/* Body */}
-      <div className="flex gap-10 items-start">
+      <div className="flex flex-col md:flex-row gap-10 items-start">
         {/* Left */}
-        <div className="flex-1 flex flex-col gap-6">
+        <div className="flex-1 w-full flex flex-col gap-6">
           <div>
             <div className="flex items-start justify-between gap-4">
               <h1 className="text-3xl font-bold text-slate-100">
@@ -403,7 +403,7 @@ export default function CampsiteDetailPage() {
                 <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
                   Location
                 </p>
-                <div className="h-64 rounded-2xl overflow-hidden border border-white/[0.08]">
+                <div className="h-64 w-full rounded-2xl overflow-hidden border border-white/[0.08]">
                   <CampsiteMap
                     lat={campsite.coordinates.lat}
                     lng={campsite.coordinates.lng}
@@ -416,136 +416,10 @@ export default function CampsiteDetailPage() {
               </div>
             </>
           )}
-
-          <div className="h-px bg-white/[0.06]" />
-
-          <div className="flex flex-col gap-6">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
-              Reviews
-            </p>
-
-            {/* Write a review */}
-            {session && !hasReviewed && (
-              <div className="flex flex-col gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
-                <p className="text-sm text-slate-300 font-medium">
-                  Write a Review
-                </p>
-
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onMouseEnter={() => setHoveredStar(star)}
-                      onMouseLeave={() => setHoveredStar(0)}
-                      onClick={() => setReviewRating(star)}
-                      className={`text-2xl transition ${
-                        star <= (hoveredStar || reviewRating)
-                          ? "text-orange-400"
-                          : "text-slate-600"
-                      }`}
-                    >
-                      ★
-                    </button>
-                  ))}
-                </div>
-
-                <textarea
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  placeholder="Share your experience..."
-                  rows={3}
-                  className="bg-[#0a0e17] border border-white/[0.08] rounded-lg p-3 text-sm text-slate-300 placeholder:text-slate-600 outline-none focus:border-orange-500/40 transition resize-none"
-                />
-
-                {reviewError && (
-                  <p className="text-red-400 text-xs bg-red-400/10 px-3 py-2 rounded-lg">
-                    {reviewError}
-                  </p>
-                )}
-
-                <button
-                  onClick={handleReviewSubmit}
-                  disabled={submittingReview}
-                  className="self-start bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
-                >
-                  {submittingReview ? "Submitting..." : "Submit Review"}
-                </button>
-              </div>
-            )}
-
-            {!session && (
-              <p className="text-slate-500 text-sm">
-                <button
-                  onClick={() => router.push("/auth/login")}
-                  className="text-orange-500 hover:underline"
-                >
-                  Sign in
-                </button>{" "}
-                to leave a review.
-              </p>
-            )}
-
-            {hasReviewed && (
-              <p className="text-slate-500 text-sm">
-                You have already reviewed this campsite.
-              </p>
-            )}
-
-            {loadingReviews ? (
-              <p className="text-slate-500 text-sm">Loading reviews...</p>
-            ) : reviews.length === 0 ? (
-              <p className="text-slate-500 text-sm">
-                No reviews yet. Be the first to review this campsite.
-              </p>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {reviews.map((review) => (
-                  <div
-                    key={review._id}
-                    className="flex flex-col gap-2 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
-                          {review.user.username[0].toUpperCase()}
-                        </div>
-                        <span className="text-slate-300 text-sm font-medium">
-                          {review.user.username}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-orange-400 text-sm">
-                          {"★".repeat(review.rating)}
-                          <span className="text-slate-600">
-                            {"★".repeat(5 - review.rating)}
-                          </span>
-                        </span>
-                        <span className="text-slate-600 text-xs">
-                          {new Date(review.createdAt).toLocaleDateString(
-                            "en-GB",
-                            {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            },
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                    {review.comment && (
-                      <p className="text-slate-400 text-sm leading-relaxed">
-                        {review.comment}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Right - Booking card */}
-        <div className="w-72 shrink-0">
+        <div className="w-full md:w-72 md:shrink-0 order-1 md:order-2">
           <div className="relative">
             {!session && (
               <div className="absolute inset-0 z-10 rounded-2xl flex flex-col items-center justify-center gap-4 bg-[#0a0e17]/60 backdrop-blur-sm">
@@ -668,6 +542,132 @@ export default function CampsiteDetailPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Reviews — full width, always below everything */}
+      <div className="flex flex-col gap-6">
+        <div className="h-px bg-white/[0.06]" />
+        <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+          Reviews
+        </p>
+
+        {/* Write a review */}
+        {session && !hasReviewed && (
+          <div className="flex flex-col gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
+            <p className="text-sm text-slate-300 font-medium">
+              Write a Review
+            </p>
+
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onMouseEnter={() => setHoveredStar(star)}
+                  onMouseLeave={() => setHoveredStar(0)}
+                  onClick={() => setReviewRating(star)}
+                  className={`text-2xl transition ${
+                    star <= (hoveredStar || reviewRating)
+                      ? "text-orange-400"
+                      : "text-slate-600"
+                  }`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              placeholder="Share your experience..."
+              rows={3}
+              className="bg-[#0a0e17] border border-white/[0.08] rounded-lg p-3 text-sm text-slate-300 placeholder:text-slate-600 outline-none focus:border-orange-500/40 transition resize-none"
+            />
+
+            {reviewError && (
+              <p className="text-red-400 text-xs bg-red-400/10 px-3 py-2 rounded-lg">
+                {reviewError}
+              </p>
+            )}
+
+            <button
+              onClick={handleReviewSubmit}
+              disabled={submittingReview}
+              className="self-start bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
+            >
+              {submittingReview ? "Submitting..." : "Submit Review"}
+            </button>
+          </div>
+        )}
+
+        {!session && (
+          <p className="text-slate-500 text-sm">
+            <button
+              onClick={() => router.push("/auth/login")}
+              className="text-orange-500 hover:underline"
+            >
+              Sign in
+            </button>{" "}
+            to leave a review.
+          </p>
+        )}
+
+        {hasReviewed && (
+          <p className="text-slate-500 text-sm">
+            You have already reviewed this campsite.
+          </p>
+        )}
+
+        {loadingReviews ? (
+          <p className="text-slate-500 text-sm">Loading reviews...</p>
+        ) : reviews.length === 0 ? (
+          <p className="text-slate-500 text-sm">
+            No reviews yet. Be the first to review this campsite.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {reviews.map((review) => (
+              <div
+                key={review._id}
+                className="flex flex-col gap-2 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
+                      {review.user.username[0].toUpperCase()}
+                    </div>
+                    <span className="text-slate-300 text-sm font-medium">
+                      {review.user.username}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-orange-400 text-sm">
+                      {"★".repeat(review.rating)}
+                      <span className="text-slate-600">
+                        {"★".repeat(5 - review.rating)}
+                      </span>
+                    </span>
+                    <span className="text-slate-600 text-xs">
+                      {new Date(review.createdAt).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        },
+                      )}
+                    </span>
+                  </div>
+                </div>
+                {review.comment && (
+                  <p className="text-slate-400 text-sm leading-relaxed">
+                    {review.comment}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

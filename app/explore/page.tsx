@@ -102,32 +102,36 @@ export default function ExplorePage() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex gap-3 items-center">
+      <div className="flex flex-col md:flex-row gap-3">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, wilaya, or region..."
-          className="flex-1 bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 outline-none focus:border-orange-500/40 transition"
+          className="w-full md:flex-1 bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 outline-none focus:border-orange-500/40 transition"
         />
-        <button
-          onClick={() => setDrawerOpen((prev) => !prev)}
-          className={`flex items-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 text-sm transition ${
-            drawerOpen || hasActiveFilters
-              ? "border-orange-500/40 text-orange-400"
-              : "border-white/[0.08] text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          <span>⚙</span> Filters
-          {hasActiveFilters && (
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-          )}
-        </button>
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-400 outline-none focus:border-orange-500/40 transition"
-        >
+        <div className="flex flex-1 gap-3">
+          <button
+            onClick={() => setDrawerOpen((prev) => !prev)}
+            className={`shrink-0 flex items-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 text-sm transition ${
+              drawerOpen || hasActiveFilters
+                ? "border-orange-500/40 text-orange-400"
+                : "border-white/[0.08] text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 4h18l-7 9v6l-4-2v-4L3 4z" />
+            </svg>
+            <span className="hidden md:inline">Filters</span>
+            {hasActiveFilters && (
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+            )}
+          </button>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="flex-1 md:flex-none md:w-auto bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-400 outline-none focus:border-orange-500/40 transition"
+          >
           {sortOptions.map((o) => (
             <option key={o.value} value={o.value} className="bg-[#111827]">
               {o.label}
@@ -136,7 +140,7 @@ export default function ExplorePage() {
         </select>
         <button
           onClick={() => setView((v) => (v === "grid" ? "map" : "grid"))}
-          className={`flex items-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 text-sm transition ${
+          className={`shrink-0 flex items-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 whitespace-nowrap text-sm transition ${
             view === "map"
               ? "border-orange-500/40 text-orange-400"
               : "border-white/[0.08] text-slate-400 hover:text-slate-200"
@@ -144,15 +148,16 @@ export default function ExplorePage() {
         >
           {view === "grid" ? "🗺 Map view" : "⊞ Grid view"}
         </button>
+        </div>
       </div>
 
       {/* Filter Drawer */}
       <div
         className={`overflow-hidden transition-all duration-300 ${
-          drawerOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          drawerOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="bg-[#111827] border border-white/[0.08] rounded-2xl p-6 flex gap-8 items-start">
+        <div className="bg-[#111827] border border-white/[0.08] rounded-2xl p-4 grid grid-cols-2 gap-6 items-start">
           {/* Region */}
           <div className="flex flex-col gap-2">
             <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">
@@ -174,8 +179,6 @@ export default function ExplorePage() {
               </button>
             ))}
           </div>
-
-          <div className="w-px self-stretch bg-white/[0.06]" />
 
           {/* Type */}
           <div className="flex flex-col gap-2">
@@ -199,8 +202,6 @@ export default function ExplorePage() {
             ))}
           </div>
 
-          <div className="w-px self-stretch bg-white/[0.06]" />
-
           {/* Min Price */}
           <div className="flex flex-col gap-2">
             <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">
@@ -217,8 +218,6 @@ export default function ExplorePage() {
             ))}
           </div>
 
-          <div className="w-px self-stretch bg-white/[0.06]" />
-
           {/* Max Price */}
           <div className="flex flex-col gap-2">
             <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">
@@ -234,24 +233,23 @@ export default function ExplorePage() {
               </button>
             ))}
           </div>
+        </div>
 
-          {/* Footer */}
-          <div className="ml-auto flex flex-col items-end justify-between self-stretch">
+        <div className="flex items-center justify-between mt-2">
+          {hasActiveFilters && (
             <button
-              onClick={() => setDrawerOpen(false)}
-              className="text-slate-500 hover:text-slate-300 text-lg transition"
+              onClick={clearFilters}
+              className="text-xs text-slate-500 hover:text-orange-400 transition"
             >
-              ✕
+              Clear all
             </button>
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="text-xs text-slate-500 hover:text-orange-400 transition"
-              >
-                Clear all
-              </button>
-            )}
-          </div>
+          )}
+          <button
+            onClick={() => setDrawerOpen(false)}
+            className="text-slate-500 hover:text-slate-300 text-sm transition ml-auto"
+          >
+            ✕ Close
+          </button>
         </div>
       </div>
 

@@ -367,8 +367,8 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col md:col-span-2">
               <label className={labelClass}>Name</label>
               <input
                 className={inputClass}
@@ -377,7 +377,7 @@ export default function DashboardPage() {
                 placeholder="Campsite name"
               />
             </div>
-            <div className="flex flex-col col-span-2">
+            <div className="flex flex-col md:col-span-2">
               <label className={labelClass}>Description</label>
               <textarea
                 className={inputClass}
@@ -450,7 +450,7 @@ export default function DashboardPage() {
                 placeholder="e.g. 10"
               />
             </div>
-            <div className="flex flex-col col-span-2">
+            <div className="flex flex-col md:col-span-2">
               <label className={labelClass}>Amenities (comma separated)</label>
               <input
                 className={inputClass}
@@ -461,7 +461,7 @@ export default function DashboardPage() {
                 placeholder="e.g. Bonfire, Parking, Showers"
               />
             </div>
-            <div className="flex flex-col col-span-2 gap-2">
+            <div className="flex flex-col md:col-span-2 gap-2">
               <label className={labelClass}>Images</label>
 
               {uploadedImages.length > 0 && (
@@ -520,7 +520,7 @@ export default function DashboardPage() {
               </label>
             </div>
 
-            <div className="flex flex-col col-span-2">
+            <div className="flex flex-col md:col-span-2">
               <label className={labelClass}>Location</label>
               <MapPicker
                 initialPosition={form.coordinates}
@@ -579,8 +579,8 @@ export default function DashboardPage() {
 
             return (
               <Card key={c._id} className="overflow-hidden">
-                <div className="p-5 flex gap-5 items-start">
-                  <div className="w-28 h-20 rounded-xl overflow-hidden shrink-0">
+                <div className="p-5 flex flex-col sm:flex-row gap-5 items-start">
+                  <div className="w-full sm:w-28 h-40 sm:h-20 rounded-xl overflow-hidden shrink-0">
                     <img
                       src={c.images[0] ?? ""}
                       alt={c.name}
@@ -636,7 +636,7 @@ export default function DashboardPage() {
                     })()}
                   </div>
 
-                  <div className="flex gap-2 shrink-0 items-center">
+                  <div className="flex flex-wrap gap-2 items-center justify-end">
                     <button
                       onClick={() => router.push(`/explore/${c._id}`)}
                       className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1.5 rounded-lg transition"
@@ -701,7 +701,7 @@ export default function DashboardPage() {
                     {siteBookings.map((booking) => (
                       <div
                         key={booking._id}
-                        className="flex items-center justify-between gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3"
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">

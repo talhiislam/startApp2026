@@ -249,8 +249,8 @@ export default function ProfilePage() {
         </div>
       </Card>
 
-      <div className="flex gap-6">
-        <Card className="p-2 flex flex-col gap-1 w-48 shrink-0 h-fit">
+      <div className="flex flex-col md:flex-row gap-6">
+        <Card className="p-2 flex flex-row md:flex-col gap-1 w-full md:w-48 md:shrink-0 h-fit overflow-x-auto justify-center md:justify-start">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -260,7 +260,7 @@ export default function ProfilePage() {
                 setMessage("");
                 setError("");
               }}
-              className={`text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+              className={`shrink-0 text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
                 ${
                   activeTab === tab
                     ? "bg-orange-500/10 text-orange-500"
@@ -291,7 +291,7 @@ export default function ProfilePage() {
                   <h2 className="text-slate-100 font-semibold text-lg tracking-tight">
                     Personal Information
                   </h2>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {[
                       { label: "Full Name", value: profile.fullName },
                       { label: "Username", value: profile.username },
@@ -341,7 +341,7 @@ export default function ProfilePage() {
                   <h2 className="text-slate-100 font-semibold text-lg tracking-tight">
                     Edit Profile
                   </h2>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col">
                       <label className={labelClass}>Full Name</label>
                       <input

@@ -123,14 +123,14 @@ export default function TripsPage() {
       </div>
 
       {/* Tabs + Content */}
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar */}
-        <Card className="p-2 flex flex-col gap-1 w-48 shrink-0 h-fit">
+        <Card className="p-2 flex flex-row md:flex-col gap-1 w-full md:w-48 md:shrink-0 h-fit overflow-x-auto justify-center md:justify-start">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+              className={`shrink-0 text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
                 ${
                   activeTab === tab
                     ? "bg-orange-500/10 text-orange-500"
@@ -175,55 +175,45 @@ export default function TripsPage() {
                   </button>
                 </div>
               ) : (
-                bookings.map((booking) => (
-                  <div
-                    key={booking._id}
-                    className="flex gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
-                  >
-                    {/* Image */}
-                    <div className="w-32 h-28 shrink-0">
-                      <img
-                        src={booking.site.images[0] ?? ""}
-                        alt={booking.site.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex flex-col justify-between py-3 pr-4 flex-1 gap-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex flex-col gap-0.5">
-                          <p className="text-slate-100 font-medium text-sm">
-                            {booking.site.name}
-                          </p>
-                          <p className="text-slate-500 text-xs">
-                            📍 {booking.site.wilaya}, {booking.site.region}
-                          </p>
-                        </div>
-                        <span
-                          className={`text-xs font-medium px-2 py-1 rounded-full shrink-0 ${statusColors[booking.status]}`}
-                        >
-                          {booking.status}
-                        </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {bookings.map((booking) => (
+                    <div
+                      key={booking._id}
+                      className="flex flex-col bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
+                    >
+                      {/* Image */}
+                      <div className="w-full h-40 shrink-0">
+                        <img
+                          src={booking.site.images[0] ?? ""}
+                          alt={booking.site.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
 
-                      <div className="flex items-end justify-between">
-                        <div className="flex flex-col gap-0.5">
-                          <p className="text-slate-400 text-xs">
-                            {new Date(booking.checkIn).toLocaleDateString(
-                              "en-GB",
-                            )}{" "}
-                            →{" "}
-                            {new Date(booking.checkOut).toLocaleDateString(
-                              "en-GB",
-                            )}
-                          </p>
-                          <p className="text-slate-500 text-xs">
-                            {booking.guests} guest
-                            {booking.guests > 1 ? "s" : ""}
-                          </p>
+                      {/* Info */}
+                      <div className="flex flex-col gap-2 p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex flex-col gap-0.5 min-w-0">
+                            <p className="text-slate-100 font-medium text-sm truncate">
+                              {booking.site.name}
+                            </p>
+                            <p className="text-slate-500 text-xs truncate">
+                              📍 {booking.site.wilaya}, {booking.site.region}
+                            </p>
+                          </div>
+                          <span
+                            className={`text-xs font-medium px-2 py-1 rounded-full shrink-0 ${statusColors[booking.status]}`}
+                          >
+                            {booking.status}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <p className="text-slate-400 text-xs">
+                          {new Date(booking.checkIn).toLocaleDateString("en-GB")} → {new Date(booking.checkOut).toLocaleDateString("en-GB")}
+                        </p>
+                        <p className="text-slate-500 text-xs">
+                          {booking.guests} guest{booking.guests > 1 ? "s" : ""}
+                        </p>
+                        <div className="flex items-center justify-between mt-1">
                           <span className="text-orange-400 text-sm font-medium">
                             {booking.totalPrice.toLocaleString()} DZD
                           </span>
@@ -233,16 +223,14 @@ export default function TripsPage() {
                               disabled={cancellingId === booking._id}
                               className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1 rounded-lg transition disabled:opacity-50"
                             >
-                              {cancellingId === booking._id
-                                ? "Cancelling..."
-                                : "Cancel"}
+                              {cancellingId === booking._id ? "Cancelling..." : "Cancel"}
                             </button>
                           )}
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           )}
@@ -272,7 +260,7 @@ export default function TripsPage() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {savedSites.map((site) => (
                     <div key={site._id} className="relative">
                       <CampsiteCard

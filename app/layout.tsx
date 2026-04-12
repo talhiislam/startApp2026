@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased font-sans">
         <Providers>
           <Navbar />
-          <main className="pt-[72px] min-h-screen bg-[#0a0e17]">
+          <main className="pt-[44px] md:pt-[72px] pb-16 md:pb-0 min-h-screen bg-[#0a0e17]">
             {children}
           </main>
           <Footer />

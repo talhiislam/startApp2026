@@ -139,14 +139,14 @@ export default function AdminPage() {
       </div>
 
       {/* Tabs + Content */}
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar */}
-        <Card className="p-2 flex flex-col gap-1 w-48 shrink-0 h-fit">
+        <Card className="p-2 flex flex-row md:flex-col gap-1 w-full md:w-48 shrink-0 h-fit overflow-x-auto justify-center md:justify-start">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+              className={`shrink-0 text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
                                 ${
                                   activeTab === tab
                                     ? "bg-orange-500/10 text-orange-500"
@@ -187,35 +187,32 @@ export default function AdminPage() {
                   pendingCampsites.map((c) => (
                     <div
                       key={c._id}
-                      className="flex gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
+                      className="flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
                     >
-                      <div className="w-28 h-24 shrink-0">
+                      {/* Image */}
+                      <div className="w-full h-40 md:w-28 md:h-24 shrink-0">
                         <img
                           src={c.images[0] ?? ""}
                           alt={c.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex flex-col justify-between py-3 pr-4 flex-1 gap-1">
+                      {/* Info */}
+                      <div className="flex flex-col justify-between p-3 md:py-3 md:pr-4 md:pl-0 flex-1 gap-1 min-w-0">
                         <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-2">
-                            <p className="text-slate-100 font-medium text-sm">
-                              {c.name}
-                            </p>
-                            <span
-                              className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeColors[c.type]}`}
-                            >
-                              {typeLabels[c.type]}
-                            </span>
+                          {/* Name + badges — stacked on mobile, inline on desktop */}
+                          <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                            <p className="text-slate-100 font-medium text-sm">{c.name}</p>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${typeColors[c.type]}`}>
+                                {typeLabels[c.type]}
+                              </span>
+                            </div>
                           </div>
-                          <p className="text-slate-500 text-xs">
-                            📍 {c.wilaya}, {c.region}
-                          </p>
-                          <p className="text-slate-500 text-xs">
-                            👤 {c.owner?.username} · {c.owner?.email}
-                          </p>
+                          <p className="text-slate-500 text-xs">📍 {c.wilaya}, {c.region}</p>
+                          <p className="text-slate-500 text-xs">👤 {c.owner?.username} · {c.owner?.email}</p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
                           <button
                             onClick={() => handleApprove(c._id)}
                             disabled={processingId === c._id}
@@ -268,38 +265,35 @@ export default function AdminPage() {
                   approvedCampsites.map((c) => (
                     <div
                       key={c._id}
-                      className="flex gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
+                      className="flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
                     >
-                      <div className="w-28 h-24 shrink-0">
+                      {/* Image */}
+                      <div className="w-full h-40 md:w-28 md:h-24 shrink-0">
                         <img
                           src={c.images[0] ?? ""}
                           alt={c.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex flex-col justify-between py-3 pr-4 flex-1 gap-1">
+                      {/* Info */}
+                      <div className="flex flex-col justify-between p-3 md:py-3 md:pr-4 md:pl-0 flex-1 gap-1 min-w-0">
                         <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-2">
-                            <p className="text-slate-100 font-medium text-sm">
-                              {c.name}
-                            </p>
-                            <span
-                              className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeColors[c.type]}`}
-                            >
-                              {typeLabels[c.type]}
-                            </span>
-                            <span className="text-xs text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full font-medium">
-                              Approved
-                            </span>
+                          {/* Name + badges — stacked on mobile, inline on desktop */}
+                          <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                            <p className="text-slate-100 font-medium text-sm">{c.name}</p>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${typeColors[c.type]}`}>
+                                {typeLabels[c.type]}
+                              </span>
+                              <span className="text-xs text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full font-medium">
+                                Approved
+                              </span>
+                            </div>
                           </div>
-                          <p className="text-slate-500 text-xs">
-                            📍 {c.wilaya}, {c.region}
-                          </p>
-                          <p className="text-slate-500 text-xs">
-                            👤 {c.owner?.username} · {c.owner?.email}
-                          </p>
+                          <p className="text-slate-500 text-xs">📍 {c.wilaya}, {c.region}</p>
+                          <p className="text-slate-500 text-xs">👤 {c.owner?.username} · {c.owner?.email}</p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
                           <button
                             onClick={() => handleReject(c._id)}
                             disabled={processingId === c._id}
@@ -339,7 +333,7 @@ export default function AdminPage() {
                     key={u._id}
                     className="flex items-center justify-between gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
                         {u.avatar ? (
                           <img
@@ -351,15 +345,15 @@ export default function AdminPage() {
                           u.username[0].toUpperCase()
                         )}
                       </div>
-                      <div className="flex flex-col gap-0.5">
-                        <p className="text-slate-200 text-sm font-medium">
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <p className="text-slate-200 text-sm font-medium truncate">
                           {u.username}
                         </p>
-                        <p className="text-slate-500 text-xs">{u.email}</p>
+                        <p className="text-slate-500 text-xs truncate">{u.email}</p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 shrink-0">
                       <span
                         className={`text-xs font-medium px-2 py-1 rounded-full ${roleColors[u.role]}`}
                       >
@@ -371,7 +365,7 @@ export default function AdminPage() {
                         onChange={(e) =>
                           handleRoleChange(u._id, e.target.value)
                         }
-                        className="bg-white/5 border border-white/[0.08] text-slate-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500/40 transition disabled:opacity-50"
+                        className="bg-white/5 border border-white/[0.08] text-slate-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500/40 transition disabled:opacity-50 max-w-[90px]"
                       >
                         <option value="camper" className="bg-[#111827]">
                           camper
