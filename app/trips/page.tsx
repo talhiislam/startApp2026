@@ -175,14 +175,14 @@ export default function TripsPage() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-4">
                   {bookings.map((booking) => (
                     <div
                       key={booking._id}
-                      className="flex flex-col bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
+                      className="flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
                     >
-                      {/* Image */}
-                      <div className="w-full h-40 shrink-0">
+                      {/* Image: md:w-36 and h-auto to fix the bottom gap and spacing */}
+                      <div className="w-full h-40 md:w-36 md:h-auto shrink-0 self-stretch border-r border-white/[0.04]">
                         <img
                           src={booking.site.images[0] ?? ""}
                           alt={booking.site.name}
@@ -190,10 +190,12 @@ export default function TripsPage() {
                         />
                       </div>
 
-                      {/* Info */}
-                      <div className="flex flex-col gap-2 p-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex flex-col gap-0.5 min-w-0">
+                      {/* Info Wrapper: Added p-4 and justify-between to push status/price to the right */}
+                      <div className="flex flex-col md:flex-row justify-between p-4 flex-1 gap-4 md:gap-8">
+                        
+                        {/* Left Side: Core Info */}
+                        <div className="flex flex-col gap-1.5 min-w-0">
+                          <div className="flex flex-col gap-0.5">
                             <p className="text-slate-100 font-medium text-sm truncate">
                               {booking.site.name}
                             </p>
@@ -201,31 +203,40 @@ export default function TripsPage() {
                               📍 {booking.site.wilaya}, {booking.site.region}
                             </p>
                           </div>
+                          
+                          <div className="flex flex-col gap-0.5 mt-1">
+                            <p className="text-slate-400 text-xs">
+                              📅 {new Date(booking.checkIn).toLocaleDateString("en-GB")} → {new Date(booking.checkOut).toLocaleDateString("en-GB")}
+                            </p>
+                            <p className="text-slate-500 text-xs">
+                              👤 {booking.guests} guest{booking.guests > 1 ? "s" : ""}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Right Side: Status, Price & Actions */}
+                        <div className="flex flex-row md:flex-col justify-between items-center md:items-end md:justify-center gap-2 shrink-0">
                           <span
                             className={`text-xs font-medium px-2 py-1 rounded-full shrink-0 ${statusColors[booking.status]}`}
                           >
                             {booking.status}
                           </span>
-                        </div>
-                        <p className="text-slate-400 text-xs">
-                          {new Date(booking.checkIn).toLocaleDateString("en-GB")} → {new Date(booking.checkOut).toLocaleDateString("en-GB")}
-                        </p>
-                        <p className="text-slate-500 text-xs">
-                          {booking.guests} guest{booking.guests > 1 ? "s" : ""}
-                        </p>
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="text-orange-400 text-sm font-medium">
-                            {booking.totalPrice.toLocaleString()} DZD
-                          </span>
-                          {booking.status === "pending" && (
-                            <button
-                              onClick={() => handleCancel(booking._id)}
-                              disabled={cancellingId === booking._id}
-                              className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1 rounded-lg transition disabled:opacity-50"
-                            >
-                              {cancellingId === booking._id ? "Cancelling..." : "Cancel"}
-                            </button>
-                          )}
+
+                          <div className="flex items-center md:flex-col md:items-end gap-3">
+                            <span className="text-orange-400 text-sm font-medium">
+                              {booking.totalPrice.toLocaleString()} DZD
+                            </span>
+                            
+                            {booking.status === "pending" && (
+                              <button
+                                onClick={() => handleCancel(booking._id)}
+                                disabled={cancellingId === booking._id}
+                                className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1 rounded-lg transition disabled:opacity-50"
+                              >
+                                {cancellingId === booking._id ? "..." : "Cancel"}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>

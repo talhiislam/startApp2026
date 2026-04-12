@@ -187,56 +187,73 @@ export default function AdminPage() {
                   pendingCampsites.map((c) => (
                     <div
                       key={c._id}
-                      className="flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
+                      className="group flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.03] transition-colors"
                     >
-                      {/* Image */}
-                      <div className="w-full h-40 md:w-28 md:h-24 shrink-0">
+                      {/* Image: md:h-auto + md:w-36 ensures it stretches to match text height */}
+                      <div className="w-full h-40 md:h-auto md:w-36 shrink-0 border-r border-white/[0.06]">
                         <img
                           src={c.images[0] ?? ""}
                           alt={c.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      {/* Info */}
-                      <div className="flex flex-col justify-between p-3 md:py-3 md:pr-4 md:pl-0 flex-1 gap-1 min-w-0">
-                        <div className="flex flex-col gap-0.5">
-                          {/* Name + badges — stacked on mobile, inline on desktop */}
-                          <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                            <p className="text-slate-100 font-medium text-sm">{c.name}</p>
-                            <div className="flex items-center gap-2">
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${typeColors[c.type]}`}>
-                                {typeLabels[c.type]}
-                              </span>
-                            </div>
+
+                      {/* Main Content Wrapper */}
+                      <div className="flex flex-col md:flex-row md:items-center justify-between p-4 flex-1 gap-4 md:gap-8">
+                        
+                        {/* Left Side: Info */}
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-slate-100 font-medium text-base truncate">
+                              {c.name}
+                            </h3>
+                            <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded font-bold ${typeColors[c.type]}`}>
+                              {typeLabels[c.type]}
+                            </span>
                           </div>
-                          <p className="text-slate-500 text-xs">📍 {c.wilaya}, {c.region}</p>
-                          <p className="text-slate-500 text-xs">👤 {c.owner?.username} · {c.owner?.email}</p>
+                          
+                          <div className="flex flex-col gap-0.5">
+                            <p className="text-slate-500 text-xs flex items-center gap-1">
+                              <span className="opacity-70">📍</span> {c.wilaya}, {c.region}
+                            </p>
+                            <p className="text-slate-500 text-xs flex items-center gap-1">
+                              <span className="opacity-70">👤</span> {c.owner?.username} <span className="text-slate-600">•</span> {c.owner?.email}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
-                          <button
-                            onClick={() => handleApprove(c._id)}
-                            disabled={processingId === c._id}
-                            className="text-xs text-green-400 hover:text-green-300 border border-green-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
-                          >
-                            {processingId === c._id
-                              ? "Processing..."
-                              : "Approve"}
-                          </button>
-                          <button
-                            onClick={() => handleReject(c._id)}
-                            disabled={processingId === c._id}
-                            className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
-                          >
-                            {processingId === c._id
-                              ? "Processing..."
-                              : "Reject"}
-                          </button>
-                          <button
-                            onClick={() => router.push(`/explore/${c._id}`)}
-                            className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1.5 rounded-lg transition"
-                          >
-                            Preview
-                          </button>
+
+                        {/* Right Side: Status & Actions */}
+                        <div className="flex flex-row md:flex-col items-center md:items-end gap-3 shrink-0">
+                          {/* Status Badge */}
+                          <span className="text-xs text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full font-medium">
+                            Approved
+                          </span>
+
+                          {/* Buttons Container */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleApprove(c._id)}
+                              disabled={processingId === c._id}
+                              className="text-xs text-green-400 hover:text-green-300 border border-green-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                            >
+                              {processingId === c._id ? "..." : "Approve"}
+                            </button>
+
+                            <button
+                              onClick={() => handleReject(c._id)}
+                              disabled={processingId === c._id}
+                              className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                            >
+                              {processingId === c._id ? "..." : "Reject"}
+                            </button>
+
+                            <button
+                              onClick={() => router.push(`/explore/${c._id}`)}
+                              className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1.5 rounded-lg transition"
+                            >
+                              Preview
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -265,50 +282,65 @@ export default function AdminPage() {
                   approvedCampsites.map((c) => (
                     <div
                       key={c._id}
-                      className="flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
+                      className="group flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.03] transition-colors"
                     >
-                      {/* Image */}
-                      <div className="w-full h-40 md:w-28 md:h-24 shrink-0">
+                      {/* Image: md:h-auto + md:w-36 ensures it stretches to match text height */}
+                      <div className="w-full h-40 md:h-auto md:w-36 shrink-0 border-r border-white/[0.06]">
                         <img
                           src={c.images[0] ?? ""}
                           alt={c.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      {/* Info */}
-                      <div className="flex flex-col justify-between p-3 md:py-3 md:pr-4 md:pl-0 flex-1 gap-1 min-w-0">
-                        <div className="flex flex-col gap-0.5">
-                          {/* Name + badges — stacked on mobile, inline on desktop */}
-                          <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                            <p className="text-slate-100 font-medium text-sm">{c.name}</p>
-                            <div className="flex items-center gap-2">
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${typeColors[c.type]}`}>
-                                {typeLabels[c.type]}
-                              </span>
-                              <span className="text-xs text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full font-medium">
-                                Approved
-                              </span>
-                            </div>
+
+                      {/* Main Content Wrapper */}
+                      <div className="flex flex-col md:flex-row md:items-center justify-between p-4 flex-1 gap-4 md:gap-8">
+                        
+                        {/* Left Side: Info */}
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-slate-100 font-medium text-base truncate">
+                              {c.name}
+                            </h3>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${typeColors[c.type]}`}>
+                              {typeLabels[c.type]}
+                            </span>
                           </div>
-                          <p className="text-slate-500 text-xs">📍 {c.wilaya}, {c.region}</p>
-                          <p className="text-slate-500 text-xs">👤 {c.owner?.username} · {c.owner?.email}</p>
+                          
+                          <div className="flex flex-col gap-0.5">
+                            <p className="text-slate-500 text-xs flex items-center gap-1">
+                              <span className="opacity-70">📍</span> {c.wilaya}, {c.region}
+                            </p>
+                            <p className="text-slate-500 text-xs flex items-center gap-1">
+                              <span className="opacity-70">👤</span> {c.owner?.username} <span className="text-slate-600">•</span> {c.owner?.email}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
-                          <button
-                            onClick={() => handleReject(c._id)}
-                            disabled={processingId === c._id}
-                            className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
-                          >
-                            {processingId === c._id
-                              ? "Processing..."
-                              : "Revoke"}
-                          </button>
-                          <button
-                            onClick={() => router.push(`/explore/${c._id}`)}
-                            className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1.5 rounded-lg transition"
-                          >
-                            Preview
-                          </button>
+
+                        {/* Right Side: Status & Actions */}
+                        <div className="flex flex-row md:flex-col items-center md:items-end gap-3 shrink-0">
+                          {/* Status Badge */}
+                          <span className="text-xs text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full font-medium">
+                            Approved
+                          </span>
+
+                          {/* Buttons Container */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleReject(c._id)}
+                              disabled={processingId === c._id}
+                              className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                            >
+                              {processingId === c._id ? "..." : "Revoke"}
+                            </button>
+
+                            <button
+                              onClick={() => router.push(`/explore/${c._id}`)}
+                              className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1.5 rounded-lg transition"
+                            >
+                              Preview
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
