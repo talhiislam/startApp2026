@@ -15,6 +15,7 @@ type LeanCampsite = {
   type: "tent" | "bungalow" | "wild" | "glamping";
   images: string[];
   pricePerNight: number;
+  capacity?: number;
   description?: string;
   amenities?: string[];
   averageRating?: number;
@@ -37,6 +38,7 @@ async function getFeaturedCampsites(): Promise<Campsite[]> {
       type: c.type,
       images: c.images,
       pricePerNight: c.pricePerNight,
+      capacity: c.capacity ?? 10,
       description: c.description ?? "",
       amenities: c.amenities ?? [],
       averageRating: c.averageRating ?? 0,
