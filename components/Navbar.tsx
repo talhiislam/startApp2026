@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -115,9 +116,11 @@ export default function Navbar() {
       {/* ── Desktop Navbar ── */}
       <nav className="fixed top-0 left-0 right-0 h-[72px] hidden md:flex items-center justify-between px-12 bg-[rgba(10,14,23,0.85)] backdrop-blur-xl border-b border-white/[0.08] z-[1000]">
         <Link href="/">
-          <img
+          <Image
             src="/logo_dark.png"
             alt="SahaTour"
+            width={120}
+            height={40}
             className="h-10 w-auto object-contain rounded-lg"
           />
         </Link>
@@ -246,9 +249,11 @@ export default function Navbar() {
       {/* ── Mobile Top Bar (logo only) ── */}
       <div className="fixed top-0 left-0 right-0 h-[44px] flex md:hidden items-center justify-center bg-[rgba(10,14,23,0.95)] border-b border-white/[0.08] z-[1000]">
         <Link href="/">
-          <img
+          <Image
             src="/logo_dark.png"
             alt="SahaTour"
+            width={100}
+            height={28}
             className="h-7 w-auto object-contain rounded-md"
           />
         </Link>
@@ -281,34 +286,43 @@ export default function Navbar() {
           );
         })}
 
-{/* Avatar tab */}
-<button
-    onClick={() => {
-        if (!user && status !== "loading") {
-            window.location.href = "/auth/login";
-            return;
-        }
-        setSheetOpen(true);
-    }}
-    className="flex-1 flex flex-col items-center justify-center py-2 transition-all duration-200"
->
-    {user ? (
-        <img
-    src={visibleAvatarSrc}
-    alt="avatar"
-    className="w-8 h-8 rounded-full object-cover ring-1 ring-orange-500/40"
-    onError={(e) => {
-        setFailedAvatarSrc(avatarSrc);
-        e.currentTarget.src = "/default-avatar.png";
-    }}
-/>
-    ) : (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-        </svg>
-    )}
-</button>
+        {/* Avatar tab */}
+        <button
+          onClick={() => {
+            if (!user && status !== "loading") {
+              window.location.href = "/auth/login";
+              return;
+            }
+            setSheetOpen(true);
+          }}
+          className="flex-1 flex flex-col items-center justify-center py-2 transition-all duration-200"
+        >
+          {user ? (
+            <img
+              src={visibleAvatarSrc}
+              alt="avatar"
+              className="w-8 h-8 rounded-full object-cover ring-1 ring-orange-500/40"
+              onError={(e) => {
+                setFailedAvatarSrc(avatarSrc);
+                e.currentTarget.src = "/default-avatar.png";
+              }}
+            />
+          ) : (
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          )}
+        </button>
       </nav>
 
       {/* ── Mobile Slide-up Sheet ── */}

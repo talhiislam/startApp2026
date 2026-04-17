@@ -1,44 +1,63 @@
 import Link from "next/link";
+import Image from "next/image";
 import { type Campsite, typeColors, typeLabels } from "@/types/campsite";
 
 type CampsiteCardProps = {
-    id: string;
-    name: string;
-    location: string;
-    region: string;
-    type: Campsite["type"];
-    image: string;
-    price?: number;    
+  id: string;
+  name: string;
+  location: string;
+  region: string;
+  type: Campsite["type"];
+  image: string;
+  price?: number;
 };
 
-export default function CampsiteCard({ id, name, location, type, region, image, price }: CampsiteCardProps) {
-    return (
-        <Link href={`/explore/${id}`} className="group block">
-            <div className="bg-[#111827] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-orange-500/40 transition-all duration-300">
+export default function CampsiteCard({
+  id,
+  name,
+  location,
+  type,
+  region,
+  image,
+  price,
+}: CampsiteCardProps) {
+  return (
+    <Link href={`/explore/${id}`} className="group block">
+      <div className="bg-[#111827] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-orange-500/40 transition-all duration-300">
+        {/* Image */}
+        <div className="relative h-48 overflow-hidden">
+          {image ? (
+            <Image
+              src={image}
+              alt={name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full bg-white/[0.04]" />
+          )}
+          <span
+            className={`absolute top-3 left-3 text-xs font-medium px-2 py-1 rounded-full z-10 ${typeColors[type]}`}
+          >
+            {typeLabels[type]}
+          </span>
+        </div>
 
-                {/* Image */}
-                <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={image}
-                      alt={name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span className={`absolute top-3 left-3 text-xs font-medium px-2 py-1 rounded-full ${typeColors[type]}`}>
-                        {typeLabels[type]}
-                    </span>
-                </div>
-
-                {/* Info */}
-                <div className="p-4 flex flex-col gap-1">
-                    <h3 className="text-slate-100 font-semibold text-sm">{name}</h3>
-                    <p className="text-slate-500 text-xs">📍 {location}, {region}</p>
-                    {price !== undefined && (
-                        <p className="text-orange-400 text-sm font-medium mt-1">
-                          {price.toLocaleString()} DZD <span className="text-slate-500 font-normal">/ night</span>
-                        </p>
-                    )}
-                </div>
-            </div>
-        </Link>    
-    );
+        {/* Info */}
+        <div className="p-4 flex flex-col gap-1">
+          <h3 className="text-slate-100 font-semibold text-sm">{name}</h3>
+          <p className="text-slate-500 text-xs">
+            📍 {location}, {region}
+          </p>
+          {price !== undefined && (
+            <p className="text-orange-400 text-sm font-medium mt-1">
+              {price.toLocaleString()} DZD{" "}
+              <span className="text-slate-500 font-normal">/ night</span>
+            </p>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
 }

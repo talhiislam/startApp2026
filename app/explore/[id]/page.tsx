@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 import { type Campsite, typeColors } from "@/types/campsite";
 
@@ -54,10 +55,13 @@ function CampsiteGallery({
     <div className="flex flex-col gap-2">
       {/* Main image */}
       <div className="relative w-full h-80 rounded-2xl overflow-hidden">
-        <img
+        <Image
           src={images[activeIndex]}
           alt={`${name} — image ${activeIndex + 1}`}
-          className="w-full h-full object-cover transition-opacity duration-200"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 66vw, 800px"
+          className="object-cover transition-opacity duration-200"
+          priority={activeIndex === 0}
         />
         <span
           className={`absolute top-4 left-4 text-xs font-medium px-3 py-1 rounded-full capitalize ${typeColors[type]}`}
@@ -78,16 +82,18 @@ function CampsiteGallery({
             <button
               key={i}
               onClick={() => setActiveIndex(i)}
-              className={`shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-150 focus:outline-none ${
+              className={`relative shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-150 focus:outline-none ${
                 i === activeIndex
                   ? "border-orange-500"
                   : "border-transparent opacity-60 hover:opacity-90"
               }`}
             >
-              <img
+              <Image
                 src={src}
                 alt={`${name} thumbnail ${i + 1}`}
-                className="w-full h-full object-cover"
+                fill
+                sizes="80px"
+                className="object-cover"
               />
             </button>
           ))}

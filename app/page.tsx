@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { playfair } from "@/app/layout";
 import { connectToDatabase } from "@/lib/mongodb";
+import Image from "next/image";
 
 import CampingSite from "@/models/CampingSite";
 import CampsiteCard from "@/components/CampsiteCard";
@@ -98,10 +99,13 @@ export default async function Home() {
     <div className="flex flex-col">
       {/* Hero */}
       <section className="relative h-screen flex items-center justify-center text-center">
-        <img
+        <Image
           src="/hero.jpg"
           alt="Algeria landscape"
-          className="absolute inset-0 w-full h-full object-cover"
+          fill
+          sizes="100vw"
+          className="absolute inset-0 object-cover"
+          priority
         />
         <div className="relative z-10 flex flex-col items-center gap-6 px-6">
           <span className="text-xs font-medium px-4 py-1.5 rounded-full border border-orange-500/40 text-orange-400 tracking-widest uppercase">
