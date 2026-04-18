@@ -113,7 +113,7 @@ export default function ExplorePage() {
         <div className="flex flex-1 gap-3">
           <button
             onClick={() => setDrawerOpen((prev) => !prev)}
-            className={`shrink-0 flex items-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 text-sm transition ${
+            className={`shrink-0 flex items-center justify-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 text-sm transition ${
               drawerOpen || hasActiveFilters
                 ? "border-orange-500/40 text-orange-400"
                 : "border-white/[0.08] text-slate-400 hover:text-slate-200"
@@ -127,27 +127,36 @@ export default function ExplorePage() {
               <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
             )}
           </button>
+
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="flex-1 md:flex-none md:w-auto bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-400 outline-none focus:border-orange-500/40 transition"
+            // Added min-w-0 to ensure it doesn't overflow its flex container on very small screens
+            className="flex-1 min-w-0 md:flex-none md:w-auto bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-400 outline-none focus:border-orange-500/40 transition"
           >
-          {sortOptions.map((o) => (
-            <option key={o.value} value={o.value} className="bg-[#111827]">
-              {o.label}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={() => setView((v) => (v === "grid" ? "map" : "grid"))}
-          className={`shrink-0 flex items-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 whitespace-nowrap text-sm transition ${
-            view === "map"
-              ? "border-orange-500/40 text-orange-400"
-              : "border-white/[0.08] text-slate-400 hover:text-slate-200"
-          }`}
-        >
-          {view === "grid" ? "🗺 Map view" : "⊞ Grid view"}
-        </button>
+            {sortOptions.map((o) => (
+              <option key={o.value} value={o.value} className="bg-[#111827]">
+                {o.label}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => setView((v) => (v === "grid" ? "map" : "grid"))}
+            className={`shrink-0 flex items-center justify-center gap-2 bg-[#111827] border rounded-xl px-4 py-2.5 whitespace-nowrap text-sm transition ${
+              view === "map"
+                ? "border-orange-500/40 text-orange-400"
+                : "border-white/[0.08] text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            {/* Separated icon and text to hide text on mobile */}
+            <span className="text-base leading-none">
+              {view === "grid" ? "🗺" : "⊞"}
+            </span>
+            <span className="hidden md:inline">
+              {view === "grid" ? "Map view" : "Grid view"}
+            </span>
+          </button>
         </div>
       </div>
 
