@@ -6,6 +6,8 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 
+import ConfirmModal from "@/components/ConfirmModal";
+import { useToast } from "@/components/ToastProvider";
 import { type Campsite, typeColors } from "@/types/campsite";
 
 const CampsiteMap = dynamic(() => import("@/components/CampsiteMap"), {
@@ -131,6 +133,8 @@ export default function CampsiteDetail() {
   const [reviewError, setReviewError] = useState("");
   const [hasReviewed, setHasReviewed] = useState(false);
   const [hoveredStar, setHoveredStar] = useState(0);
+  const [authPromptOpen, setAuthPromptOpen] = useState(false);
+  const { toast } = useToast();
 
   const nights =
     dateRange?.from && dateRange?.to
@@ -188,18 +192,26 @@ export default function CampsiteDetail() {
     fetchReviews();
   }, [id, session]);
 
+  function openAuthPrompt() {
+    setAuthPromptOpen(true);
+  }
+
   async function handleBook() {
     setBookingError("");
     if (!session) {
-      router.push("/auth/login");
+      openAuthPrompt();
       return;
     }
     if (!dateRange?.from || !dateRange?.to) {
-      setBookingError("Please select check-in and check-out dates.");
+      toast(
+        "warning",
+        "Select your dates",
+        "Please pick a check-in and check-out date.",
+      );
       return;
     }
     if (nights <= 0) {
-      setBookingError("Check-out must be after check-in.");
+      toast("warning", "Invalid dates", "Check-out must be after check-in.");
       return;
     }
 
@@ -217,28 +229,43 @@ export default function CampsiteDetail() {
     const data = await res.json();
     setBooking(false);
     if (!res.ok) {
+      toast("error", "Booking failed", data.error);
       setBookingError(data.error);
       return;
     }
     setBookingSuccess(true);
+    toast("success", "Booking submitted", "Head to My Trips to manage it.");
   }
 
   async function handleSaveToggle() {
     if (!session) {
-      router.push("/auth/login");
+      openAuthPrompt();
       return;
     }
     setSavingToggle(true);
     const res = await fetch(`/api/saved/${id}`, { method: "POST" });
     const data = await res.json();
-    if (data.success) setSaved(data.saved);
+    if (data.success) {
+      setSaved(data.saved);
+      if (data.saved) {
+        toast("info", "Saved to wishlist", "Find it in My Trips -> Saved.");
+      } else {
+        toast("info", "Removed from saved", "You can save it again anytime.");
+      }
+    } else {
+      toast("error", "Something went wrong", "Could not update your saved list.");
+    }
     setSavingToggle(false);
   }
 
   async function handleReviewSubmit() {
     setReviewError("");
     if (reviewRating === 0) {
-      setReviewError("Please select a star rating.");
+      toast(
+        "warning",
+        "Select a rating",
+        "Please pick a star rating before submitting.",
+      );
       return;
     }
     setSubmittingReview(true);
@@ -251,6 +278,7 @@ export default function CampsiteDetail() {
     setSubmittingReview(false);
     if (!res.ok) {
       setReviewError(data.error);
+      toast("error", "Review failed", data.error);
       return;
     }
     setReviews((prev) => [data.data, ...prev]);
@@ -271,6 +299,7 @@ export default function CampsiteDetail() {
           }
         : prev,
     );
+    toast("success", "Review submitted", "Thanks for sharing your experience.");
   }
 
   if (loading)
@@ -434,7 +463,7 @@ export default function CampsiteDetail() {
                   Sign in to book this campsite
                 </p>
                 <button
-                  onClick={() => router.push("/auth/login")}
+                  onClick={openAuthPrompt}
                   className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition"
                 >
                   Sign in
@@ -609,7 +638,7 @@ export default function CampsiteDetail() {
         {!session && (
           <p className="text-slate-500 text-sm">
             <button
-              onClick={() => router.push("/auth/login")}
+              onClick={openAuthPrompt}
               className="text-orange-500 hover:underline"
             >
               Sign in
@@ -675,6 +704,27 @@ export default function CampsiteDetail() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={authPromptOpen}
+        title="Sign in required"
+        message="You need to log in or sign up before using this feature."
+        confirmLabel="Log In"
+        secondaryLabel="Sign Up"
+        cancelLabel="Stay here"
+        variant="warning"
+        onConfirm={() => {
+          setAuthPromptOpen(false);
+          router.push("/auth/login");
+        }}
+        onSecondary={() => {
+          setAuthPromptOpen(false);
+          router.push("/auth/signup");
+        }}
+        onCancel={() => {
+          setAuthPromptOpen(false);
+        }}
+      />
     </div>
   );
 }

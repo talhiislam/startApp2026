@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ToastProvider";
 import dynamic from "next/dynamic";
 import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
 
 import Card from "@/components/Card";
 import { type Campsite, typeColors, typeLabels } from "@/types/campsite";
+import ConfirmModal from "@/components/ConfirmModal";
 
 type OwnerCampsite = Campsite & {
   isApproved: boolean;
@@ -73,7 +75,6 @@ export default function DashboardPage() {
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedSiteId, setExpandedSiteId] = useState<string | null>(null);
   const [processingBookingId, setProcessingBookingId] = useState<string | null>(
@@ -82,6 +83,13 @@ export default function DashboardPage() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+
+  const { toast } = useToast();
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [bookingConfirm, setBookingConfirm] = useState<{
+    id: string;
+    status: "confirmed" | "cancelled" | "completed";
+  } | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/login");
@@ -148,6 +156,14 @@ export default function DashboardPage() {
           b._id === bookingId ? { ...b, status: newStatus } : b,
         ),
       );
+      const labels = {
+        confirmed: "Booking confirmed",
+        cancelled: "Booking declined",
+        completed: "Booking marked complete",
+      };
+      toast("success", labels[newStatus]);
+    } else {
+      toast("error", "Something went wrong", "Could not update this booking.");
     }
     setProcessingBookingId(null);
   }
@@ -160,7 +176,6 @@ export default function DashboardPage() {
     setUploadingImages(true);
     setUploadProgress(0);
     setError("");
-    setSuccess("");
     const urls: string[] = [];
     const failedFiles: string[] = [];
 
@@ -183,8 +198,9 @@ export default function DashboardPage() {
     if (urls.length > 0) {
       setUploadProgress(100);
       setUploadedImages((prev) => [...prev, ...urls]);
-      setSuccess(
-        `${urls.length} image${urls.length > 1 ? "s" : ""} uploaded successfully.`,
+      toast(
+        "success",
+        `${urls.length} image${urls.length > 1 ? "s" : ""} uploaded`,
       );
     }
 
@@ -207,7 +223,6 @@ export default function DashboardPage() {
     setForm(emptyForm);
     setUploadedImages([]);
     setError("");
-    setSuccess("");
     setShowForm(true);
   }
 
@@ -230,7 +245,6 @@ export default function DashboardPage() {
     });
     setUploadedImages(c.images);
     setError("");
-    setSuccess("");
     setShowForm(true);
   }
 
@@ -244,7 +258,6 @@ export default function DashboardPage() {
 
   async function handleSubmit() {
     setError("");
-    setSuccess("");
     setSubmitting(true);
 
     const payload = {
@@ -286,17 +299,16 @@ export default function DashboardPage() {
       setCampsites((prev) =>
         prev.map((c) => (c._id === editingId ? data.data : c)),
       );
-      setSuccess("Campsite updated. Pending admin approval.");
+      toast("warning", "Campsite updated", "Pending admin approval before going live.");
     } else {
       setCampsites((prev) => [data.data, ...prev]);
-      setSuccess("Campsite created. Pending admin approval.");
+      toast("warning", "Campsite created", "Pending admin approval before going live.");
     }
 
     closeForm();
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this campsite?")) return;
     setDeletingId(id);
     const res = await fetch(`/api/dashboard/campsites/${id}`, {
       method: "DELETE",
@@ -304,6 +316,9 @@ export default function DashboardPage() {
     if (res.ok) {
       setCampsites((prev) => prev.filter((c) => c._id !== id));
       setBookings((prev) => prev.filter((b) => b.site._id !== id));
+      toast("success", "Campsite deleted");
+    } else {
+      toast("error", "Something went wrong", "Could not delete this campsite.");
     }
     setDeletingId(null);
   }
@@ -332,8 +347,10 @@ export default function DashboardPage() {
             {bookings.filter((b) => b.status === "pending").length} pending ·{" "}
             <span className="text-orange-400/80">
               {bookings
-                .filter((b) => b.status === "confirmed" || b.status === "completed")
-                .reduce((sum, b) => sum + b.totalPrice,0)
+                .filter(
+                  (b) => b.status === "confirmed" || b.status === "completed",
+                )
+                .reduce((sum, b) => sum + b.totalPrice, 0)
                 .toLocaleString()}{" "}
               DZD total earned
             </span>
@@ -346,12 +363,6 @@ export default function DashboardPage() {
           + New Campsite
         </button>
       </div>
-
-      {success && (
-        <p className="text-green-400 text-sm bg-green-400/10 px-4 py-3 rounded-lg">
-          {success}
-        </p>
-      )}
 
       {showForm && (
         <Card className="p-6 flex flex-col gap-5">
@@ -650,7 +661,7 @@ export default function DashboardPage() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(c._id)}
+                      onClick={() => setDeleteConfirm(c._id)}
                       disabled={deletingId === c._id}
                       className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
                     >
@@ -747,7 +758,10 @@ export default function DashboardPage() {
                             <>
                               <button
                                 onClick={() =>
-                                  handleBookingAction(booking._id, "confirmed")
+                                  setBookingConfirm({
+                                    id: booking._id,
+                                    status: "confirmed",
+                                  })
                                 }
                                 disabled={processingBookingId === booking._id}
                                 className="text-xs text-green-400 hover:text-green-300 border border-green-400/20 px-3 py-1 rounded-lg transition disabled:opacity-50"
@@ -756,7 +770,10 @@ export default function DashboardPage() {
                               </button>
                               <button
                                 onClick={() =>
-                                  handleBookingAction(booking._id, "cancelled")
+                                  setBookingConfirm({
+                                    id: booking._id,
+                                    status: "cancelled",
+                                  })
                                 }
                                 disabled={processingBookingId === booking._id}
                                 className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1 rounded-lg transition disabled:opacity-50"
@@ -770,7 +787,10 @@ export default function DashboardPage() {
                             <>
                               <button
                                 onClick={() =>
-                                  handleBookingAction(booking._id, "completed")
+                                  setBookingConfirm({
+                                    id: booking._id,
+                                    status: "completed",
+                                  })
                                 }
                                 disabled={processingBookingId === booking._id}
                                 className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1 rounded-lg transition disabled:opacity-50"
@@ -779,7 +799,10 @@ export default function DashboardPage() {
                               </button>
                               <button
                                 onClick={() =>
-                                  handleBookingAction(booking._id, "cancelled")
+                                  setBookingConfirm({
+                                    id: booking._id,
+                                    status: "cancelled",
+                                  })
                                 }
                                 disabled={processingBookingId === booking._id}
                                 className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1 rounded-lg transition disabled:opacity-50"
@@ -798,6 +821,69 @@ export default function DashboardPage() {
           })}
         </div>
       )}
+
+      <ConfirmModal
+        open={deleteConfirm !== null}
+        title="Delete this campsite?"
+        message={
+          <>
+            This will permanently remove{" "}
+            <span style={{ color: "#cbd5e1" }}>
+              {campsites.find((c) => c._id === deleteConfirm)?.name ??
+                "this campsite"}
+            </span>{" "}
+            and all its data. This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete"
+        cancelLabel="Keep it"
+        variant="danger"
+        onConfirm={() => {
+          if (deleteConfirm) handleDelete(deleteConfirm);
+          setDeleteConfirm(null);
+        }}
+        onCancel={() => setDeleteConfirm(null)}
+      />
+
+      <ConfirmModal
+        open={bookingConfirm !== null}
+        title={
+          bookingConfirm?.status === "confirmed"
+            ? "Confirm this booking?"
+            : bookingConfirm?.status === "completed"
+              ? "Mark as completed?"
+              : "Decline this booking?"
+        }
+        message={
+          bookingConfirm?.status === "confirmed"
+            ? "The camper will be notified that their booking is confirmed."
+            : bookingConfirm?.status === "completed"
+              ? "This will mark the booking as completed and close it out."
+              : "This will cancel the booking. The camper will lose their spot."
+        }
+        confirmLabel={
+          bookingConfirm?.status === "confirmed"
+            ? "Confirm"
+            : bookingConfirm?.status === "completed"
+              ? "Mark complete"
+              : "Decline"
+        }
+        cancelLabel="Go back"
+        variant={
+          bookingConfirm?.status === "confirmed"
+            ? "safe"
+            : bookingConfirm?.status === "completed"
+              ? "safe"
+              : "danger"
+        }
+        onConfirm={() => {
+          if (bookingConfirm) {
+            handleBookingAction(bookingConfirm.id, bookingConfirm.status);
+          }
+          setBookingConfirm(null);
+        }}
+        onCancel={() => setBookingConfirm(null)}
+      />
     </div>
   );
 }

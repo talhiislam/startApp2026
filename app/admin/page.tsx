@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ToastProvider";
 import Card from "@/components/Card";
+import ConfirmModal from "@/components/ConfirmModal";
 import { typeColors, typeLabels } from "@/types/campsite";
 
 type AdminCampsite = {
@@ -46,6 +48,8 @@ export default function AdminPage() {
   const [loadingCampsites, setLoadingCampsites] = useState(true);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const { toast } = useToast();
+  const [revokeConfirm, setRevokeConfirm] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/login");
@@ -81,6 +85,9 @@ export default function AdminPage() {
       setCampsites((prev) =>
         prev.map((c) => (c._id === id ? { ...c, isApproved: true } : c)),
       );
+      toast("success", "Campsite approved", "It's now live on the explore page.");
+    } else {
+      toast("error", "Something went wrong", "Could not approve this campsite.");
     }
     setProcessingId(null);
   }
@@ -94,6 +101,9 @@ export default function AdminPage() {
       setCampsites((prev) =>
         prev.map((c) => (c._id === id ? { ...c, isApproved: false } : c)),
       );
+      toast("warning", "Campsite revoked", "It's been taken off the explore page.");
+    } else {
+      toast("error", "Something went wrong", "Could not revoke this campsite.");
     }
     setProcessingId(null);
   }
@@ -111,6 +121,9 @@ export default function AdminPage() {
           u._id === userId ? { ...u, role: role as AdminUser["role"] } : u,
         ),
       );
+      toast("success", "Role updated", `User is now a ${role}.`);
+    } else {
+      toast("error", "Something went wrong", "Could not update this user's role.");
     }
     setProcessingId(null);
   }
@@ -327,7 +340,7 @@ export default function AdminPage() {
                           {/* Buttons Container */}
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => handleReject(c._id)}
+                              onClick={() => setRevokeConfirm(c._id)}
                               disabled={processingId === c._id}
                               className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
                             >
@@ -417,6 +430,29 @@ export default function AdminPage() {
           )}
         </Card>
       </div>
+
+      <ConfirmModal
+        open={revokeConfirm !== null}
+        title="Revoke approval?"
+        message={
+          <>
+            This will take{" "}
+            <span style={{ color: "#cbd5e1" }}>
+              {campsites.find((c) => c._id === revokeConfirm)?.name ??
+                "this campsite"}
+            </span>{" "}
+            off the explore page. The owner will need to resubmit for approval.
+          </>
+        }
+        confirmLabel="Revoke"
+        cancelLabel="Keep approved"
+        variant="danger"
+        onConfirm={() => {
+          if (revokeConfirm) handleReject(revokeConfirm);
+          setRevokeConfirm(null);
+        }}
+        onCancel={() => setRevokeConfirm(null)}
+      />
     </div>
   );
 }

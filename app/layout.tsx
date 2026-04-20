@@ -3,8 +3,8 @@ import { Poppins, Playfair_Display } from "next/font/google";
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Providers from "@/components/Providers";
-import Footer from "@/components/Footer"
-
+import Footer from "@/components/Footer";
+import ToastProvider from "@/components/ToastProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -24,8 +24,13 @@ export const metadata: Metadata = {
     template: "%s — SahaTour",
   },
   description:
-  "Find and book the best camping spots across Algeria — from Sahara dunes to Kabylie forests and Mediterranean shores.",
-  keywords: ["camping Algeria", "campsites Algeria", "Sahara camping", "Algeria outdoor"],
+    "Find and book the best camping spots across Algeria — from Sahara dunes to Kabylie forests and Mediterranean shores.",
+  keywords: [
+    "camping Algeria",
+    "campsites Algeria",
+    "Sahara camping",
+    "Algeria outdoor",
+  ],
   openGraph: {
     siteName: "SahaTour",
     type: "website",
@@ -46,22 +51,27 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "SahaTour — Discover Algeria's Best Campsites",
-    description:
-      "Find and book the best camping spots across Algeria.",
+    description: "Find and book the best camping spots across Algeria.",
     images: ["/hero.jpg"],
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className={`${poppins.variable} ${playfair.variable}`}>
       <body className="antialiased font-sans">
         <Providers>
-          <Navbar />
-          <main className="pt-[44px] md:pt-[72px] pb-16 md:pb-0 min-h-screen bg-[#0a0e17]">
-            {children}
-          </main>
-          <Footer />
+          <ToastProvider>
+            <Navbar />
+            <main className="pt-[44px] md:pt-[72px] pb-16 md:pb-0 min-h-screen bg-[#0a0e17]">
+              {children}
+            </main>
+            <Footer />
+          </ToastProvider>
         </Providers>
       </body>
     </html>

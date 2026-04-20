@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ToastProvider";
 
 import Card from "@/components/Card";
 import { type Campsite } from "@/types/campsite";
 import CampsiteCard from "@/components/CampsiteCard";
+import ConfirmModal from "@/components/ConfirmModal";
 
 type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
 
@@ -17,7 +19,7 @@ type PopulatedSite = Pick<
 
 type Booking = {
   _id: string;
-  site: PopulatedSite;
+  site: PopulatedSite | null;
   checkIn: string;
   checkOut: string;
   guests: number;
@@ -51,6 +53,10 @@ export default function TripsPage() {
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [unsavingId, setUnsavingId] = useState<string | null>(null);
 
+  const { toast } = useToast();
+  const [cancelConfirm, setCancelConfirm] = useState<string | null>(null);
+  const [unsaveConfirm, setUnsaveConfirm] = useState<string | null>(null);
+
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/login");
   }, [status, router]);
@@ -82,6 +88,9 @@ export default function TripsPage() {
           b._id === bookingId ? { ...b, status: "cancelled" } : b,
         ),
       );
+      toast("success", "Booking cancelled", "Your booking has been cancelled.");
+    } else {
+      toast("error", "Something went wrong", "Could not cancel this booking.");
     }
     setCancellingId(null);
   }
@@ -92,6 +101,9 @@ export default function TripsPage() {
     const data = await res.json();
     if (data.success && !data.saved) {
       setSavedSites((prev) => prev.filter((s) => s._id !== siteId));
+      toast("info", "Removed from saved", "You can save it again anytime.");
+    } else {
+      toast("error", "Something went wrong", "Could not remove this campsite.");
     }
     setUnsavingId(null);
   }
@@ -181,35 +193,50 @@ export default function TripsPage() {
                       key={booking._id}
                       className="flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
                     >
-                      {/* Image: md:w-36 and h-auto to fix the bottom gap and spacing */}
-                      <div className="w-full h-40 md:w-36 md:h-auto shrink-0 self-stretch border-r border-white/[0.04]">
-                        <img
-                          src={booking.site.images[0] ?? ""}
-                          alt={booking.site.name}
-                          className="w-full h-full object-cover"
-                        />
+                      {/* Render a fallback block when the campsite was removed but the booking still exists */}
+                      <div className="w-full h-40 md:w-36 md:h-auto shrink-0 self-stretch border-r border-white/[0.04] bg-[#0f172a] flex items-center justify-center">
+                        {booking.site?.images?.[0] ? (
+                          <img
+                            src={booking.site.images[0]}
+                            alt={booking.site.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-slate-600 text-xs text-center px-4">
+                            Campsite unavailable
+                          </span>
+                        )}
                       </div>
 
                       {/* Info Wrapper: Added p-4 and justify-between to push status/price to the right */}
                       <div className="flex flex-col md:flex-row justify-between p-4 flex-1 gap-4 md:gap-8">
-                        
                         {/* Left Side: Core Info */}
                         <div className="flex flex-col gap-1.5 min-w-0">
                           <div className="flex flex-col gap-0.5">
                             <p className="text-slate-100 font-medium text-sm truncate">
-                              {booking.site.name}
+                              {booking.site?.name ?? "Deleted campsite"}
                             </p>
                             <p className="text-slate-500 text-xs truncate">
-                              📍 {booking.site.wilaya}, {booking.site.region}
+                              {booking.site
+                                ? `📍 ${booking.site.wilaya}, ${booking.site.region}`
+                                : "This campsite is no longer available."}
                             </p>
                           </div>
-                          
+
                           <div className="flex flex-col gap-0.5 mt-1">
                             <p className="text-slate-400 text-xs">
-                              📅 {new Date(booking.checkIn).toLocaleDateString("en-GB")} → {new Date(booking.checkOut).toLocaleDateString("en-GB")}
+                              📅{" "}
+                              {new Date(booking.checkIn).toLocaleDateString(
+                                "en-GB",
+                              )}{" "}
+                              →{" "}
+                              {new Date(booking.checkOut).toLocaleDateString(
+                                "en-GB",
+                              )}
                             </p>
                             <p className="text-slate-500 text-xs">
-                              👤 {booking.guests} guest{booking.guests > 1 ? "s" : ""}
+                              👤 {booking.guests} guest
+                              {booking.guests > 1 ? "s" : ""}
                             </p>
                           </div>
                         </div>
@@ -226,14 +253,16 @@ export default function TripsPage() {
                             <span className="text-orange-400 text-sm font-medium">
                               {booking.totalPrice.toLocaleString()} DZD
                             </span>
-                            
+
                             {booking.status === "pending" && (
                               <button
-                                onClick={() => handleCancel(booking._id)}
+                                onClick={() => setCancelConfirm(booking._id)}
                                 disabled={cancellingId === booking._id}
                                 className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1 rounded-lg transition disabled:opacity-50"
                               >
-                                {cancellingId === booking._id ? "..." : "Cancel"}
+                                {cancellingId === booking._id
+                                  ? "..."
+                                  : "Cancel"}
                               </button>
                             )}
                           </div>
@@ -284,7 +313,7 @@ export default function TripsPage() {
                         price={site.pricePerNight}
                       />
                       <button
-                        onClick={() => handleUnsave(site._id)}
+                        onClick={() => setUnsaveConfirm(site._id)}
                         disabled={unsavingId === site._id}
                         className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/60 text-white text-xs flex items-center justify-center hover:bg-red-500/80 transition disabled:opacity-50"
                       >
@@ -318,6 +347,33 @@ export default function TripsPage() {
           )}
         </Card>
       </div>
+      <ConfirmModal
+        open={cancelConfirm !== null}
+        title="Cancel this booking?"
+        message="This will cancel your pending booking. You'll need to rebook if you change your mind."
+        confirmLabel="Cancel booking"
+        cancelLabel="Keep it"
+        variant="danger"
+        onConfirm={() => {
+          if (cancelConfirm) handleCancel(cancelConfirm);
+          setCancelConfirm(null);
+        }}
+        onCancel={() => setCancelConfirm(null)}
+      />
+
+      <ConfirmModal
+        open={unsaveConfirm !== null}
+        title="Remove from saved?"
+        message="This campsite will be removed from your saved list. You can always save it again."
+        confirmLabel="Remove"
+        cancelLabel="Keep it"
+        variant="warning"
+        onConfirm={() => {
+          if (unsaveConfirm) handleUnsave(unsaveConfirm);
+          setUnsaveConfirm(null);
+        }}
+        onCancel={() => setUnsaveConfirm(null)}
+      />
     </div>
   );
 }

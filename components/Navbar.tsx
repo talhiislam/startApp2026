@@ -1,8 +1,10 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import ConfirmModal from "@/components/ConfirmModal";
+
 import { useState, useRef, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 
 const links = [
@@ -73,11 +75,15 @@ const bottomNavItems = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session, status } = useSession();
 
   const [open, setOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
+
+  const [signOutOpen, setSignOutOpen] = useState(false);
+  const [authPromptOpen, setAuthPromptOpen] = useState(false);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -111,6 +117,12 @@ export default function Navbar() {
     return pathname.startsWith(href);
   }
 
+  function openAuthPrompt() {
+    setOpen(false);
+    setSheetOpen(false);
+    setAuthPromptOpen(true);
+  }
+
   return (
     <>
       {/* ── Desktop Navbar ── */}
@@ -128,17 +140,30 @@ export default function Navbar() {
         <ul className="absolute left-1/2 -translate-x-1/2 flex gap-2 items-center list-none">
           {links.map((link) => (
             <li key={link.href}>
-              <Link
-                href={link.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300
+              {!user && link.href === "/trips" ? (
+                <button
+                  onClick={openAuthPrompt}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    pathname === link.href
+                      ? "text-orange-500"
+                      : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
+                  }`}
+                >
+                  {link.label}
+                </button>
+              ) : (
+                <Link
+                  href={link.href}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300
                                     ${
                                       pathname === link.href
                                         ? "text-orange-500"
                                         : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
                                     }`}
-              >
-                {link.label}
-              </Link>
+                >
+                  {link.label}
+                </Link>
+              )}
             </li>
           ))}
         </ul>
@@ -207,7 +232,7 @@ export default function Navbar() {
                       <button
                         onClick={() => {
                           setOpen(false);
-                          signOut({ callbackUrl: "/" });
+                          setSignOutOpen(true);
                         }}
                         className="w-full text-left px-4 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-white/5"
                       >
@@ -263,15 +288,26 @@ export default function Navbar() {
       <nav className="fixed bottom-0 left-0 right-0 h-16 flex md:hidden items-center bg-[#111827] border-t border-white/[0.08] z-[1000] px-2">
         {bottomNavItems.map((item) => {
           const active = isBottomNavActive(item.href);
-          const href =
-            !user && status !== "loading" && item.href === "/trips"
-              ? "/auth/login"
-              : item.href;
 
-          return (
+          return !user && status !== "loading" && item.href === "/trips" ? (
+            <button
+              key={item.href}
+              onClick={openAuthPrompt}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all duration-200 ${
+                active
+                  ? "text-orange-500"
+                  : "text-slate-600 hover:text-slate-400"
+              }`}
+            >
+              {item.icon(active)}
+              <span className="text-[10px] font-medium leading-none">
+                {item.label}
+              </span>
+            </button>
+          ) : (
             <Link
               key={item.href}
-              href={href}
+              href={item.href}
               className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all duration-200 ${
                 active
                   ? "text-orange-500"
@@ -290,7 +326,7 @@ export default function Navbar() {
         <button
           onClick={() => {
             if (!user && status !== "loading") {
-              window.location.href = "/auth/login";
+              openAuthPrompt();
               return;
             }
             setSheetOpen(true);
@@ -441,7 +477,7 @@ export default function Navbar() {
                 <button
                   onClick={() => {
                     setSheetOpen(false);
-                    signOut({ callbackUrl: "/" });
+                    setSignOutOpen(true);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition"
                 >
@@ -469,6 +505,41 @@ export default function Navbar() {
           </div>
         </>
       )}
+
+      <ConfirmModal
+        open={authPromptOpen}
+        title="Sign in required"
+        message="You need to log in or sign up before opening this page."
+        confirmLabel="Log In"
+        secondaryLabel="Sign Up"
+        cancelLabel="Stay here"
+        variant="warning"
+        onConfirm={() => {
+          setAuthPromptOpen(false);
+          router.push("/auth/login");
+        }}
+        onSecondary={() => {
+          setAuthPromptOpen(false);
+          router.push("/auth/signup");
+        }}
+        onCancel={() => {
+          setAuthPromptOpen(false);
+        }}
+      />
+
+      <ConfirmModal
+        open={signOutOpen}
+        title="Sign Out?"
+        message="You'll be returned to the home page and will need to sign in again to access your trips."
+        confirmLabel="Sign Out"
+        cancelLabel="Stay"
+        variant="warning"
+        onConfirm={() => {
+          setSignOutOpen(false);
+          signOut({ callbackUrl: "/" });
+        }}
+        onCancel={() => setSignOutOpen(false)}
+      />
     </>
   );
 }
