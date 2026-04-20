@@ -238,7 +238,7 @@ export default function AdminPage() {
                         {/* Right Side: Status & Actions */}
                         <div className="flex flex-row md:flex-col items-center md:items-end gap-3 shrink-0">
                           {/* Status Badge */}
-                          <span className="text-xs text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full font-medium">
+                          <span className="text-xs text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded-full font-medium">
                             Approved
                           </span>
 

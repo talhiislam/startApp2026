@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ToastProvider";
@@ -35,7 +35,6 @@ const statusColors: Record<BookingStatus, string> = {
 };
 
 const tabs = ["Bookings", "Saved", "Notes"];
-const NOTES_KEY = "sahatour_trip_notes";
 
 export default function TripsPage() {
   const { status } = useSession();
@@ -44,10 +43,9 @@ export default function TripsPage() {
   const [activeTab, setActiveTab] = useState("Bookings");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [savedSites, setSavedSites] = useState<PopulatedSite[]>([]);
-  const [notes, setNotes] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem(NOTES_KEY) ?? "";
-  });
+  const [notes, setNotes] = useState("");
+  const [notesSaving, setNotesSaving] = useState(false);
+  const [notesLoaded, setNotesLoaded] = useState(false);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -77,6 +75,15 @@ export default function TripsPage() {
         if (d.success) setSavedSites(d.data);
       })
       .finally(() => setLoadingSaved(false));
+
+    fetch("/api/profile/notes")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          setNotes(d.data);
+          setNotesLoaded(true);
+        }
+      });
   }, [status]);
 
   async function handleCancel(bookingId: string) {
@@ -108,9 +115,20 @@ export default function TripsPage() {
     setUnsavingId(null);
   }
 
+  const saveNotesTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   function handleNotesChange(val: string) {
     setNotes(val);
-    localStorage.setItem(NOTES_KEY, val);
+    if (saveNotesTimeout.current) clearTimeout(saveNotesTimeout.current);
+    saveNotesTimeout.current = setTimeout(async () => {
+      setNotesSaving(true);
+      await fetch("/api/profile/notes", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: val }),
+      });
+      setNotesSaving(false);
+    }, 800);
   }
 
   if (status === "loading")
@@ -333,8 +351,12 @@ export default function TripsPage() {
                 Trip Notes
               </h2>
               <p className="text-slate-500 text-xs">
-                Jot down packing lists, ideas, or plans. Saved locally on this
-                device.
+                Jot down packing lists, ideas, or plans.{" "}
+                {notesSaving ? (
+                  <span className="text-slate-600">Saving...</span>
+                ) : notesLoaded ? (
+                  <span className="text-green-500/60">Saved</span>
+                ) : null }
               </p>
               <textarea
                 value={notes}

@@ -11,6 +11,7 @@ export interface IUser extends Document {
   dateOfBirth?: Date;
   avatar?: string;
   savedSites: mongoose.Types.ObjectId[];
+  notes?: string;
   createdAt: Date;
 }
 
@@ -30,6 +31,7 @@ const UserSchema = new Schema<IUser>(
     dateOfBirth: { type: Date },
     avatar: { type: String },
     savedSites: [{ type: Schema.Types.ObjectId, ref: "CampingSite" }],
+    notes: { type: String, default: ""},
   },
   { timestamps: true },
 );
