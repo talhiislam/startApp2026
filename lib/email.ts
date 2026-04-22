@@ -1,8 +1,11 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.FROM_EMAIL ?? "onboarding@resend.dev";
 const SITE = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 function baseTemplate(title: string, body: string): string {
   return `
@@ -67,7 +70,7 @@ export async function sendVerificationEmail(email: string, code: string) {
             If you didn't create an account, you can safely ignore this email.
         </p>`;
 
-    return resend.emails.send({
+    return getResend().emails.send({
         from: FROM,
         to: email,
         subject: `${code} is your SahaTour verification code`,
@@ -92,7 +95,7 @@ export async function sendPasswordChangedEmail(email: string, username: string) 
         Go to Login
       </a>`;
 
-    return resend.emails.send({
+    return getResend().emails.send({
         from: FROM,
         to: email,
         subject: "Your SahaTour password was changed",
@@ -139,7 +142,7 @@ export async function sendNewBookingEmail(
         Manage in Dashboard
       </a>`;
 
-    return resend.emails.send({
+    return getResend().emails.send({
         from: FROM,
         to: ownerEmail,
         subject: `New booking request for ${campsiteName}`,
@@ -204,7 +207,7 @@ export async function sendBookingStatusEmail(
         View My Trips
       </a>`;
 
-    return resend.emails.send({
+    return getResend().emails.send({
         from: FROM,
         to: camperEmail,
         subject: `Your booking at ${campsiteName} is ${cfg.label}`,
@@ -230,7 +233,7 @@ export async function sendCampsiteApprovedEmail(
         View Campsite
       </a>`;
 
-    return resend.emails.send({
+    return getResend().emails.send({
         from: FROM,
         to: ownerEmail,
         subject: `${campsiteName} is now live on SahaTour`,
@@ -255,7 +258,7 @@ export async function sendCampsiteRejectedEmail(
         Go to Dashboard
       </a>`;
 
-    return resend.emails.send({
+    return getResend().emails.send({
         from: FROM,
         to: ownerEmail,
         subject: `Update required for ${campsiteName} — SahaTour`,
