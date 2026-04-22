@@ -12,6 +12,7 @@ export interface IUser extends Document {
   avatar?: string;
   savedSites: mongoose.Types.ObjectId[];
   notes?: string;
+  isVerified: boolean;
   createdAt: Date;
 }
 
@@ -32,6 +33,7 @@ const UserSchema = new Schema<IUser>(
     avatar: { type: String },
     savedSites: [{ type: Schema.Types.ObjectId, ref: "CampingSite" }],
     notes: { type: String, default: ""},
+    isVerified: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

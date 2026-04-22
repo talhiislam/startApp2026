@@ -2,12 +2,14 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Card from "@/components/Card";
 
 export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,6 +27,11 @@ export default function Login() {
     });
 
     setLoading(false);
+
+    if (res?.error === "EMAIL_NOT_VERIFIED") {
+      router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
+      return;
+    }
 
     if (res?.error) {
       setError("Invalid email or password");

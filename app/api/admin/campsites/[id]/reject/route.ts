@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { connectToDatabase } from "@/lib/mongodb";
+import { sendCampsiteRejectedEmail } from "@/lib/email";
+
+import User from "@/models/User";
 import CampingSite from "@/models/CampingSite";
 
 export async function PUT(
@@ -27,5 +30,18 @@ export async function PUT(
   if (!campsite)
     return NextResponse.json({ error: "Campsite not found" }, { status: 404 });
 
+  // Notify owner
+  try {
+    const owner = await User.findById(campsite.owner).select("email username");
+    if (owner) {
+      await sendCampsiteRejectedEmail(
+        owner.email,
+        owner.username,
+        campsite.name,
+      );
+    }
+  } catch (emailError) {
+    console.error("Failed to send campsite rejected email:", emailError);
+  }
   return NextResponse.json({ success: true, data: campsite });
 }

@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { connectToDatabase } from "@/lib/mongodb";
+import { sendBookingStatusEmail } from "@/lib/email";
 
 import Booking from "@/models/Booking";
 import CampingSite from "@/models/CampingSite";
+import User from "@/models/User";
 
 export async function PUT(
   req: NextRequest,
@@ -35,6 +37,23 @@ export async function PUT(
 
   booking.status = status;
   await booking.save();
+
+  // Notify camper
+  try {
+    const camper = await User.findById(booking.user).select("email username");
+    if (camper) {
+      await sendBookingStatusEmail(
+        camper.email,
+        camper.username,
+        site.name,
+        status,
+        new Date(booking.checkIn).toLocaleDateString("en-GB"),
+        new Date(booking.checkOut).toLocaleDateString("en-GB"),
+      );
+    }
+  } catch (emailError) {
+    console.error("Failed to send booking status email:", emailError);
+  }
 
   return NextResponse.json({ success: true, data: booking });
 }

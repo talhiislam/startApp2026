@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { connectToDatabase } from "@/lib/mongodb";
+import { sendNewBookingEmail } from "@/lib/email";
 
 import Booking from "@/models/Booking";
 import CampingSite from "@/models/CampingSite";
+import User from "@/models/User";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -127,6 +129,25 @@ export async function POST(req: NextRequest) {
     totalPrice,
     status: "pending",
   });
+
+  // Notify owner
+  try {
+    const owner = await User.findById(site.owner).select("email username");
+    if (owner) {
+      await sendNewBookingEmail(
+        owner.email,
+        owner.username,
+        session.user.username,
+        site.name,
+        checkInDate.toLocaleDateString("en-GB"),
+        checkOutDate.toLocaleDateString("en-GB"),
+        guests,
+        totalPrice,
+      );
+    }
+  } catch (emailError) {
+    console.error("Failed to send now booking email:", emailError);
+  }
 
   return NextResponse.json({ success: true, data: booking }, { status: 201 });
 }

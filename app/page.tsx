@@ -7,6 +7,7 @@ import CampingSite from "@/models/CampingSite";
 import CampsiteCard from "@/components/CampsiteCard";
 import type { Types } from "mongoose";
 import { type Campsite } from "@/types/campsite";
+import HowItWorks from "@/components/HowItWorks";
 
 type LeanCampsite = {
   _id: Types.ObjectId;
@@ -49,27 +50,6 @@ async function getFeaturedCampsites(): Promise<Campsite[]> {
     return [];
   }
 }
-
-const steps = [
-  {
-    number: "01",
-    title: "Find a Campsite",
-    description:
-      "Browse hundreds of campsites across Algeria — from Sahara dunes to mountain forests and coastal spots.",
-  },
-  {
-    number: "02",
-    title: "Plan Your Trip",
-    description:
-      "Save your favorites, set your dates, and build a packing checklist tailored to your destination.",
-  },
-  {
-    number: "03",
-    title: "Go Camping",
-    description:
-      "Head out with everything organized. Contact the campsite owner directly and enjoy the adventure.",
-  },
-];
 
 const reviews = [
   {
@@ -180,29 +160,7 @@ export default async function Home() {
       </section>
 
       {/* How it works */}
-      <section className="px-6 md:px-16 py-20 bg-[#111827] flex flex-col gap-10">
-        <div className="flex flex-col gap-2 text-center">
-          <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
-            Simple
-          </span>
-          <h2 className="text-3xl font-bold text-slate-100">How It Works</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {steps.map((step) => (
-            <div key={step.number} className="flex flex-col gap-4">
-              <span className="text-5xl font-bold text-orange-500/80">
-                {step.number}
-              </span>
-              <h3 className="text-slate-100 font-semibold text-lg">
-                {step.title}
-              </h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                {step.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <HowItWorks />
 
       {/* Reviews */}
       <section className="px-6 md:px-16 py-20 flex flex-col gap-10">

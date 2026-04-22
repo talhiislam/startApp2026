@@ -1,12 +1,14 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Card from "@/components/Card";
 
 export default function Signup() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,7 +41,7 @@ export default function Signup() {
       return;
     }
 
-    await signIn("credentials", { email, password, callbackUrl: "/" });
+    router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
   }
 
   return (

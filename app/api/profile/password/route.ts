@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { connectToDatabase } from "@/lib/mongodb";
+import { sendPasswordChangedEmail } from "@/lib/email";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
@@ -37,6 +38,12 @@ export async function PUT(req: NextRequest) {
         { username: session.user.username },
         { password: hashed }
     );
+
+    try {
+        await sendPasswordChangedEmail(user.email, user.username);
+    } catch (emailError) {
+        console.error("Failed to send password changed email:", emailError);
+    }
 
     return NextResponse.json({ message: "Password updated successfully" });
 }
