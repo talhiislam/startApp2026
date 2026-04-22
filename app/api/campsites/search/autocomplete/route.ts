@@ -53,7 +53,28 @@ export async function GET(req: NextRequest) {
       },
     ];
 
-    const results = await CampingSite.aggregate(pipeline);
+    let results;
+    try {
+      results = await CampingSite.aggregate(pipeline);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      const missingAtlasSearch =
+        message.includes("Unrecognized pipeline stage name: '$search'") ||
+        message.toLowerCase().includes("index not found");
+
+      // Fallback for local MongoDB or missing Atlas search index.
+      if (!missingAtlasSearch) throw error;
+
+      const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      results = await CampingSite.find({
+        isApproved: true,
+        $or: [{ name: regex }, { wilaya: regex }],
+      })
+        .select({ _id: 1, name: 1, wilaya: 1, region: 1, type: 1, images: 1 })
+        .limit(6)
+        .lean();
+    }
+
     return NextResponse.json({ success: true, data: results });
   } catch (error) {
     console.error("GET /api/campsites/search/autocomplete error:", error);

@@ -24,8 +24,8 @@ const minPrices = [
 const sortOptions = [
   { label: "Newest", value: "newest" },
   { label: "Top Rated", value: "rating" },
-  { label: "Price: low → high", value: "price_asc" },
-  { label: "Price: high → low", value: "price_desc" },
+  { label: "Price: low to high", value: "price_asc" },
+  { label: "Price: high to low", value: "price_desc" },
 ];
 
 type AutocompleteSuggestion = {
@@ -93,7 +93,7 @@ export default function ExplorePage() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Fetch autocomplete suggestions (200ms debounce — faster for dropdown feel)
+  // Fetch autocomplete suggestions (200ms debounce for dropdown responsiveness)
   useEffect(() => {
     if (search.length < 2) {
       setSuggestions([]);
@@ -101,23 +101,41 @@ export default function ExplorePage() {
       return;
     }
 
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
       setSuggestionLoading(true);
       try {
         const res = await fetch(
           `/api/campsites/search/autocomplete?q=${encodeURIComponent(search)}`,
+          { signal: controller.signal },
         );
+        if (!res.ok) {
+          setSuggestions([]);
+          setShowSuggestions(false);
+          return;
+        }
         const data = await res.json();
         if (data.success) {
           setSuggestions(data.data);
           setShowSuggestions(data.data.length > 0);
+        } else {
+          setSuggestions([]);
+          setShowSuggestions(false);
+        }
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          setSuggestions([]);
+          setShowSuggestions(false);
         }
       } finally {
         setSuggestionLoading(false);
       }
     }, 200);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [search]);
 
   const fetchCampsites = useCallback(async () => {
@@ -230,7 +248,7 @@ export default function ExplorePage() {
                         {s.name}
                       </span>
                       <span className="text-slate-500 text-xs truncate">
-                        {typeLabels[s.type]} · {s.wilaya}, {s.region}
+                        {typeLabels[s.type]} - {s.wilaya}, {s.region}
                       </span>
                     </div>
                   </button>
@@ -279,7 +297,7 @@ export default function ExplorePage() {
             }`}
           >
             <span className="text-base leading-none">
-              {view === "grid" ? "🗺" : "⊞"}
+              {view === "grid" ? "Map" : "Grid"}
             </span>
             <span className="hidden md:inline">
               {view === "grid" ? "Map view" : "Grid view"}
@@ -384,9 +402,7 @@ export default function ExplorePage() {
           <button
             onClick={() => setDrawerOpen(false)}
             className="text-slate-500 hover:text-slate-300 text-sm transition ml-auto"
-          >
-            ✕ Close
-          </button>
+          >x Close</button>
         </div>
       </div>
 
@@ -417,7 +433,7 @@ export default function ExplorePage() {
         </div>
       ) : campsites.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-20 text-center">
-          <span className="text-4xl">🏕️</span>
+          <span className="text-4xl">No results</span>
           <p className="text-slate-400 text-sm">
             No campsites found for your search.
           </p>
@@ -450,3 +466,4 @@ export default function ExplorePage() {
     </div>
   );
 }
+
