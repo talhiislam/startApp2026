@@ -2,7 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Card from "@/components/Card";
 
@@ -10,6 +10,8 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const verified = searchParams.get("verified") === "true";
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -44,13 +46,22 @@ export default function Login() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#0a0e17]">
       <Card className="p-8 w-full max-w-sm flex flex-col gap-6">
-
         {/* Header */}
         <div className="flex flex-col items-center gap-2">
-          <h1 className="text-xl font-bold mb-6 text-slate-100">Welcome back</h1>
+          <h1 className="text-xl font-bold mb-6 text-slate-100">
+            Welcome back
+          </h1>
           <p className="text-sm text-slate-400">Sign in to your account</p>
         </div>
-        
+
+        {/* Verified success banner */}
+        {verified && (
+          <div className="flex items-center gap-3 bg-green-400/10 border border-green-400/20 text-green-400 text-sm px-4 py-3 rounded-lg">
+            <span className="text-base">✓</span>
+            <span>Email verified! You can now sign in.</span>
+          </div>
+        )}
+
         {/* Error */}
         {error && (
           <p className="text-red-500 text-sm text-center bg-red-400/10 py-2 px-4 rounded-lg">
@@ -93,14 +104,18 @@ export default function Login() {
           onClick={() => signIn("google", { callbackUrl: "/" })}
           className="flex items-center justify-center gap-3 bg-white/5 border border-white/[0.08] text-slate-300 p-3 rounded-lg hover:bg-white/10 transition"
         >
-          <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="Google" />
+          <img
+            src="https://www.google.com/favicon.ico"
+            className="w-4 h-4"
+            alt="Google"
+          />
           Continue with Google
         </button>
 
         <p className="text-sm text-center text-slate-400">
           Don&apos;t have an account?{" "}
           <Link href="/auth/signup" className="text-orange-500 hover:underline">
-          Sign up
+            Sign up
           </Link>
         </p>
       </Card>

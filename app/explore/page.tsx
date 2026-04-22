@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { type Campsite } from "@/types/campsite";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { type Campsite, typeLabels } from "@/types/campsite";
 import dynamic from "next/dynamic";
 
 import CampsiteCard from "@/components/CampsiteCard";
@@ -26,11 +27,23 @@ const sortOptions = [
   { label: "Price: low → high", value: "price_asc" },
   { label: "Price: high → low", value: "price_desc" },
 ];
+
+type AutocompleteSuggestion = {
+  _id: string;
+  name: string;
+  wilaya: string;
+  region: string;
+  type: Campsite["type"];
+  images: string[];
+};
+
 const ExploreMap = dynamic(() => import("@/components/ExploreMap"), {
   ssr: false,
 });
 
 export default function ExplorePage() {
+  const router = useRouter();
+
   const [campsites, setCampsites] = useState<Campsite[]>([]);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -44,14 +57,66 @@ export default function ExplorePage() {
   const [sort, setSort] = useState("newest");
   const [view, setView] = useState<"grid" | "map">("grid");
 
+  // Autocomplete state
+  const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
   const hasActiveFilters =
     region !== "" || type !== "" || maxPrice !== "" || minPrice !== "";
 
-  // Debounce search input — waits 400ms after user stops typing
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: Event) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    }
+
+  }, []);
+
+  // Debounce search input for the main results (400ms)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
     }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Fetch autocomplete suggestions (200ms debounce — faster for dropdown feel)
+  useEffect(() => {
+    if (search.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setSuggestionLoading(true);
+      try {
+        const res = await fetch(
+          `/api/campsites/search/autocomplete?q=${encodeURIComponent(search)}`,
+        );
+        const data = await res.json();
+        if (data.success) {
+          setSuggestions(data.data);
+          setShowSuggestions(data.data.length > 0);
+        }
+      } finally {
+        setSuggestionLoading(false);
+      }
+    }, 200);
+
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -77,7 +142,6 @@ export default function ExplorePage() {
     const timer = setTimeout(() => {
       void fetchCampsites();
     }, 0);
-
     return () => clearTimeout(timer);
   }, [fetchCampsites]);
 
@@ -87,6 +151,20 @@ export default function ExplorePage() {
     setMaxPrice("");
     setMinPrice("");
   };
+
+  function handleSuggestionClick(suggestion: AutocompleteSuggestion) {
+    setShowSuggestions(false);
+    router.push(`/explore/${suggestion._id}`);
+  }
+
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Escape") {
+      setShowSuggestions(false);
+    }
+    if (e.key === "Enter") {
+      setShowSuggestions(false);
+    }
+  }
 
   return (
     <div className="min-h-screen px-6 md:px-16 py-12 flex flex-col gap-6">
@@ -103,13 +181,65 @@ export default function ExplorePage() {
 
       {/* Toolbar */}
       <div className="flex flex-col md:flex-row gap-3">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name, wilaya, or region..."
-          className="w-full md:flex-1 bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 outline-none focus:border-orange-500/40 transition"
-        />
+        {/* Search with autocomplete */}
+        <div ref={searchContainerRef} className="relative w-full md:flex-1">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              if (e.target.value.length >= 2) setShowSuggestions(true);
+            }}
+            onFocus={() => {
+              if (suggestions.length > 0) setShowSuggestions(true);
+            }}
+            onKeyDown={handleSearchKeyDown}
+            placeholder="Search by name, wilaya, amenities..."
+            className="w-full bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 outline-none focus:border-orange-500/40 transition"
+          />
+
+          {/* Autocomplete dropdown */}
+          {showSuggestions && (
+            <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#111827] border border-white/[0.08] rounded-xl shadow-2xl z-50 overflow-hidden">
+              {suggestionLoading ? (
+                <div className="px-4 py-3 text-xs text-slate-500">
+                  Searching...
+                </div>
+              ) : (
+                suggestions.map((s) => (
+                  <button
+                    key={s._id}
+                    onClick={() => handleSuggestionClick(s)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 transition text-left"
+                  >
+                    {/* Thumbnail */}
+                    <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-white/[0.04]">
+                      {s.images[0] ? (
+                        <img
+                          src={s.images[0]}
+                          alt={s.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full" />
+                      )}
+                    </div>
+                    {/* Text */}
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-slate-200 text-sm font-medium truncate">
+                        {s.name}
+                      </span>
+                      <span className="text-slate-500 text-xs truncate">
+                        {typeLabels[s.type]} · {s.wilaya}, {s.region}
+                      </span>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="flex flex-1 gap-3">
           <button
             onClick={() => setDrawerOpen((prev) => !prev)}
@@ -131,7 +261,6 @@ export default function ExplorePage() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            // Added min-w-0 to ensure it doesn't overflow its flex container on very small screens
             className="flex-1 min-w-0 md:flex-none md:w-auto bg-[#111827] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-400 outline-none focus:border-orange-500/40 transition"
           >
             {sortOptions.map((o) => (
@@ -149,7 +278,6 @@ export default function ExplorePage() {
                 : "border-white/[0.08] text-slate-400 hover:text-slate-200"
             }`}
           >
-            {/* Separated icon and text to hide text on mobile */}
             <span className="text-base leading-none">
               {view === "grid" ? "🗺" : "⊞"}
             </span>
