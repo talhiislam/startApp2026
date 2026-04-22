@@ -253,7 +253,11 @@ export default function CampsiteDetail() {
         toast("info", "Removed from saved", "You can save it again anytime.");
       }
     } else {
-      toast("error", "Something went wrong", "Could not update your saved list.");
+      toast(
+        "error",
+        "Something went wrong",
+        "Could not update your saved list.",
+      );
     }
     setSavingToggle(false);
   }
@@ -304,8 +308,60 @@ export default function CampsiteDetail() {
 
   if (loading)
     return (
-      <div className="min-h-screen px-6 md:px-16 py-12 text-slate-400 text-sm">
-        Loading...
+      <div className="min-h-screen px-6 md:px-16 pt-6 pb-12 md:py-12 flex flex-col gap-8">
+        {/* Back */}
+        <div className="w-24 h-4 bg-white/[0.06] rounded-full animate-pulse" />
+
+        {/* Gallery skeleton */}
+        <div className="w-full h-80 bg-[#111827] rounded-2xl animate-pulse" />
+
+        {/* Body */}
+        <div className="flex flex-col md:flex-row gap-10 items-start">
+          {/* Left */}
+          <div className="flex-1 flex flex-col gap-6">
+            {/* Title */}
+            <div className="flex flex-col gap-2">
+              <div className="w-64 h-7 bg-white/[0.06] rounded-lg animate-pulse" />
+              <div className="w-48 h-4 bg-white/[0.04] rounded-lg animate-pulse" />
+            </div>
+
+            <div className="h-px bg-white/[0.06]" />
+
+            {/* About */}
+            <div className="flex flex-col gap-2">
+              <div className="w-16 h-3 bg-white/[0.04] rounded animate-pulse" />
+              <div className="w-full h-4 bg-white/[0.06] rounded animate-pulse" />
+              <div className="w-full h-4 bg-white/[0.06] rounded animate-pulse" />
+              <div className="w-3/4 h-4 bg-white/[0.06] rounded animate-pulse" />
+            </div>
+
+            <div className="h-px bg-white/[0.06]" />
+
+            {/* Amenities */}
+            <div className="flex flex-col gap-3">
+              <div className="w-20 h-3 bg-white/[0.04] rounded animate-pulse" />
+              <div className="flex flex-wrap gap-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="w-20 h-7 bg-white/[0.06] rounded-full animate-pulse"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right — booking card skeleton */}
+          <div className="w-full md:w-72 md:shrink-0">
+            <div className="bg-[#111827] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-5">
+              <div className="w-40 h-7 bg-white/[0.06] rounded-lg animate-pulse" />
+              <div className="h-px bg-white/[0.06]" />
+              <div className="w-full h-64 bg-white/[0.04] rounded-xl animate-pulse" />
+              <div className="w-full h-10 bg-white/[0.06] rounded-xl animate-pulse" />
+              <div className="w-full h-12 bg-orange-500/20 rounded-xl animate-pulse" />
+            </div>
+          </div>
+        </div>
       </div>
     );
 
@@ -589,9 +645,7 @@ export default function CampsiteDetail() {
         {/* Write a review */}
         {session && !hasReviewed && (
           <div className="flex flex-col gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
-            <p className="text-sm text-slate-300 font-medium">
-              Write a Review
-            </p>
+            <p className="text-sm text-slate-300 font-medium">Write a Review</p>
 
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -683,14 +737,11 @@ export default function CampsiteDetail() {
                       </span>
                     </span>
                     <span className="text-slate-600 text-xs">
-                      {new Date(review.createdAt).toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        },
-                      )}
+                      {new Date(review.createdAt).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </span>
                   </div>
                 </div>
