@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
                 },
               },
             ],
+            minimumShouldMatch: 1,
             filter: [{ equals: { path: "isApproved", value: true } }],
           },
         },

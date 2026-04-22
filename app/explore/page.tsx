@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -24,8 +24,8 @@ const minPrices = [
 const sortOptions = [
   { label: "Newest", value: "newest" },
   { label: "Top Rated", value: "rating" },
-  { label: "Price: low to high", value: "price_asc" },
-  { label: "Price: high to low", value: "price_desc" },
+  { label: "Price: low \u2192 high", value: "price_asc" },
+  { label: "Price: high \u2192 low", value: "price_desc" },
 ];
 
 type AutocompleteSuggestion = {
@@ -248,7 +248,7 @@ export default function ExplorePage() {
                         {s.name}
                       </span>
                       <span className="text-slate-500 text-xs truncate">
-                        {typeLabels[s.type]} - {s.wilaya}, {s.region}
+                        {typeLabels[s.type]} {"\u00B7"} {s.wilaya}, {s.region}
                       </span>
                     </div>
                   </button>
@@ -297,7 +297,7 @@ export default function ExplorePage() {
             }`}
           >
             <span className="text-base leading-none">
-              {view === "grid" ? "Map" : "Grid"}
+              {view === "grid" ? "\u{1F5FA}\uFE0F" : "\u25A6"}
             </span>
             <span className="hidden md:inline">
               {view === "grid" ? "Map view" : "Grid view"}
@@ -402,7 +402,9 @@ export default function ExplorePage() {
           <button
             onClick={() => setDrawerOpen(false)}
             className="text-slate-500 hover:text-slate-300 text-sm transition ml-auto"
-          >x Close</button>
+          >
+            {"\u2715"} Close
+          </button>
         </div>
       </div>
 
@@ -433,7 +435,7 @@ export default function ExplorePage() {
         </div>
       ) : campsites.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-20 text-center">
-          <span className="text-4xl">No results</span>
+          <span className="text-4xl">{"\u{1F50D}"}</span>
           <p className="text-slate-400 text-sm">
             No campsites found for your search.
           </p>
@@ -466,4 +468,5 @@ export default function ExplorePage() {
     </div>
   );
 }
+
 

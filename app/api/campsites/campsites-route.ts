@@ -26,10 +26,6 @@ export async function GET(req: NextRequest) {
 
     // ── Atlas Search path ──────────────────────────────────────────────────
     if (search) {
-      const mustClauses: object[] = [
-        { equals: { path: "isApproved", value: true } },
-      ];
-
       // Optional filter clauses (region / wilaya / type)
       const filterClauses: object[] = [];
       if (region)
@@ -47,6 +43,21 @@ export async function GET(req: NextRequest) {
                 {
                   compound: {
                     should: [
+                      // Prefix matching for short queries like "tas"
+                      {
+                        autocomplete: {
+                          query: search,
+                          path: "name",
+                          score: { boost: { value: 6 } },
+                        },
+                      },
+                      {
+                        autocomplete: {
+                          query: search,
+                          path: "wilaya",
+                          score: { boost: { value: 4 } },
+                        },
+                      },
                       // Boost exact-ish name matches
                       {
                         text: {
