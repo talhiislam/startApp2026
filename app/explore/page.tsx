@@ -57,6 +57,10 @@ export default function ExplorePage() {
   const [sort, setSort] = useState("newest");
   const [view, setView] = useState<"grid" | "map">("grid");
 
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
   // Autocomplete state
   const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -148,20 +152,50 @@ export default function ExplorePage() {
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
     if (sort !== "newest") params.set("sort", sort);
+    params.set("page", String(page));
 
     const res = await fetch(`/api/campsites?${params.toString()}`);
     const data = await res.json();
 
-    if (data.success) setCampsites(data.data);
+    if (data.success) {
+      setCampsites(data.data);
+      setTotal(data.total);
+      setTotalPages(data.totalPages)
+    }
     setLoading(false);
-  }, [debouncedSearch, region, type, minPrice, maxPrice, sort]);
+  }, [debouncedSearch, region, type, minPrice, maxPrice, sort, page]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      void fetchCampsites();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [fetchCampsites]);
+    if (view === "map") {
+      setLoading(true);
+
+      const params = new URLSearchParams();
+      if (debouncedSearch) params.set("search", debouncedSearch);
+      if (region) params.set("region", region);
+      if (type) params.set("type", type);
+      if (minPrice) params.set("minPrice", minPrice);
+      if (maxPrice) params.set("maxPrice", maxPrice);
+      if (sort !== "newest") params.set("sort", sort);
+      params.set("page", "all");
+
+      fetch(`/api/campsites?${params.toString()}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.success) {
+            setCampsites(data.data);
+          }
+        })
+        .finally(() => setLoading(false));
+
+      return;
+    }
+
+    void fetchCampsites();
+  }, [fetchCampsites, view, debouncedSearch, region, type, minPrice, maxPrice, sort]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, region, type, minPrice, maxPrice, sort]);
 
   const clearFilters = () => {
     setRegion("");
@@ -411,8 +445,12 @@ export default function ExplorePage() {
       {/* Result count */}
       {view === "grid" && (
         <p className="text-slate-500 text-sm">
-          <span className="text-slate-300 font-medium">{campsites.length}</span>{" "}
-          campsites found
+          Showing{" "}
+          <span className="text-slate-300 font-medium">
+            {total === 0 ? 0 : (page - 1) * 12 + 1}-{Math.min(page * 12, total)}
+          </span>{" "}
+          of{" "}
+          <span className="text-slate-300 font-medium">{total}</span> campsites
         </p>
       )}
 
@@ -450,19 +488,71 @@ export default function ExplorePage() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {campsites.map((c) => (
-            <CampsiteCard
-              key={c._id}
-              id={c._id}
-              name={c.name}
-              location={c.wilaya}
-              region={c.region}
-              type={c.type}
-              image={c.images[0] ?? ""}
-              price={c.pricePerNight}
-            />
-          ))}
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {campsites.map((c) => (
+              <CampsiteCard
+                key={c._id}
+                id={c._id}
+                name={c.name}
+                location={c.wilaya}
+                region={c.region}
+                type={c.type}
+                image={c.images[0] ?? ""}
+                price={c.pricePerNight}
+              />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-1 pt-4">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                {"\u2190"} Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                .reduce<(number | "...")[]>((acc, p, i, arr) => {
+                  if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push("...");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, i) =>
+                  p === "..." ? (
+                    <span
+                      key={`ellipsis-${i}`}
+                      className="px-2 text-slate-600 text-sm"
+                    >
+                      {"\u2026"}
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p as number)}
+                      className={`w-9 h-9 rounded-lg text-sm font-medium transition ${
+                        page === p
+                          ? "bg-orange-500 text-white"
+                          : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ),
+                )}
+
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                Next {"\u2192"}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
