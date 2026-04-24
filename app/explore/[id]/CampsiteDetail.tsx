@@ -40,6 +40,20 @@ function CampsiteGallery({
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setLightboxOpen(false);
+      if (e.key === "ArrowRight") setLightboxIndex((i) => (i + 1) % images.length);
+      if (e.key === "ArrowLeft") setLightboxIndex((i) => (i - 1 + images.length) % images.length);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [lightboxOpen, images.length]);
+
   if (images.length === 0) {
     return (
       <div className="relative w-full h-80 rounded-2xl overflow-hidden bg-[#111827] flex items-center justify-center">
@@ -56,7 +70,10 @@ function CampsiteGallery({
   return (
     <div className="flex flex-col gap-2">
       {/* Main image */}
-      <div className="relative w-full h-80 rounded-2xl overflow-hidden">
+      <div
+        className="relative w-full h-80 rounded-2xl overflow-hidden cursor-pointer group"
+        onClick={() => {setLightboxIndex(activeIndex); setLightboxOpen(true); }}
+      >
         <Image
           src={images[activeIndex]}
           alt={`${name} - image ${activeIndex + 1}`}
@@ -70,6 +87,11 @@ function CampsiteGallery({
         >
           {type}
         </span>
+        <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs bg-black/50 px-3 py-1.5 rounded-full">
+            View fullscreen
+          </span>
+        </div>
         {images.length > 1 && (
           <span className="absolute bottom-3 right-3 text-xs text-white bg-black/60 px-2.5 py-1 rounded-full">
             {activeIndex + 1} / {images.length}
@@ -99,6 +121,62 @@ function CampsiteGallery({
               />
             </button>
           ))}
+        </div>
+      )}
+
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center"
+          onClick={() => setLightboxOpen(false)}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg transition z-10"
+          >
+            ✕
+          </button>
+
+          {/* Prev arrow */}
+          {images.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i - 1 + images.length) % images.length); }}
+              className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg transition z-10"
+            >
+              ‹
+            </button>
+          )}
+
+          {/* Main lightbox image */}
+          <div
+            className="relative w-full h-full max-w-5xl max-h-[90vh] mx-16"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={images[lightboxIndex]}
+              alt={`${name} - image ${lightboxIndex + 1}`}
+              fill
+              sizes="100vw"
+              className="object-contain"
+            />
+          </div>
+
+          {/* Next arrow */}
+          {images.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i + 1) % images.length); }}
+              className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg transition z-10"
+            >
+              ›
+            </button>
+          )}
+
+          {/* Image counter */}
+          {images.length > 1 && (
+            <span className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-white bg-black/50 px-3 py-1.5 rounded-full">
+              {lightboxIndex + 1} / {images.length}
+            </span>
+          )}
         </div>
       )}
     </div>

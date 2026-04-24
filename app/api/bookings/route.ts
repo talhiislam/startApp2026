@@ -115,6 +115,21 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Prevent same user double-booking for overlapping dates
+  const userOverlap = await Booking.findOne({
+    user: session.user.id,
+    status: { $in: ["pending", "confirmed"] },
+    checkIn: { $lt: checkOutDate },
+    checkOut: { $gt: checkInDate },
+  });
+
+  if (userOverlap) {
+    return NextResponse.json(
+      { error: "You already have an active booking overlapping these dates" },
+      { status: 409 },
+    );
+  }
+
   const nights = Math.round(
     (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24),
   );
