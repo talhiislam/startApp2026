@@ -210,6 +210,8 @@ export default function CampsiteDetail() {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState("");
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
+
   const [hoveredStar, setHoveredStar] = useState(0);
   const [authPromptOpen, setAuthPromptOpen] = useState(false);
   const { toast } = useToast();
@@ -382,6 +384,35 @@ export default function CampsiteDetail() {
         : prev,
     );
     toast("success", "Review submitted", "Thanks for sharing your experience.");
+  }
+
+  async function handleReviewDelete(reviewId: string) {
+    const res = await fetch(`/api/campsites/${id}/reviews/${reviewId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      toast("error", "Something went wrong", "Could not delete your review.");
+      return;
+    }
+    setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+    setHasReviewed(false);
+    setCampsite((prev) =>
+      prev
+        ? {
+          ...prev,
+          reviewCount: Math.max(0, prev.reviewCount - 1),
+          averageRating:
+            prev.reviewCount <= 1
+            ? 0
+            : Math.round(
+              ((prev.averageRating * prev.reviewCount - (reviews.find((r) => r._id === reviewId)?.rating ?? 0)) /
+              (prev.reviewCount - 1)) *
+              10
+            ) / 10,
+        }
+      : prev
+    );
+    toast("success", "Review deleted");
   }
 
   if (loading)
@@ -565,7 +596,8 @@ export default function CampsiteDetail() {
           </div>
 
           {/* Location section */}
-          {campsite.coordinates?.lat && campsite.coordinates?.lng && (
+          {campsite.coordinates?.lat != null &&
+            campsite.coordinates?.lng != null && (
             <>
               <div className="h-px bg-white/[0.06]" />
               <div className="flex flex-col gap-3">
@@ -800,8 +832,19 @@ export default function CampsiteDetail() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
-                      {review.user.username[0].toUpperCase()}
+                    <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold overflow-hidden shrink-0">
+                      {review.user.avatar ? (
+                        <img
+                          src={review.user.avatar}
+                          alt={review.user.username}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        review.user.username[0].toUpperCase()
+                      )}
                     </div>
                     <span className="text-slate-300 text-sm font-medium">
                       {review.user.username}
@@ -821,6 +864,14 @@ export default function CampsiteDetail() {
                         year: "numeric",
                       })}
                     </span>
+                    {session?.user.username === review.user.username && (
+                      <button
+                        onClick={() => setReviewToDelete(review._id)}
+                        className="w-6 h-6 rounded-full bg-white/5 hover:bg-red-500/20 text-slate-600 hover:text-red-400 flex items-center justify-center text-xs transition"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 </div>
                 {review.comment && (
@@ -853,6 +904,20 @@ export default function CampsiteDetail() {
         onCancel={() => {
           setAuthPromptOpen(false);
         }}
+      />
+
+      <ConfirmModal
+        open={reviewToDelete !== null}
+        title="Delete your review?"
+        message="This will permanently remove your review. You'll be able to leave a new one after."
+        confirmLabel="Delete"
+        cancelLabel="Keep it"
+        variant="danger"
+        onConfirm={() => {
+          if (reviewToDelete) handleReviewDelete(reviewToDelete);
+          setReviewToDelete(null);
+        }}
+        onCancel={()=> setReviewToDelete(null)}
       />
     </div>
   );
