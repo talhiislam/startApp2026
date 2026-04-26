@@ -47,8 +47,10 @@ function CampsiteGallery({
     if (!lightboxOpen) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setLightboxOpen(false);
-      if (e.key === "ArrowRight") setLightboxIndex((i) => (i + 1) % images.length);
-      if (e.key === "ArrowLeft") setLightboxIndex((i) => (i - 1 + images.length) % images.length);
+      if (e.key === "ArrowRight")
+        setLightboxIndex((i) => (i + 1) % images.length);
+      if (e.key === "ArrowLeft")
+        setLightboxIndex((i) => (i - 1 + images.length) % images.length);
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -72,7 +74,10 @@ function CampsiteGallery({
       {/* Main image */}
       <div
         className="relative w-full h-80 rounded-2xl overflow-hidden cursor-pointer group"
-        onClick={() => {setLightboxIndex(activeIndex); setLightboxOpen(true); }}
+        onClick={() => {
+          setLightboxIndex(activeIndex);
+          setLightboxOpen(true);
+        }}
       >
         <Image
           src={images[activeIndex]}
@@ -140,7 +145,12 @@ function CampsiteGallery({
           {/* Prev arrow */}
           {images.length > 1 && (
             <button
-              onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i - 1 + images.length) % images.length); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(
+                  (i) => (i - 1 + images.length) % images.length,
+                );
+              }}
               className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg transition z-10"
             >
               ‹
@@ -164,7 +174,10 @@ function CampsiteGallery({
           {/* Next arrow */}
           {images.length > 1 && (
             <button
-              onClick={(e) => { e.stopPropagation(); setLightboxIndex((i) => (i + 1) % images.length); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex((i) => (i + 1) % images.length);
+              }}
               className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-lg transition z-10"
             >
               ›
@@ -399,18 +412,19 @@ export default function CampsiteDetail() {
     setCampsite((prev) =>
       prev
         ? {
-          ...prev,
-          reviewCount: Math.max(0, prev.reviewCount - 1),
-          averageRating:
-            prev.reviewCount <= 1
-            ? 0
-            : Math.round(
-              ((prev.averageRating * prev.reviewCount - (reviews.find((r) => r._id === reviewId)?.rating ?? 0)) /
-              (prev.reviewCount - 1)) *
-              10
-            ) / 10,
-        }
-      : prev
+            ...prev,
+            reviewCount: Math.max(0, prev.reviewCount - 1),
+            averageRating:
+              prev.reviewCount <= 1
+                ? 0
+                : Math.round(
+                    ((prev.averageRating * prev.reviewCount -
+                      (reviews.find((r) => r._id === reviewId)?.rating ?? 0)) /
+                      (prev.reviewCount - 1)) *
+                      10,
+                  ) / 10,
+          }
+        : prev,
     );
     toast("success", "Review deleted");
   }
@@ -598,25 +612,25 @@ export default function CampsiteDetail() {
           {/* Location section */}
           {campsite.coordinates?.lat != null &&
             campsite.coordinates?.lng != null && (
-            <>
-              <div className="h-px bg-white/[0.06]" />
-              <div className="flex flex-col gap-3">
-                <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
-                  Location
-                </p>
-                <div className="h-64 w-full rounded-2xl overflow-hidden border border-white/[0.08]">
-                  <CampsiteMap
-                    lat={campsite.coordinates.lat}
-                    lng={campsite.coordinates.lng}
-                    name={campsite.name}
-                  />
+              <>
+                <div className="h-px bg-white/[0.06]" />
+                <div className="flex flex-col gap-3">
+                  <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+                    Location
+                  </p>
+                  <div className="h-64 w-full rounded-2xl overflow-hidden border border-white/[0.08]">
+                    <CampsiteMap
+                      lat={campsite.coordinates.lat}
+                      lng={campsite.coordinates.lng}
+                      name={campsite.name}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    {campsite.wilaya}, {campsite.region}
+                  </p>
                 </div>
-                <p className="text-xs text-slate-500">
-                  {campsite.wilaya}, {campsite.region}
-                </p>
-              </div>
-            </>
-          )}
+              </>
+            )}
         </div>
 
         {/* Right - Booking card */}
@@ -917,7 +931,7 @@ export default function CampsiteDetail() {
           if (reviewToDelete) handleReviewDelete(reviewToDelete);
           setReviewToDelete(null);
         }}
-        onCancel={()=> setReviewToDelete(null)}
+        onCancel={() => setReviewToDelete(null)}
       />
     </div>
   );
