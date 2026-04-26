@@ -54,6 +54,9 @@ export const metadata: Metadata = {
     description: "Find and book the best camping spots across Algeria.",
     images: ["/hero.jpg"],
   },
+  verification: {
+    google: "cUyoUqTw1QXrYrxRQR6j0eIfqGDiTK2v5itLDRICJVg",
+  }
 };
 
 export default function RootLayout({
