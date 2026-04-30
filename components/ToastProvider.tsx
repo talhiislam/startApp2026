@@ -88,8 +88,8 @@ function ToastItem({
   return (
     <div
       style={{
-        background: "#111827",
-        border: "0.5px solid rgba(255,255,255,0.08)",
+        background: "var(--bg-card)",
+        border: "0.5px solid var(--border)",
         borderLeft: `3px solid ${BORDER[toast.type]}`,
         borderRadius: "12px",
         padding: "12px 14px",
@@ -130,7 +130,7 @@ function ToastItem({
           style={{
             fontSize: "13px",
             fontWeight: 500,
-            color: "#e2e8f0",
+            color: "var(--text-primary)",
             margin: 0,
           }}
         >
@@ -140,7 +140,7 @@ function ToastItem({
           <p
             style={{
               fontSize: "12px",
-              color: "#64748b",
+              color: "var(--text-faint)",
               margin: "2px 0 0",
               lineHeight: 1.4,
             }}
@@ -156,7 +156,7 @@ function ToastItem({
         style={{
           background: "none",
           border: "none",
-          color: "#475569",
+          color: "var(--text-ghost)",
           cursor: "pointer",
           fontSize: "14px",
           lineHeight: 1,

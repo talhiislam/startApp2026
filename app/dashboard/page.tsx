@@ -324,8 +324,13 @@ export default function DashboardPage() {
   }
 
   const inputClass =
-    "bg-white/5 border border-white/[0.08] text-slate-100 placeholder:text-slate-500 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition w-full text-sm";
-  const labelClass = "text-xs text-slate-500 uppercase tracking-wide mb-1";
+    "p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition w-full text-sm";
+  const inputStyle = {
+    background: "var(--bg-input)",
+    border: "1px solid var(--border)",
+    color: "var(--text-primary)",
+  } as const;
+  const labelClass = "text-xs uppercase tracking-wide mb-1";
 
   if (status === "loading" || loading)
     return (
@@ -341,8 +346,13 @@ export default function DashboardPage() {
           <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
             Owner
           </span>
-          <h1 className="text-3xl font-bold text-slate-100">My Campsites</h1>
-          <p className="text-slate-500 text-sm">
+          <h1
+            className="text-3xl font-bold"
+            style={{ color: "var(--text-primary)" }}
+          >
+            My Campsites
+          </h1>
+          <p className="text-sm" style={{ color: "var(--text-faint)" }}>
             {campsites.length} campsite{campsites.length !== 1 ? "s" : ""} ·{" "}
             {bookings.filter((b) => b.status === "pending").length} pending ·{" "}
             <span className="text-orange-400/80">
@@ -367,12 +377,16 @@ export default function DashboardPage() {
       {showForm && (
         <Card className="p-6 flex flex-col gap-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-slate-100 font-semibold text-lg">
+            <h2
+              className="font-semibold text-lg"
+              style={{ color: "var(--text-primary)" }}
+            >
               {editingId ? "Edit Campsite" : "New Campsite"}
             </h2>
             <button
               onClick={closeForm}
-              className="text-slate-500 hover:text-slate-300 transition text-lg"
+              className="transition text-lg"
+              style={{ color: "var(--text-faint)" }}
             >
               x
             </button>
@@ -380,18 +394,30 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col md:col-span-2">
-              <label className={labelClass}>Name</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Name
+              </label>
               <input
                 className={inputClass}
+                style={inputStyle}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Campsite name"
               />
             </div>
             <div className="flex flex-col md:col-span-2">
-              <label className={labelClass}>Description</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Description
+              </label>
               <textarea
                 className={inputClass}
+                style={inputStyle}
                 rows={3}
                 value={form.description}
                 onChange={(e) =>
@@ -401,18 +427,30 @@ export default function DashboardPage() {
               />
             </div>
             <div className="flex flex-col">
-              <label className={labelClass}>Wilaya</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Wilaya
+              </label>
               <input
                 className={inputClass}
+                style={inputStyle}
                 value={form.wilaya}
                 onChange={(e) => setForm({ ...form, wilaya: e.target.value })}
                 placeholder="e.g. Tamanrasset"
               />
             </div>
             <div className="flex flex-col">
-              <label className={labelClass}>Region</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Region
+              </label>
               <select
                 className={inputClass}
+                style={inputStyle}
                 value={form.region}
                 onChange={(e) => setForm({ ...form, region: e.target.value })}
               >
@@ -424,9 +462,15 @@ export default function DashboardPage() {
               </select>
             </div>
             <div className="flex flex-col">
-              <label className={labelClass}>Type</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Type
+              </label>
               <select
                 className={inputClass}
+                style={inputStyle}
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
               >
@@ -438,9 +482,15 @@ export default function DashboardPage() {
               </select>
             </div>
             <div className="flex flex-col">
-              <label className={labelClass}>Price per Night (DZD)</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Price per Night (DZD)
+              </label>
               <input
                 className={inputClass}
+                style={inputStyle}
                 type="number"
                 min="0"
                 value={form.pricePerNight}
@@ -451,9 +501,15 @@ export default function DashboardPage() {
               />
             </div>
             <div className="flex flex-col">
-              <label className={labelClass}>Capacity (max guests)</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Capacity (max guests)
+              </label>
               <input
                 className={inputClass}
+                style={inputStyle}
                 type="number"
                 min="1"
                 value={form.capacity}
@@ -462,9 +518,15 @@ export default function DashboardPage() {
               />
             </div>
             <div className="flex flex-col md:col-span-2">
-              <label className={labelClass}>Amenities (comma separated)</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Amenities (comma separated)
+              </label>
               <input
                 className={inputClass}
+                style={inputStyle}
                 value={form.amenities}
                 onChange={(e) =>
                   setForm({ ...form, amenities: e.target.value })
@@ -473,7 +535,12 @@ export default function DashboardPage() {
               />
             </div>
             <div className="flex flex-col md:col-span-2 gap-2">
-              <label className={labelClass}>Images</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Images
+              </label>
 
               {uploadedImages.length > 0 && (
                 <div className="flex flex-wrap gap-2">
@@ -506,7 +573,14 @@ export default function DashboardPage() {
               <label
                 className={`flex flex-col gap-2 cursor-pointer w-fit ${uploadingImages ? "cursor-not-allowed" : ""}`}
               >
-                <div className="flex items-center gap-2 bg-white/5 border border-white/[0.08] hover:bg-white/10 transition px-4 py-2.5 rounded-lg text-sm text-slate-400">
+                <div
+                  className="flex items-center gap-2 hover:bg-white/10 transition px-4 py-2.5 rounded-lg text-sm"
+                  style={{
+                    background: "var(--bg-hover)",
+                    border: "1px solid var(--border)",
+                    color: "var(--text-muted)",
+                  }}
+                >
                   <input
                     type="file"
                     accept="image/*"
@@ -521,7 +595,10 @@ export default function DashboardPage() {
                 </div>
 
                 {uploadingImages && (
-                  <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div
+                    className="w-full h-1.5 rounded-full overflow-hidden"
+                    style={{ background: "var(--bg-hover)" }}
+                  >
                     <div
                       className="h-full bg-orange-500 rounded-full transition-all duration-200"
                       style={{ width: `${uploadProgress}%` }}
@@ -532,7 +609,12 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex flex-col md:col-span-2">
-              <label className={labelClass}>Location</label>
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-faint)" }}
+              >
+                Location
+              </label>
               <MapPicker
                 initialPosition={form.coordinates}
                 onPositionChange={(pos) =>
@@ -572,8 +654,10 @@ export default function DashboardPage() {
 
       {campsites.length === 0 ? (
         <Card className="p-12 flex flex-col items-center gap-3 text-center">
-          <span className="text-4xl">No campsites</span>
-          <p className="text-slate-400 text-sm">No campsites yet.</p>
+          <span className="text-4xl">🏕️</span>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+            No campsites yet.
+          </p>
           <button
             onClick={openCreate}
             className="text-orange-500 text-sm hover:underline"
@@ -601,7 +685,12 @@ export default function DashboardPage() {
 
                   <div className="flex flex-col gap-1 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-slate-100 font-medium">{c.name}</p>
+                      <p
+                        className="font-medium"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {c.name}
+                      </p>
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeColors[c.type]}`}
                       >
@@ -617,7 +706,7 @@ export default function DashboardPage() {
                         {c.isApproved ? "Approved" : "Pending"}
                       </span>
                     </div>
-                    <p className="text-slate-500 text-xs">
+                    <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                       {c.wilaya}, {c.region}
                     </p>
                     <p className="text-orange-400 text-sm font-medium">
@@ -627,18 +716,27 @@ export default function DashboardPage() {
                       const stats = getSiteStats(c._id);
                       return (
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-slate-600 text-xs">
+                          <span
+                            className="text-xs"
+                            style={{ color: "var(--text-ghost)" }}
+                          >
                             Capacity: {c.capacity ?? 10}
                           </span>
-                          <span className="text-white/[0.06]">·</span>
-                          <span className="text-slate-600 text-xs">
+                          <span style={{ color: "var(--border)" }}>·</span>
+                          <span
+                            className="text-xs"
+                            style={{ color: "var(--text-ghost)" }}
+                          >
                             {stats.confirmed} confirmed
                           </span>
-                          <span className="text-white/[0.06]">·</span>
-                          <span className="text-slate-600 text-xs">
+                          <span style={{ color: "var(--border)" }}>·</span>
+                          <span
+                            className="text-xs"
+                            style={{ color: "var(--text-ghost)" }}
+                          >
                             {stats.completed} completed
                           </span>
-                          <span className="text-white/[0.06]">·</span>
+                          <span style={{ color: "var(--border)" }}>·</span>
                           <span className="text-orange-400/70 text-xs font-medium">
                             {stats.revenue.toLocaleString()} DZD earned
                           </span>
@@ -650,13 +748,21 @@ export default function DashboardPage() {
                   <div className="flex flex-wrap gap-2 items-center justify-end">
                     <button
                       onClick={() => router.push(`/explore/${c._id}`)}
-                      className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1.5 rounded-lg transition"
+                      className="text-xs border px-3 py-1.5 rounded-lg transition"
+                      style={{
+                        color: "var(--text-muted)",
+                        borderColor: "var(--border)",
+                      }}
                     >
                       Preview
                     </button>
                     <button
                       onClick={() => openEdit(c)}
-                      className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1.5 rounded-lg transition"
+                      className="text-xs border px-3 py-1.5 rounded-lg transition"
+                      style={{
+                        color: "var(--text-muted)",
+                        borderColor: "var(--border)",
+                      }}
                     >
                       Edit
                     </button>
@@ -704,15 +810,25 @@ export default function DashboardPage() {
                       : "max-h-0 opacity-0"
                   }`}
                 >
-                  <div className="border-t border-white/[0.06] px-5 py-4 flex flex-col gap-3">
-                    <p className="text-xs text-slate-500 uppercase tracking-widest font-medium">
+                  <div
+                    className="px-5 py-4 flex flex-col gap-3"
+                    style={{ borderTop: "1px solid var(--border-subtle)" }}
+                  >
+                    <p
+                      className="text-xs uppercase tracking-widest font-medium"
+                      style={{ color: "var(--text-faint)" }}
+                    >
                       Bookings - {siteBookings.length} total
                     </p>
 
                     {siteBookings.map((booking) => (
                       <div
                         key={booking._id}
-                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3"
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl px-4 py-3"
+                        style={{
+                          background: "var(--bg-hover)",
+                          border: "1px solid var(--border-subtle)",
+                        }}
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
@@ -727,10 +843,16 @@ export default function DashboardPage() {
                             )}
                           </div>
                           <div className="flex flex-col gap-0.5 min-w-0">
-                            <p className="text-slate-200 text-sm font-medium truncate">
+                            <p
+                              className="text-sm font-medium truncate"
+                              style={{ color: "var(--text-primary)" }}
+                            >
                               {booking.user.username}
                             </p>
-                            <p className="text-slate-500 text-xs">
+                            <p
+                              className="text-xs"
+                              style={{ color: "var(--text-faint)" }}
+                            >
                               {new Date(booking.checkIn).toLocaleDateString(
                                 "en-GB",
                               )}{" "}

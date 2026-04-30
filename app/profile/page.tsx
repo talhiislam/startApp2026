@@ -177,8 +177,13 @@ export default function ProfilePage() {
   }
 
   const inputClass =
-    "bg-white/5 border border-white/[0.08] text-slate-100 placeholder:text-slate-500 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition w-full";
-  const labelClass = "text-xs text-slate-500 uppercase tracking-wide mb-1";
+    "p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition w-full";
+  const inputStyle = {
+    background: "var(--bg-input)",
+    border: "1px solid var(--border)",
+    color: "var(--text-primary)",
+  } as const;
+  const labelClass = "text-xs uppercase tracking-wide mb-1";
 
   const rawAvatarSrc =
     profile?.avatar || session?.user?.avatar || session?.user?.image || "";
@@ -224,7 +229,10 @@ export default function ProfilePage() {
 
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-slate-100">
+            <h1
+              className="text-xl font-bold"
+              style={{ color: "var(--text-primary)" }}
+            >
               {profile.username}
             </h1>
             <span
@@ -234,9 +242,14 @@ export default function ProfilePage() {
             </span>
           </div>
           {profile.fullName && (
-            <p className="text-slate-400 text-sm">{profile.fullName}</p>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              {profile.fullName}
+            </p>
           )}
-          <div className="flex items-center gap-4 text-slate-500 text-xs mt-1">
+          <div
+            className="flex items-center gap-4 text-xs mt-1"
+            style={{ color: "var(--text-faint)" }}
+          >
             <span>
               Member since{" "}
               {new Date(profile.createdAt).toLocaleDateString("en-GB", {
@@ -260,12 +273,13 @@ export default function ProfilePage() {
                 setMessage("");
                 setError("");
               }}
-              className={`shrink-0 text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
-                ${
-                  activeTab === tab
-                    ? "bg-orange-500/10 text-orange-500"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
-                }`}
+              className="shrink-0 text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200"
+              style={{
+                background:
+                  activeTab === tab ? "var(--accent-subtle)" : "transparent",
+                color:
+                  activeTab === tab ? "var(--accent)" : "var(--text-muted)",
+              }}
             >
               {tab}
             </button>
@@ -274,7 +288,10 @@ export default function ProfilePage() {
 
         <Card className="p-6 flex flex-col gap-6 flex-1">
           {message && (
-            <p className="text-green-400 text-sm bg-green-400/10 px-4 py-2 rounded-lg">
+            <p
+              className="text-green-400 text-sm px-4 py-2 rounded-lg"
+              style={{ background: "var(--accent-subtle)" }}
+            >
               {message}
             </p>
           )}
@@ -288,7 +305,10 @@ export default function ProfilePage() {
             <>
               {!editing ? (
                 <div className="flex flex-col gap-4">
-                  <h2 className="text-slate-100 font-semibold text-lg tracking-tight">
+                  <h2
+                    className="font-semibold text-lg tracking-tight"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     Personal Information
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -308,10 +328,20 @@ export default function ProfilePage() {
                       },
                     ].map(({ label, value }) => (
                       <div key={label} className="flex flex-col gap-1">
-                        <span className={labelClass}>{label}</span>
-                        <span className="text-slate-300 text-sm">
+                        <span
+                          className={labelClass}
+                          style={{ color: "var(--text-faint)" }}
+                        >
+                          {label}
+                        </span>
+                        <span
+                          className="text-sm"
+                          style={{ color: "var(--text-secondary)" }}
+                        >
                           {value ?? (
-                            <span className="text-slate-600">Not set</span>
+                            <span style={{ color: "var(--text-ghost)" }}>
+                              Not set
+                            </span>
                           )}
                         </span>
                       </div>
@@ -338,14 +368,23 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
-                  <h2 className="text-slate-100 font-semibold text-lg tracking-tight">
+                  <h2
+                    className="font-semibold text-lg tracking-tight"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     Edit Profile
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col">
-                      <label className={labelClass}>Full Name</label>
+                      <label
+                        className={labelClass}
+                        style={{ color: "var(--text-faint)" }}
+                      >
+                        Full Name
+                      </label>
                       <input
                         className={inputClass}
+                        style={inputStyle}
                         value={form.fullName}
                         onChange={(e) =>
                           setForm({ ...form, fullName: e.target.value })
@@ -354,9 +393,15 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <label className={labelClass}>Phone</label>
+                      <label
+                        className={labelClass}
+                        style={{ color: "var(--text-faint)" }}
+                      >
+                        Phone
+                      </label>
                       <input
                         className={inputClass}
+                        style={inputStyle}
                         value={form.phone}
                         onChange={(e) =>
                           setForm({ ...form, phone: e.target.value })
@@ -365,9 +410,15 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <label className={labelClass}>City</label>
+                      <label
+                        className={labelClass}
+                        style={{ color: "var(--text-faint)" }}
+                      >
+                        City
+                      </label>
                       <input
                         className={inputClass}
+                        style={inputStyle}
                         value={form.city}
                         onChange={(e) =>
                           setForm({ ...form, city: e.target.value })
@@ -376,9 +427,15 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <label className={labelClass}>Date of Birth</label>
+                      <label
+                        className={labelClass}
+                        style={{ color: "var(--text-faint)" }}
+                      >
+                        Date of Birth
+                      </label>
                       <input
                         className={inputClass}
+                        style={inputStyle}
                         type="date"
                         value={form.dateOfBirth}
                         onChange={(e) =>
@@ -408,7 +465,10 @@ export default function ProfilePage() {
 
           {activeTab === "Stats" && (
             <div className="flex flex-col gap-4">
-              <h2 className="text-slate-100 font-semibold text-lg tracking-tight">
+              <h2
+                className="font-semibold text-lg tracking-tight"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Your Stats
               </h2>
               <div className="grid grid-cols-3 gap-4">
@@ -419,12 +479,16 @@ export default function ProfilePage() {
                 ].map(({ label, value }) => (
                   <div
                     key={label}
-                    className="flex flex-col items-center justify-center bg-white/5 rounded-xl p-6 gap-2"
+                    className="flex flex-col items-center justify-center rounded-xl p-6 gap-2"
+                    style={{ background: "var(--bg-hover)" }}
                   >
                     <span className="text-3xl font-bold text-orange-500">
                       {value}
                     </span>
-                    <span className="text-slate-400 text-sm text-center">
+                    <span
+                      className="text-sm text-center"
+                      style={{ color: "var(--text-muted)" }}
+                    >
                       {label}
                     </span>
                   </div>
@@ -435,14 +499,23 @@ export default function ProfilePage() {
 
           {activeTab === "Security" && (
             <div className="flex flex-col gap-4">
-              <h2 className="text-slate-100 font-semibold text-lg tracking-tight">
+              <h2
+                className="font-semibold text-lg tracking-tight"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Change Password
               </h2>
               <div className="flex flex-col gap-3 max-w-sm">
                 <div className="flex flex-col">
-                  <label className={labelClass}>Current Password</label>
+                  <label
+                    className={labelClass}
+                    style={{ color: "var(--text-faint)" }}
+                  >
+                    Current Password
+                  </label>
                   <input
                     className={inputClass}
+                    style={inputStyle}
                     type="password"
                     value={passwordForm.currentPassword}
                     onChange={(e) =>
@@ -455,9 +528,15 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <label className={labelClass}>New Password</label>
+                  <label
+                    className={labelClass}
+                    style={{ color: "var(--text-faint)" }}
+                  >
+                    New Password
+                  </label>
                   <input
                     className={inputClass}
+                    style={inputStyle}
                     type="password"
                     value={passwordForm.newPassword}
                     onChange={(e) =>
@@ -470,9 +549,15 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <label className={labelClass}>Confirm New Password</label>
+                  <label
+                    className={labelClass}
+                    style={{ color: "var(--text-faint)" }}
+                  >
+                    Confirm New Password
+                  </label>
                   <input
                     className={inputClass}
+                    style={inputStyle}
                     type="password"
                     value={passwordForm.confirmPassword}
                     onChange={(e) =>

@@ -1,22 +1,12 @@
 import "./globals.css";
-import { Poppins, Playfair_Display } from "next/font/google";
+import { poppins, playfair } from "@/lib/fonts";
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Providers from "@/components/Providers";
 import Footer from "@/components/Footer";
 import ToastProvider from "@/components/ToastProvider";
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-poppins",
-});
-
-export const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["700", "800"],
-  variable: "--font-playfair",
-});
+export { playfair };
 
 export const metadata: Metadata = {
   title: {
@@ -70,7 +60,10 @@ export default function RootLayout({
         <Providers>
           <ToastProvider>
             <Navbar />
-            <main className="pt-[44px] md:pt-[72px] pb-16 md:pb-0 min-h-screen bg-[#0a0e17]">
+            <main
+              className="pt-[44px] md:pt-[72px] pb-16 md:pb-0 min-h-screen"
+              style={{ background: "var(--bg-base)" }}
+              >
               {children}
             </main>
             <Footer />

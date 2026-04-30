@@ -145,8 +145,13 @@ export default function TripsPage() {
         <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
           My Trips
         </span>
-        <h1 className="text-3xl font-bold text-slate-100">Trip Dashboard</h1>
-        <p className="text-slate-500 text-sm">
+        <h1
+          className="text-3xl font-bold"
+          style={{ color: "var(--text-primary)" }}
+        >
+          Trip Dashboard
+        </h1>
+        <p className="text-sm" style={{ color: "var(--text-faint)" }}>
           {bookings.length} booking{bookings.length !== 1 ? "s" : ""} ·{" "}
           {savedSites.length} saved
         </p>
@@ -160,21 +165,28 @@ export default function TripsPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`shrink-0 text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
-                ${
-                  activeTab === tab
-                    ? "bg-orange-500/10 text-orange-500"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
-                }`}
+              className="shrink-0 text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200"
+              style={{
+                background:
+                  activeTab === tab ? "var(--accent-subtle)" : "transparent",
+                color:
+                  activeTab === tab ? "var(--accent)" : "var(--text-muted)",
+              }}
             >
               {tab}
               {tab == "Bookings" && bookings.length > 0 && (
-                <span className="ml-2 text-xs text-slate-600">
+                <span
+                  className="ml-2 text-xs"
+                  style={{ color: "var(--text-ghost)" }}
+                >
                   {bookings.length}
                 </span>
               )}
               {tab == "Saved" && savedSites.length > 0 && (
-                <span className="ml-2 text-xs text-slate-600">
+                <span
+                  className="ml-2 text-xs"
+                  style={{ color: "var(--text-ghost)" }}
+                >
                   {savedSites.length}
                 </span>
               )}
@@ -187,7 +199,10 @@ export default function TripsPage() {
           {/* Bookings Tab */}
           {activeTab === "Bookings" && (
             <div className="flex flex-col gap-4">
-              <h2 className="text-slate-100 font-semibold text-lg">
+              <h2
+                className="font-semibold text-lg"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Your Bookings
               </h2>
 
@@ -196,7 +211,9 @@ export default function TripsPage() {
               ) : bookings.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 py-12 text-center">
                   <span className="text-4xl">🏕️</span>
-                  <p className="text-slate-400 text-sm">No bookings yet</p>
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                    No bookings yet
+                  </p>
                   <button
                     onClick={() => router.push("/explore")}
                     className="text-orange-500 text-sm hover:underline"
@@ -209,7 +226,11 @@ export default function TripsPage() {
                   {bookings.map((booking) => (
                     <div
                       key={booking._id}
-                      className="flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden"
+                      className="flex flex-col md:flex-row rounded-xl overflow-hidden"
+                      style={{
+                        background: "var(--bg-hover)",
+                        border: "1px solid var(--border-subtle)",
+                      }}
                     >
                       {/* Render a fallback block when the campsite was removed but the booking still exists */}
                       <div className="w-full h-40 md:w-36 md:h-auto shrink-0 self-stretch border-r border-white/[0.04] bg-[#0f172a] flex items-center justify-center">
@@ -231,10 +252,16 @@ export default function TripsPage() {
                         {/* Left Side: Core Info */}
                         <div className="flex flex-col gap-1.5 min-w-0">
                           <div className="flex flex-col gap-0.5">
-                            <p className="text-slate-100 font-medium text-sm truncate">
+                            <p
+                              className="text-sm font-medium truncate"
+                              style={{ color: "var(--text-primary)" }}
+                            >
                               {booking.site?.name ?? "Deleted campsite"}
                             </p>
-                            <p className="text-slate-500 text-xs truncate">
+                            <p
+                              className="text-xs truncate"
+                              style={{ color: "var(--text-faint)" }}
+                            >
                               {booking.site
                                 ? `📍 ${booking.site.wilaya}, ${booking.site.region}`
                                 : "This campsite is no longer available."}
@@ -242,7 +269,10 @@ export default function TripsPage() {
                           </div>
 
                           <div className="flex flex-col gap-0.5 mt-1">
-                            <p className="text-slate-400 text-xs">
+                            <p
+                              className="text-xs truncate"
+                              style={{ color: "var(--text-faint)" }}
+                            >
                               📅{" "}
                               {new Date(booking.checkIn).toLocaleDateString(
                                 "en-GB",
@@ -252,7 +282,10 @@ export default function TripsPage() {
                                 "en-GB",
                               )}
                             </p>
-                            <p className="text-slate-500 text-xs">
+                            <p
+                              className="text-xs truncate"
+                              style={{ color: "var(--text-faint)" }}
+                            >
                               👤 {booking.guests} guest
                               {booking.guests > 1 ? "s" : ""}
                             </p>
@@ -296,7 +329,10 @@ export default function TripsPage() {
           {/* Saved Tab */}
           {activeTab === "Saved" && (
             <div className="flex flex-col gap-4">
-              <h2 className="text-slate-100 font-semibold text-lg">
+              <h2
+                className="font-semibold text-lg"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Saved Campsites
               </h2>
 
@@ -307,7 +343,7 @@ export default function TripsPage() {
               ) : savedSites.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 py-12 text-center">
                   <span className="text-4xl">♡</span>
-                  <p className="text-slate-400 text-sm">
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                     No saved campsites yet.
                   </p>
                   <button
@@ -347,15 +383,18 @@ export default function TripsPage() {
           {/* Notes Tab */}
           {activeTab === "Notes" && (
             <div className="flex flex-col gap-4">
-              <h2 className="text-slate-100 font-semibold text-lg">
+              <h2
+                className="font-semibold text-lg"
+                style={{ color: "var(--text-primary)" }}
+              >
                 Trip Notes
               </h2>
               <p className="text-slate-500 text-xs">
                 Jot down packing lists, ideas, or plans.{" "}
                 {notesSaving ? (
-                  <span className="text-slate-600">Saving...</span>
+                  <span style={{ color: "var(--text-ghost)" }}>Saving...</span>
                 ) : notesLoaded ? (
-                  <span className="text-green-500/60">Saved</span>
+                  <span style={{ color: "var(--accent)" }}>Saved</span>
                 ) : null }
               </p>
               <textarea
@@ -363,7 +402,12 @@ export default function TripsPage() {
                 onChange={(e) => handleNotesChange(e.target.value)}
                 placeholder="Start writing your trip notes..."
                 rows={14}
-                className="bg-white/5 border border-white/[0.08] rounded-xl p-4 text-slate-300 text-sm placeholder:text-slate-600 outline-none focus:border-orange-500/40 transition resize-none w-full"
+                className="rounded-xl p-4 text-sm outline-none resize-none w-full transition"
+                style={{
+                  background: "var(--bg-hover)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-primary)",
+                }}
               />
             </div>
           )}

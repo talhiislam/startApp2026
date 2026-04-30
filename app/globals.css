@@ -2,9 +2,71 @@
 @import "leaflet/dist/leaflet.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  /* Background */
+  --bg-base: #0a0e17;
+  --bg-card: #111827;
+  --bg-deep: #020617;
+  --bg-input: #0f172a;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --bg-hover-strong: rgba(255, 255, 255, 0.1);
+  --bg-how-it-works-card: rgba(17, 24, 39, 0.40);
+  --bg-how-it-works-card-hover: rgba(17, 24, 39, 0.60);
+
+  /* Text */
+  --text-primary: #e2e8f0;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --text-ghost: #475569;
+
+  /* Accent */
+  --accent: #f97316;
+  --accent-soft: #fb923c;
+  --accent-hover: #ea6c0a;
+  --accent-subtle: rgba(249, 115, 22, 0.1);
+  --accent-border: rgba(249, 115, 22, 0.4);
+
+  /* Borders */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-ghost: rgba(255, 255, 255, 0.04);
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] {
+  /* Backgrounds */
+  --bg-base: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-deep: #e2e8f0;
+  --bg-input: #f8fafc;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-hover-strong: rgba(0, 0, 0, 0.08);
+  --bg-how-it-works-card: rgba(255, 255, 255, 0.70);
+  --bg-how-it-works-card-hover: rgba(255, 255, 255, 0.90);
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #1e293b;
+  --text-muted: #475569;
+  --text-faint: #64748b;
+  --text-ghost: #94a3b8;
+
+  /* Accent */
+  --accent: #f97316;
+  --accent-soft: #fb923c;
+  --accent-hover: #ea6c0a;
+  --accent-subtle: rgba(249, 115, 22, 0.10);
+  --accent-border: rgba(249, 115, 22, 0.40);
+
+  /* Borders */
+  --border: rgba(0, 0, 0, 0.08);
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-ghost: rgba(0, 0, 0, 0.04);
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,8 +77,9 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-base);
+  color: var(--text-primary);
   font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
   letter-spacing: -0.01em;
+  transition: background 0.2s ease, color 0.2s ease;  
 }

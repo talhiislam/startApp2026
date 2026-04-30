@@ -159,8 +159,8 @@ export default function ConfirmModal({
       <div
         ref={modalRef}
         style={{
-          background: "#111827",
-          border: "0.5px solid rgba(255,255,255,0.08)",
+          background: "var(--bg-card)",
+          border: "0.5px solid var(--border)",
           borderRadius: "16px",
           padding: "28px 24px 24px",
           width: "100%",
@@ -193,7 +193,7 @@ export default function ConfirmModal({
             style={{
               fontSize: "15px",
               fontWeight: 600,
-              color: "#e2e8f0",
+              color: "var(--text-primary)",
               margin: 0,
             }}
           >
@@ -202,7 +202,7 @@ export default function ConfirmModal({
           <p
             style={{
               fontSize: "13px",
-              color: "#64748b",
+              color: "var(--text-faint)",
               lineHeight: 1.6,
               margin: 0,
             }}
@@ -219,9 +219,9 @@ export default function ConfirmModal({
               flex: 1,
               padding: "10px 0",
               borderRadius: "10px",
-              background: "rgba(255,255,255,0.05)",
-              border: "0.5px solid rgba(255,255,255,0.08)",
-              color: "#94a3b8",
+              background: "var(--bg-hover)",
+              border: "0.5px solid var(--border)",
+              color: "var(--text-muted)",
               fontSize: "13px",
               fontWeight: 500,
               cursor: "pointer",
@@ -236,9 +236,9 @@ export default function ConfirmModal({
                 flex: 1,
                 padding: "10px 0",
                 borderRadius: "10px",
-                background: "rgba(255,255,255,0.05)",
-                border: "0.5px solid rgba(255,255,255,0.08)",
-                color: "#e2e8f0",
+                background: "var(--bg-hover)",
+                border: "0.5px solid var(-text-primary)",
+                color: "var(--text-primary)",
                 fontSize: "13px",
                 fontWeight: 500,
                 cursor: "pointer",

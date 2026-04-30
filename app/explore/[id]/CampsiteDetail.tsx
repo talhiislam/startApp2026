@@ -436,7 +436,10 @@ export default function CampsiteDetail() {
         <div className="w-24 h-4 bg-white/[0.06] rounded-full animate-pulse" />
 
         {/* Gallery skeleton */}
-        <div className="w-full h-80 bg-[#111827] rounded-2xl animate-pulse" />
+        <div
+          className="w-full h-80 rounded-2xl animate-pulse"
+          style={{ background: "var(--bg-card)" }}
+        />
 
         {/* Body */}
         <div className="flex flex-col md:flex-row gap-10 items-start">
@@ -448,7 +451,7 @@ export default function CampsiteDetail() {
               <div className="w-48 h-4 bg-white/[0.04] rounded-lg animate-pulse" />
             </div>
 
-            <div className="h-px bg-white/[0.06]" />
+            <div className="h-px" style={{ background: "var(--border-subtle)" }} />
 
             {/* About */}
             <div className="flex flex-col gap-2">
@@ -458,7 +461,7 @@ export default function CampsiteDetail() {
               <div className="w-3/4 h-4 bg-white/[0.06] rounded animate-pulse" />
             </div>
 
-            <div className="h-px bg-white/[0.06]" />
+            <div className="h-px" style={{ background: "var(--border-subtle)" }} />
 
             {/* Amenities */}
             <div className="flex flex-col gap-3">
@@ -476,9 +479,15 @@ export default function CampsiteDetail() {
 
           {/* Right — booking card skeleton */}
           <div className="w-full md:w-72 md:shrink-0">
-            <div className="bg-[#111827] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-5">
+            <div
+              className="rounded-2xl p-6 flex flex-col gap-5"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+              }}
+            >
               <div className="w-40 h-7 bg-white/[0.06] rounded-lg animate-pulse" />
-              <div className="h-px bg-white/[0.06]" />
+              <div className="h-px" style={{ background: "var(--border-subtle)" }} />
               <div className="w-full h-64 bg-white/[0.04] rounded-xl animate-pulse" />
               <div className="w-full h-10 bg-white/[0.06] rounded-xl animate-pulse" />
               <div className="w-full h-12 bg-orange-500/20 rounded-xl animate-pulse" />
@@ -500,7 +509,8 @@ export default function CampsiteDetail() {
       {/* Back */}
       <button
         onClick={() => router.back()}
-        className="text-slate-500 hover:text-slate-300 text-sm transition w-fit"
+        className="text-sm transition w-fit"
+        style={{ color: "var(--text-faint)" }}
       >
         &larr; Back to Explore
       </button>
@@ -518,7 +528,7 @@ export default function CampsiteDetail() {
         <div className="flex-1 w-full flex flex-col gap-6">
           <div>
             <div className="flex items-start justify-between gap-4">
-              <h1 className="text-3xl font-bold text-slate-100">
+              <h1 className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>
                 {campsite.name}
               </h1>
               <button
@@ -530,7 +540,7 @@ export default function CampsiteDetail() {
                 {saved ? "\u2665" : "\u2661"}
               </button>
             </div>
-            <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
+            <div className="flex items-center gap-4 mt-2 text-sm" style={{ color: "var(--text-faint)" }}>
               <span>
                 {"\u{1F4CD}"} {campsite.wilaya}, {campsite.region}
               </span>
@@ -541,28 +551,33 @@ export default function CampsiteDetail() {
             </div>
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px" style={{ background: "var(--border-subtle)" }} />
 
           <div className="flex flex-col gap-3">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+            <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
               About
             </p>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
               {campsite.description}
             </p>
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px" style={{ background: "var(--border-subtle)" }} />
 
           <div className="flex flex-col gap-3">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+            <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
               Amenities
             </p>
             <div className="flex flex-wrap gap-2">
               {campsite.amenities.map((a) => (
                 <span
                   key={a}
-                  className="text-xs text-slate-400 border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 rounded-full"
+                  className="text-xs px-3 py-1.5 rounded-full"
+                  style={{
+                    color: "var(--text-muted)",
+                    border: "1px solid var(--border)",
+                    background: "var(--bg-hover)",
+                  }}
                 >
                   {a}
                 </span>
@@ -570,11 +585,11 @@ export default function CampsiteDetail() {
             </div>
           </div>
 
-          <div className="h-px bg-white/[0.06]" />
+          <div className="h-px" style={{ background: "var(--border-subtle)" }} />
 
           {/* Owner section*/}
           <div className="flex flex-col gap-3">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+            <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
               Hosted by
             </p>
             <div className="flex items-center gap-3">
@@ -590,10 +605,10 @@ export default function CampsiteDetail() {
                 )}
               </div>
               <div className="flex flex-col gap-0.5">
-                <p className="text-slate-200 text-sm font-medium">
+                <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
                   {campsite.owner?.username ?? "Unknown"}
                 </p>
-                <p className="text-slate-500 text-xs">
+                <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                   Member since{" "}
                   {campsite.owner?.createdAt
                     ? new Date(campsite.owner.createdAt).toLocaleDateString(
@@ -613,9 +628,9 @@ export default function CampsiteDetail() {
           {campsite.coordinates?.lat != null &&
             campsite.coordinates?.lng != null && (
               <>
-                <div className="h-px bg-white/[0.06]" />
+                <div className="h-px" style={{ background: "var(--border-subtle)" }} />
                 <div className="flex flex-col gap-3">
-                  <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+                  <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
                     Location
                   </p>
                   <div className="h-64 w-full rounded-2xl overflow-hidden border border-white/[0.08]">
@@ -625,7 +640,7 @@ export default function CampsiteDetail() {
                       name={campsite.name}
                     />
                   </div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                     {campsite.wilaya}, {campsite.region}
                   </p>
                 </div>
@@ -637,9 +652,18 @@ export default function CampsiteDetail() {
         <div className="w-full md:w-72 md:shrink-0 order-1 md:order-2">
           <div className="relative">
             {!session && (
-              <div className="absolute inset-0 z-10 rounded-2xl flex flex-col items-center justify-center gap-4 bg-[#0a0e17]/60 backdrop-blur-sm">
+              <div
+                className="absolute inset-0 z-10 rounded-2xl flex flex-col items-center justify-center gap-4 backdrop-blur-sm"
+                style={{
+                  background:
+                    "color-mix(in srgb, var(--bg-base) 60%, transparent)",
+                }}
+              >
                 <span className="text-3xl">{"\u{1F512}"}</span>
-                <p className="text-slate-300 text-sm font-medium text-center px-4">
+                <p
+                  className="text-sm font-medium text-center px-4"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   Sign in to book this campsite
                 </p>
                 <button
@@ -652,7 +676,11 @@ export default function CampsiteDetail() {
             )}
 
             <div
-              className={`bg-[#111827] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-5 ${!session ? "blur-sm pointer-events-none select-none" : ""}`}
+              className={`rounded-2xl p-6 flex flex-col gap-5 ${!session ? "blur-sm pointer-events-none select-none" : ""}`}
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+              }}
             >
               <div className="flex items-baseline gap-1.5">
                 <span className="text-2xl font-bold text-orange-400">
@@ -661,7 +689,7 @@ export default function CampsiteDetail() {
                 <span className="text-slate-500 text-sm">/ night</span>
               </div>
 
-              <div className="h-px bg-white/[0.06]" />
+              <div className="h-px" style={{ background: "var(--border-subtle)" }} />
 
               {bookingSuccess ? (
                 <div className="flex flex-col items-center gap-3 py-4 text-center">
@@ -688,12 +716,24 @@ export default function CampsiteDetail() {
                     onSelect={setDateRange}
                   />
 
-                  <div className="flex items-center justify-between bg-[#0a0e17] border border-white/[0.08] rounded-lg px-3 py-2.5">
-                    <span className="text-sm text-slate-400">Guests</span>
+                  <div
+                    className="flex items-center justify-between rounded-lg px-3 py-2.5"
+                    style={{
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    <span className="text-sm" style={{ color: "var(--text-muted)" }}>
+                      Guests
+                    </span>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setGuests((g) => Math.max(1, g - 1))}
-                        className="w-6 h-6 rounded-full border border-white/[0.08] text-slate-400 hover:text-slate-200 transition text-sm flex items-center justify-center"
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-sm transition"
+                        style={{
+                          border: "1px solid var(--border)",
+                          color: "var(--text-muted)",
+                        }}
                       >
                         -
                       </button>
@@ -704,19 +744,26 @@ export default function CampsiteDetail() {
                         onClick={() =>
                           setGuests((g) => Math.min(campsite.capacity, g + 1))
                         }
-                        className="w-6 h-6 rounded-full border border-white/[0.08] text-slate-400 hover:text-slate-200 transition text-sm flex items-center justify-center"
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-sm transition"
+                        style={{
+                          border: "1px solid var(--border)",
+                          color: "var(--text-muted)",
+                        }}
                       >
                         +
                       </button>
                     </div>
                   </div>
 
-                  <div className="h-px bg-white/[0.06]" />
+                  <div className="h-px" style={{ background: "var(--border-subtle)" }} />
 
                   <div className="flex flex-col gap-2">
                     {nights > 0 ? (
                       <>
-                        <div className="flex justify-between text-sm text-slate-500">
+                        <div
+                          className="flex justify-between text-sm"
+                          style={{ color: "var(--text-faint)" }}
+                        >
                           <span>
                             {campsite.pricePerNight.toLocaleString()} DZD x{" "}
                             {nights} night{nights > 1 ? "s" : ""}
@@ -761,15 +808,26 @@ export default function CampsiteDetail() {
 
       {/* Reviews - full width, always below everything */}
       <div className="flex flex-col gap-6">
-        <div className="h-px bg-white/[0.06]" />
-        <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+        <div className="h-px" style={{ background: "var(--border-subtle)" }} />
+        <p
+          className="text-xs font-medium uppercase tracking-widest"
+          style={{ color: "var(--text-muted)" }}
+        >
           Reviews
         </p>
 
         {/* Write a review */}
         {session && !hasReviewed && (
-          <div className="flex flex-col gap-3 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
-            <p className="text-sm text-slate-300 font-medium">Write a Review</p>
+          <div
+            className="flex flex-col gap-3 rounded-xl p-4"
+            style={{
+              background: "var(--bg-hover)",
+              border: "1px solid var(--border-subtle)",
+            }}
+          >
+            <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+              Write a Review
+            </p>
 
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -794,7 +852,12 @@ export default function CampsiteDetail() {
               onChange={(e) => setReviewComment(e.target.value)}
               placeholder="Share your experience..."
               rows={3}
-              className="bg-[#0a0e17] border border-white/[0.08] rounded-lg p-3 text-sm text-slate-300 placeholder:text-slate-600 outline-none focus:border-orange-500/40 transition resize-none"
+              style={{
+                background: "var(--bg-input)",
+                border: "1px solid var(--border)",
+                color: "var(--text-primary)",
+              }}
+              className="rounded-lg p-3 text-sm outline-none transition resize-none"
             />
 
             {reviewError && (
@@ -814,7 +877,7 @@ export default function CampsiteDetail() {
         )}
 
         {!session && (
-          <p className="text-slate-500 text-sm">
+          <p className="text-sm" style={{ color: "var(--text-faint)" }}>
             <button
               onClick={openAuthPrompt}
               className="text-orange-500 hover:underline"
@@ -826,15 +889,17 @@ export default function CampsiteDetail() {
         )}
 
         {hasReviewed && (
-          <p className="text-slate-500 text-sm">
+          <p className="text-sm" style={{ color: "var(--text-faint)" }}>
             You have already reviewed this campsite.
           </p>
         )}
 
         {loadingReviews ? (
-          <p className="text-slate-500 text-sm">Loading reviews...</p>
+          <p className="text-sm" style={{ color: "var(--text-faint)" }}>
+            Loading reviews...
+          </p>
         ) : reviews.length === 0 ? (
-          <p className="text-slate-500 text-sm">
+          <p className="text-sm" style={{ color: "var(--text-faint)" }}>
             No reviews yet. Be the first to review this campsite.
           </p>
         ) : (
@@ -842,7 +907,11 @@ export default function CampsiteDetail() {
             {reviews.map((review) => (
               <div
                 key={review._id}
-                className="flex flex-col gap-2 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4"
+                className="flex flex-col gap-2 rounded-xl p-4"
+                style={{
+                  background: "var(--bg-hover)",
+                  border: "1px solid var(--border-subtle)",
+                }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -860,7 +929,10 @@ export default function CampsiteDetail() {
                         review.user.username[0].toUpperCase()
                       )}
                     </div>
-                    <span className="text-slate-300 text-sm font-medium">
+                    <span
+                      className="text-sm font-medium"
+                      style={{ color: "var(--text-primary)" }}
+                    >
                       {review.user.username}
                     </span>
                   </div>
@@ -871,7 +943,7 @@ export default function CampsiteDetail() {
                         {"\u2606".repeat(5 - review.rating)}
                       </span>
                     </span>
-                    <span className="text-slate-600 text-xs">
+                    <span className="text-xs" style={{ color: "var(--text-ghost)" }}>
                       {new Date(review.createdAt).toLocaleDateString("en-GB", {
                         day: "numeric",
                         month: "short",
@@ -889,7 +961,10 @@ export default function CampsiteDetail() {
                   </div>
                 </div>
                 {review.comment && (
-                  <p className="text-slate-400 text-sm leading-relaxed">
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     {review.comment}
                   </p>
                 )}

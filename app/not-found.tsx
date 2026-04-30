@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { playfair } from "@/app/layout";
+import { playfair } from "@/lib/fonts";
 
 export default function NotFound() {
   return (

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { playfair } from "@/app/layout";
 import { connectToDatabase } from "@/lib/mongodb";
 import Image from "next/image";
 
@@ -8,6 +7,7 @@ import CampsiteCard from "@/components/CampsiteCard";
 import type { Types } from "mongoose";
 import { type Campsite } from "@/types/campsite";
 import HowItWorks from "@/components/HowItWorks";
+import Hero from "@/components/Hero";
 
 type LeanCampsite = {
   _id: Types.ObjectId;
@@ -22,7 +22,7 @@ type LeanCampsite = {
   amenities?: string[];
   averageRating?: number;
   reviewCount?: number;
-}
+};
 
 async function getFeaturedCampsites(): Promise<Campsite[]> {
   try {
@@ -78,41 +78,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative h-screen flex items-center justify-center text-center">
-        <Image
-          src="/hero.jpg"
-          alt="Algeria landscape"
-          fill
-          sizes="100vw"
-          className="absolute inset-0 object-cover"
-          priority
-        />
-        <div className="relative z-10 flex flex-col items-center gap-6 px-6">
-          <span className="text-xs font-medium px-4 py-1.5 rounded-full border border-orange-500/40 text-orange-400 tracking-widest uppercase">
-            Discover Algeria
-          </span>
-          <h1
-            className={`${playfair.className} text-5xl md:text-6xl font-bold text-white leading-tight max-w-2xl`}
-          >
-            Algeria&apos;s <span className="text-orange-500">Campsites,</span>
-            <br />
-            All in One Place
-          </h1>
-          <p
-            className="text-slate-300 text-lg max-w-md"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}
-          >
-            Discover the best camping spots across Algeria — from the Sahara to
-            the coast.
-          </p>
-          <Link
-            href="/explore"
-            className="bg-orange-500 text-white px-6 py-3 rounded-xl font-medium text-base hover:bg-orange-600 transition-all duration-300 mt-2"
-          >
-            Explore Campsites →
-          </Link>
-        </div>
-      </section>
+      <Hero />
 
       {/* Featured Campsites */}
       <section className="px-6 md:px-16 py-20 flex flex-col gap-10">
@@ -121,11 +87,17 @@ export default async function Home() {
             <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
               Featured
             </span>
-            <h2 className="text-3xl font-bold text-slate-100">Top Campsites</h2>
+            <h2
+              className="text-3xl font-bold"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Top Campsites
+            </h2>
           </div>
           <Link
             href="/explore"
-            className="text-sm text-slate-400 hover:text-orange-500 transition"
+            className="text-sm transition"
+            style={{ color: "var(--text-muted)" }}
           >
             View all →
           </Link>
@@ -148,11 +120,11 @@ export default async function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Fallback skeleton cards while DB is empty */}
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="bg-[#111827] border border-white/[0.08] rounded-2xl h-64 animate-pulse"
+                className="rounded-2xl h-64 animate-pulse"
+                style={{ background: "var(--bg-card)" }}
               />
             ))}
           </div>
@@ -168,7 +140,10 @@ export default async function Home() {
           <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
             Reviews
           </span>
-          <h2 className="text-3xl font-bold text-slate-100">
+          <h2
+            className="text-3xl font-bold"
+            style={{ color: "var(--text-primary)" }}
+          >
             What Campers Say
           </h2>
         </div>
@@ -176,23 +151,36 @@ export default async function Home() {
           {reviews.map((review) => (
             <div
               key={review.name}
-              className="bg-[#111827] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-4"
+              className="rounded-2xl p-6 flex flex-col gap-4"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+              }}
             >
               <div className="flex gap-1">
                 {Array.from({ length: review.rating }).map((_, i) => (
-                  <span key={i} className="text-orange-400 text-sm">
-                    ★
-                  </span>
+                  <span key={i} className="text-orange-400 text-sm">★</span>
                 ))}
               </div>
-              <p className="text-slate-300 text-sm leading-relaxed">
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "var(--text-secondary)" }}
+              >
                 &quot;{review.text}&quot;
               </p>
               <div className="flex flex-col mt-auto">
-                <span className="text-slate-100 text-sm font-medium">
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   {review.name}
                 </span>
-                <span className="text-slate-500 text-xs">{review.city}</span>
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--text-faint)" }}
+                >
+                  {review.city}
+                </span>
               </div>
             </div>
           ))}

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import ConfirmModal from "@/components/ConfirmModal";
+import ThemeToggle from "@/components/ThemeToggle";
 
 import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -18,16 +19,7 @@ const bottomNavItems = [
     href: "/",
     label: "Home",
     icon: (active: boolean) => (
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        fill={active ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
         <polyline points="9 22 9 12 15 12 15 22" />
       </svg>
@@ -37,16 +29,7 @@ const bottomNavItems = [
     href: "/explore",
     label: "Explore",
     icon: (active: boolean) => (
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        fill={active ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
@@ -56,22 +39,18 @@ const bottomNavItems = [
     href: "/trips",
     label: "My Trips",
     icon: (active: boolean) => (
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        fill={active ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
         <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
       </svg>
     ),
   },
 ];
+
+function getInitialTheme(): "dark" | "light" {
+  if (typeof window === "undefined") return "dark";
+  return (localStorage.getItem("theme") as "dark" | "light") ?? "dark";
+}
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -81,11 +60,13 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
-
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [authPromptOpen, setAuthPromptOpen] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
+
+  const logoSrc = theme === "light" ? "/logo_light.png" : "/logo_dark.png";
 
   const user = session?.user;
   const avatarSrc = user?.id
@@ -95,12 +76,16 @@ export default function Navbar() {
     failedAvatarSrc === avatarSrc ? "/default-avatar.png" : avatarSrc;
 
   useEffect(() => {
+    function onThemeChange(e: Event) {
+      setTheme((e as CustomEvent).detail);
+    }
+    window.addEventListener("themechange", onThemeChange);
+    return () => window.removeEventListener("themechange", onThemeChange);
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
-      if (
-        menuRef.current &&
-        e.target instanceof Node &&
-        !menuRef.current.contains(e.target)
-      ) {
+      if (menuRef.current && e.target instanceof Node && !menuRef.current.contains(e.target)) {
         setOpen(false);
       }
     };
@@ -123,18 +108,26 @@ export default function Navbar() {
     setAuthPromptOpen(true);
   }
 
+  const navLinkClass = (href: string) =>
+    `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+      pathname === href
+        ? "text-orange-500"
+        : "hover:bg-[var(--bg-hover)]"
+    }`;
+
   return (
     <>
       {/* ── Desktop Navbar ── */}
-      <nav className="fixed top-0 left-0 right-0 h-[72px] hidden md:flex items-center justify-between px-12 bg-[rgba(10,14,23,0.85)] backdrop-blur-xl border-b border-white/[0.08] z-[1000]">
+      <nav
+        className="fixed top-0 left-0 right-0 h-[72px] hidden md:flex items-center justify-between px-12 backdrop-blur-xl border-b z-[1000]"
+        style={{
+          background: "rgba(var(--bg-base-rgb, 10,14,23), 0.85)",
+          borderColor: "var(--border)",
+          backgroundColor: "color-mix(in srgb, var(--bg-base) 85%, transparent)",
+        }}
+      >
         <Link href="/">
-          <Image
-            src="/logo_dark.png"
-            alt="SahaTour"
-            width={120}
-            height={40}
-            className="h-10 w-auto object-contain rounded-lg"
-          />
+          <Image src={logoSrc} alt="SahaTour" width={120} height={40} className="h-10 w-auto object-contain rounded-lg" />
         </Link>
 
         <ul className="absolute left-1/2 -translate-x-1/2 flex gap-2 items-center list-none">
@@ -143,23 +136,16 @@ export default function Navbar() {
               {!user && link.href === "/trips" ? (
                 <button
                   onClick={openAuthPrompt}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                    pathname === link.href
-                      ? "text-orange-500"
-                      : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
-                  }`}
+                  className={navLinkClass(link.href)}
+                  style={{ color: pathname === link.href ? "var(--accent)" : "var(--text-muted)" }}
                 >
                   {link.label}
                 </button>
               ) : (
                 <Link
                   href={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300
-                                    ${
-                                      pathname === link.href
-                                        ? "text-orange-500"
-                                        : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
-                                    }`}
+                  className={navLinkClass(link.href)}
+                  style={{ color: pathname === link.href ? "var(--accent)" : "var(--text-muted)" }}
                 >
                   {link.label}
                 </Link>
@@ -169,6 +155,8 @@ export default function Navbar() {
         </ul>
 
         <ul className="flex gap-2 items-center list-none">
+          <li><ThemeToggle /></li>
+
           {status === "loading" ? (
             <li className="w-24" />
           ) : user ? (
@@ -176,7 +164,8 @@ export default function Navbar() {
               <div ref={menuRef}>
                 <button
                   onClick={() => setOpen(!open)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                  style={{ color: "var(--text-muted)" }}
                 >
                   <img
                     src={visibleAvatarSrc}
@@ -191,16 +180,20 @@ export default function Navbar() {
                 </button>
 
                 <div
-                  className={`absolute right-0 mt-2 w-52 bg-[#111827] border border-white/10 rounded-xl shadow-lg transition-all duration-200
-                                        ${open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}
-                                    `}
+                  className={`absolute right-0 mt-2 w-52 rounded-xl shadow-lg transition-all duration-200
+                    ${open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"}`}
+                  style={{
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border)",
+                  }}
                 >
                   <ul className="flex flex-col p-2 gap-1">
                     <li>
                       <Link
                         href="/profile"
                         onClick={() => setOpen(false)}
-                        className="block px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-white/5"
+                        className="block px-4 py-2 rounded-lg text-sm transition"
+                        style={{ color: "var(--text-muted)" }}
                       >
                         Profile
                       </Link>
@@ -210,7 +203,8 @@ export default function Navbar() {
                         <Link
                           href="/dashboard"
                           onClick={() => setOpen(false)}
-                          className="block px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-white/5"
+                          className="block px-4 py-2 rounded-lg text-sm transition"
+                          style={{ color: "var(--text-muted)" }}
                         >
                           Dashboard
                         </Link>
@@ -221,20 +215,18 @@ export default function Navbar() {
                         <Link
                           href="/admin"
                           onClick={() => setOpen(false)}
-                          className="block px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-white/5"
+                          className="block px-4 py-2 rounded-lg text-sm transition"
+                          style={{ color: "var(--text-muted)" }}
                         >
                           Admin
                         </Link>
                       </li>
                     )}
-                    <div className="h-px bg-white/10 my-1" />
+                    <div style={{ height: "1px", background: "var(--border)", margin: "4px 0" }} />
                     <li>
                       <button
-                        onClick={() => {
-                          setOpen(false);
-                          setSignOutOpen(true);
-                        }}
-                        className="w-full text-left px-4 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-white/5"
+                        onClick={() => { setOpen(false); setSignOutOpen(true); }}
+                        className="w-full text-left px-4 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 transition"
                       >
                         Sign Out
                       </button>
@@ -248,12 +240,8 @@ export default function Navbar() {
               <li>
                 <Link
                   href="/auth/login"
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300
-                                        ${
-                                          pathname === "/auth/login"
-                                            ? "text-orange-500"
-                                            : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
-                                        }`}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                  style={{ color: pathname === "/auth/login" ? "var(--accent)" : "var(--text-muted)" }}
                 >
                   Login
                 </Link>
@@ -271,53 +259,50 @@ export default function Navbar() {
         </ul>
       </nav>
 
-      {/* ── Mobile Top Bar (logo only) ── */}
-      <div className="fixed top-0 left-0 right-0 h-[44px] flex md:hidden items-center justify-center bg-[rgba(10,14,23,0.95)] border-b border-white/[0.08] z-[1000]">
+      {/* ── Mobile Top Bar ── */}
+      <div
+        className="fixed top-0 left-0 right-0 h-[44px] flex md:hidden items-center justify-between px-4 border-b z-[1000]"
+        style={{
+          background: "color-mix(in srgb, var(--bg-base) 95%, transparent)",
+          borderColor: "var(--border)",
+        }}
+      >
+        <div className="w-8" />
         <Link href="/">
-          <Image
-            src="/logo_dark.png"
-            alt="SahaTour"
-            width={100}
-            height={28}
-            className="h-7 w-auto object-contain rounded-md"
-          />
+          <Image src={logoSrc} alt="SahaTour" width={100} height={28} className="h-7 w-auto object-contain rounded-md" />
         </Link>
+        <ThemeToggle />
       </div>
 
       {/* ── Mobile Bottom Navigation Bar ── */}
-      <nav className="fixed bottom-0 left-0 right-0 h-16 flex md:hidden items-center bg-[#111827] border-t border-white/[0.08] z-[1000] px-2">
+      <nav
+        className="fixed bottom-0 left-0 right-0 h-16 flex md:hidden items-center border-t z-[1000] px-2"
+        style={{
+          background: "var(--bg-card)",
+          borderColor: "var(--border)",
+        }}
+      >
         {bottomNavItems.map((item) => {
           const active = isBottomNavActive(item.href);
-
           return !user && status !== "loading" && item.href === "/trips" ? (
             <button
               key={item.href}
               onClick={openAuthPrompt}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all duration-200 ${
-                active
-                  ? "text-orange-500"
-                  : "text-slate-600 hover:text-slate-400"
-              }`}
+              className="flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all duration-200"
+              style={{ color: active ? "var(--accent)" : "var(--text-ghost)" }}
             >
               {item.icon(active)}
-              <span className="text-[10px] font-medium leading-none">
-                {item.label}
-              </span>
+              <span className="text-[10px] font-medium leading-none">{item.label}</span>
             </button>
           ) : (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all duration-200 ${
-                active
-                  ? "text-orange-500"
-                  : "text-slate-600 hover:text-slate-400"
-              }`}
+              className="flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all duration-200"
+              style={{ color: active ? "var(--accent)" : "var(--text-ghost)" }}
             >
               {item.icon(active)}
-              <span className="text-[10px] font-medium leading-none">
-                {item.label}
-              </span>
+              <span className="text-[10px] font-medium leading-none">{item.label}</span>
             </Link>
           );
         })}
@@ -325,13 +310,11 @@ export default function Navbar() {
         {/* Avatar tab */}
         <button
           onClick={() => {
-            if (!user && status !== "loading") {
-              openAuthPrompt();
-              return;
-            }
+            if (!user && status !== "loading") { openAuthPrompt(); return; }
             setSheetOpen(true);
           }}
           className="flex-1 flex flex-col items-center justify-center py-2 transition-all duration-200"
+          style={{ color: "var(--text-ghost)" }}
         >
           {user ? (
             <img
@@ -344,16 +327,7 @@ export default function Navbar() {
               }}
             />
           ) : (
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
@@ -364,21 +338,23 @@ export default function Navbar() {
       {/* ── Mobile Slide-up Sheet ── */}
       {sheetOpen && (
         <>
-          {/* Backdrop */}
+          <div className="fixed inset-0 z-[1001] bg-black/60 md:hidden" onClick={() => setSheetOpen(false)} />
           <div
-            className="fixed inset-0 z-[1001] bg-black/60 md:hidden"
-            onClick={() => setSheetOpen(false)}
-          />
-          {/* Sheet */}
-          <div className="fixed bottom-0 left-0 right-0 z-[1002] md:hidden bg-[#111827] border-t border-white/[0.08] rounded-t-2xl pb-safe">
-            {/* Handle */}
+            className="fixed bottom-0 left-0 right-0 z-[1002] md:hidden rounded-t-2xl pb-safe"
+            style={{
+              background: "var(--bg-card)",
+              borderTop: "1px solid var(--border)",
+            }}
+          >
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
+              <div className="w-10 h-1 rounded-full" style={{ background: "var(--border)" }} />
             </div>
 
-            {/* User info */}
             {user && (
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06]">
+              <div
+                className="flex items-center gap-3 px-5 py-4"
+                style={{ borderBottom: "1px solid var(--border-subtle)" }}
+              >
                 <img
                   src={visibleAvatarSrc}
                   alt="avatar"
@@ -389,34 +365,21 @@ export default function Navbar() {
                   }}
                 />
                 <div>
-                  <p className="text-slate-100 text-sm font-medium">
-                    {user.username}
-                  </p>
-                  <p className="text-slate-500 text-xs capitalize">
-                    {user.role}
-                  </p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{user.username}</p>
+                  <p className="text-xs capitalize" style={{ color: "var(--text-faint)" }}>{user.role}</p>
                 </div>
               </div>
             )}
 
-            {/* Menu items */}
             <ul className="flex flex-col p-3 gap-1">
               <li>
                 <Link
                   href="/profile"
                   onClick={() => setSheetOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 transition"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition"
+                  style={{ color: "var(--text-secondary)" }}
                 >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
@@ -428,18 +391,10 @@ export default function Navbar() {
                   <Link
                     href="/dashboard"
                     onClick={() => setSheetOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 transition"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition"
+                    style={{ color: "var(--text-secondary)" }}
                   >
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="3" width="7" height="7" />
                       <rect x="14" y="3" width="7" height="7" />
                       <rect x="14" y="14" width="7" height="7" />
@@ -454,43 +409,23 @@ export default function Navbar() {
                   <Link
                     href="/admin"
                     onClick={() => setSheetOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 transition"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition"
+                    style={{ color: "var(--text-secondary)" }}
                   >
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                     Admin Panel
                   </Link>
                 </li>
               )}
-              <div className="h-px bg-white/[0.06] my-1" />
+              <div style={{ height: "1px", background: "var(--border-subtle)", margin: "4px 0" }} />
               <li>
                 <button
-                  onClick={() => {
-                    setSheetOpen(false);
-                    setSignOutOpen(true);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition"
+                  onClick={() => { setSheetOpen(false); setSignOutOpen(true); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-400 hover:text-red-300 transition"
                 >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />
                     <line x1="21" y1="12" x2="9" y2="12" />
@@ -499,8 +434,6 @@ export default function Navbar() {
                 </button>
               </li>
             </ul>
-
-            {/* Safe area spacer for phones with home indicator */}
             <div className="h-4" />
           </div>
         </>
@@ -514,17 +447,9 @@ export default function Navbar() {
         secondaryLabel="Sign Up"
         cancelLabel="Stay here"
         variant="warning"
-        onConfirm={() => {
-          setAuthPromptOpen(false);
-          router.push("/auth/login");
-        }}
-        onSecondary={() => {
-          setAuthPromptOpen(false);
-          router.push("/auth/signup");
-        }}
-        onCancel={() => {
-          setAuthPromptOpen(false);
-        }}
+        onConfirm={() => { setAuthPromptOpen(false); router.push("/auth/login"); }}
+        onSecondary={() => { setAuthPromptOpen(false); router.push("/auth/signup"); }}
+        onCancel={() => setAuthPromptOpen(false)}
       />
 
       <ConfirmModal
@@ -534,10 +459,7 @@ export default function Navbar() {
         confirmLabel="Sign Out"
         cancelLabel="Stay"
         variant="warning"
-        onConfirm={() => {
-          setSignOutOpen(false);
-          signOut({ callbackUrl: "/" });
-        }}
+        onConfirm={() => { setSignOutOpen(false); signOut({ callbackUrl: "/" }); }}
         onCancel={() => setSignOutOpen(false)}
       />
     </>

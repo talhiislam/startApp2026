@@ -23,7 +23,16 @@ export default function CampsiteCard({
 }: CampsiteCardProps) {
   return (
     <Link href={`/explore/${id}`} className="group block">
-      <div className="bg-[#111827] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-orange-500/40 transition-all duration-300">
+      <div
+        style={{
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
+          borderRadius: "1rem",
+          overflow: "hidden",
+          transition: "border-color 0.3s",
+        }}
+        className="hover:border-orange-500/40"
+      >
         {/* Image */}
         <div className="relative h-48 overflow-hidden">
           {image ? (
@@ -35,7 +44,13 @@ export default function CampsiteCard({
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full bg-white/[0.04]" />
+            <div
+              style={{
+                background: "var(--bg-hover)",
+                width: "100%",
+                height: "100%",
+              }}
+            />
           )}
           <span
             className={`absolute top-3 left-3 text-xs font-medium px-2 py-1 rounded-full z-10 ${typeColors[type]}`}
@@ -46,14 +61,24 @@ export default function CampsiteCard({
 
         {/* Info */}
         <div className="p-4 flex flex-col gap-1">
-          <h3 className="text-slate-100 font-semibold text-sm">{name}</h3>
-          <p className="text-slate-500 text-xs">
+          <h3
+            style={{ color: "var(--text-primary)" }}
+            className="font-semibold text-sm"
+          >
+            {name}
+          </h3>
+          <p style={{ color: "var(--text-faint)" }} className="text-xs">
             📍 {location}, {region}
           </p>
           {price !== undefined && (
             <p className="text-orange-400 text-sm font-medium mt-1">
               {price.toLocaleString()} DZD{" "}
-              <span className="text-slate-500 font-normal">/ night</span>
+              <span
+                style={{ color: "var(--text-faint)" }}
+                className="font-normal"
+              >
+                / night
+              </span>
             </p>
           )}
         </div>

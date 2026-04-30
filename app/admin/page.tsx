@@ -145,8 +145,13 @@ export default function AdminPage() {
         <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
           Admin
         </span>
-        <h1 className="text-3xl font-bold text-slate-100">Admin Panel</h1>
-        <p className="text-slate-500 text-sm">
+        <h1
+          className="text-3xl font-bold"
+          style={{ color: "var(--text-primary)" }}
+        >
+          Admin Panel
+        </h1>
+        <p className="text-sm" style={{ color: "var(--text-faint)" }}>
           {pendingCampsites.length} pending approval · {users.length} users
         </p>
       </div>
@@ -159,12 +164,13 @@ export default function AdminPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`shrink-0 text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
-                                ${
-                                  activeTab === tab
-                                    ? "bg-orange-500/10 text-orange-500"
-                                    : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
-                                }`}
+              className="shrink-0 text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200"
+              style={{
+                background:
+                  activeTab === tab ? "var(--accent-subtle)" : "transparent",
+                color:
+                  activeTab === tab ? "var(--accent)" : "var(--text-muted)",
+              }}
             >
               {tab}
               {tab === "Campsites" && pendingCampsites.length > 0 && (
@@ -183,7 +189,10 @@ export default function AdminPage() {
             <div className="flex flex-col gap-6">
               {/* Pending */}
               <div className="flex flex-col gap-3">
-                <h2 className="text-slate-100 font-semibold">
+                <h2
+                  className="font-semibold"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   Pending Approval
                   <span className="ml-2 text-sm text-slate-500 font-normal">
                     ({pendingCampsites.length})
@@ -191,16 +200,22 @@ export default function AdminPage() {
                 </h2>
 
                 {loadingCampsites ? (
-                  <p className="text-slate-500 text-sm">Loading...</p>
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                    Loading...
+                  </p>
                 ) : pendingCampsites.length === 0 ? (
-                  <p className="text-slate-500 text-sm">
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                     No campsites pending approval.
                   </p>
                 ) : (
                   pendingCampsites.map((c) => (
                     <div
                       key={c._id}
-                      className="group flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.03] transition-colors"
+                      className="group flex flex-col md:flex-row rounded-xl overflow-hidden transition-colors"
+                      style={{
+                        background: "var(--bg-hover)",
+                        border: "1px solid var(--border-subtle)",
+                      }}
                     >
                       {/* Image: md:h-auto + md:w-36 ensures it stretches to match text height */}
                       <div className="w-full h-40 md:h-auto md:w-36 shrink-0 border-r border-white/[0.06]">
@@ -217,7 +232,10 @@ export default function AdminPage() {
                         {/* Left Side: Info */}
                         <div className="flex flex-col gap-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-slate-100 font-medium text-base truncate">
+                            <h3
+                              className="font-medium text-base truncate"
+                              style={{ color: "var(--text-primary)" }}
+                            >
                               {c.name}
                             </h3>
                             <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded font-bold ${typeColors[c.type]}`}>
@@ -226,10 +244,16 @@ export default function AdminPage() {
                           </div>
                           
                           <div className="flex flex-col gap-0.5">
-                            <p className="text-slate-500 text-xs flex items-center gap-1">
+                            <p
+                              className="text-xs flex items-center gap-1"
+                              style={{ color: "var(--text-faint)" }}
+                            >
                               <span className="opacity-70">📍</span> {c.wilaya}, {c.region}
                             </p>
-                            <p className="text-slate-500 text-xs flex items-center gap-1">
+                            <p
+                              className="text-xs flex items-center gap-1"
+                              style={{ color: "var(--text-faint)" }}
+                            >
                               <span className="opacity-70">👤</span> {c.owner?.username} <span className="text-slate-600">•</span> {c.owner?.email}
                             </p>
                           </div>
@@ -247,7 +271,11 @@ export default function AdminPage() {
                             <button
                               onClick={() => handleApprove(c._id)}
                               disabled={processingId === c._id}
-                              className="text-xs text-green-400 hover:text-green-300 border border-green-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                              className="text-xs border px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                              style={{
+                                color: "var(--text-muted)",
+                                borderColor: "var(--border)",
+                              }}
                             >
                               {processingId === c._id ? "..." : "Approve"}
                             </button>
@@ -255,14 +283,22 @@ export default function AdminPage() {
                             <button
                               onClick={() => handleReject(c._id)}
                               disabled={processingId === c._id}
-                              className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                              className="text-xs border px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                              style={{
+                                color: "var(--text-muted)",
+                                borderColor: "var(--border)",
+                              }}
                             >
                               {processingId === c._id ? "..." : "Reject"}
                             </button>
 
                             <button
                               onClick={() => router.push(`/explore/${c._id}`)}
-                              className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1.5 rounded-lg transition"
+                              className="text-xs border px-3 py-1.5 rounded-lg transition"
+                              style={{
+                                color: "var(--text-muted)",
+                                borderColor: "var(--border)",
+                              }}
                             >
                               Preview
                             </button>
@@ -274,11 +310,14 @@ export default function AdminPage() {
                 )}
               </div>
 
-              <div className="h-px bg-white/[0.06]" />
+              <div style={{ height: "1px", background: "var(--border)" }} />
 
               {/* Approved */}
               <div className="flex flex-col gap-3">
-                <h2 className="text-slate-100 font-semibold">
+                <h2
+                  className="font-semibold"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   Approved
                   <span className="ml-2 text-sm text-slate-500 font-normal">
                     ({approvedCampsites.length})
@@ -286,16 +325,22 @@ export default function AdminPage() {
                 </h2>
 
                 {loadingCampsites ? (
-                  <p className="text-slate-500 text-sm">Loading...</p>
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                    Loading...
+                  </p>
                 ) : approvedCampsites.length === 0 ? (
-                  <p className="text-slate-500 text-sm">
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                     No approved campsites yet.
                   </p>
                 ) : (
                   approvedCampsites.map((c) => (
                     <div
                       key={c._id}
-                      className="group flex flex-col md:flex-row bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden hover:bg-white/[0.03] transition-colors"
+                      className="group flex flex-col md:flex-row rounded-xl overflow-hidden transition-colors"
+                      style={{
+                        background: "var(--bg-hover)",
+                        border: "1px solid var(--border-subtle)",
+                      }}
                     >
                       {/* Image: md:h-auto + md:w-36 ensures it stretches to match text height */}
                       <div className="w-full h-40 md:h-auto md:w-36 shrink-0 border-r border-white/[0.06]">
@@ -312,7 +357,10 @@ export default function AdminPage() {
                         {/* Left Side: Info */}
                         <div className="flex flex-col gap-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-slate-100 font-medium text-base truncate">
+                            <h3
+                              className="font-medium text-base truncate"
+                              style={{ color: "var(--text-primary)" }}
+                            >
                               {c.name}
                             </h3>
                             <span className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${typeColors[c.type]}`}>
@@ -321,10 +369,16 @@ export default function AdminPage() {
                           </div>
                           
                           <div className="flex flex-col gap-0.5">
-                            <p className="text-slate-500 text-xs flex items-center gap-1">
+                            <p
+                              className="text-xs flex items-center gap-1"
+                              style={{ color: "var(--text-faint)" }}
+                            >
                               <span className="opacity-70">📍</span> {c.wilaya}, {c.region}
                             </p>
-                            <p className="text-slate-500 text-xs flex items-center gap-1">
+                            <p
+                              className="text-xs flex items-center gap-1"
+                              style={{ color: "var(--text-faint)" }}
+                            >
                               <span className="opacity-70">👤</span> {c.owner?.username} <span className="text-slate-600">•</span> {c.owner?.email}
                             </p>
                           </div>
@@ -342,14 +396,22 @@ export default function AdminPage() {
                             <button
                               onClick={() => setRevokeConfirm(c._id)}
                               disabled={processingId === c._id}
-                              className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                              className="text-xs border px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+                              style={{
+                                color: "var(--text-muted)",
+                                borderColor: "var(--border)",
+                              }}
                             >
                               {processingId === c._id ? "..." : "Revoke"}
                             </button>
 
                             <button
                               onClick={() => router.push(`/explore/${c._id}`)}
-                              className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1.5 rounded-lg transition"
+                              className="text-xs border px-3 py-1.5 rounded-lg transition"
+                              style={{
+                                color: "var(--text-muted)",
+                                borderColor: "var(--border)",
+                              }}
                             >
                               Preview
                             </button>
@@ -366,17 +428,30 @@ export default function AdminPage() {
           {/* Users Tab */}
           {activeTab === "Users" && (
             <div className="flex flex-col gap-4">
-              <h2 className="text-slate-100 font-semibold">All Users</h2>
+              <h2
+                className="font-semibold"
+                style={{ color: "var(--text-primary)" }}
+              >
+                All Users
+              </h2>
 
               {loadingUsers ? (
-                <p className="text-slate-500 text-sm">Loading...</p>
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                  Loading...
+                </p>
               ) : users.length === 0 ? (
-                <p className="text-slate-500 text-sm">No users found.</p>
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+                  No users found.
+                </p>
               ) : (
                 users.map((u) => (
                   <div
                     key={u._id}
-                    className="flex items-center justify-between gap-4 bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3"
+                    className="flex items-center justify-between gap-4 rounded-xl px-4 py-3"
+                    style={{
+                      background: "var(--bg-hover)",
+                      border: "1px solid var(--border-subtle)",
+                    }}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
@@ -391,10 +466,18 @@ export default function AdminPage() {
                         )}
                       </div>
                       <div className="flex flex-col gap-0.5 min-w-0">
-                        <p className="text-slate-200 text-sm font-medium truncate">
+                        <p
+                          className="text-sm font-medium truncate"
+                          style={{ color: "var(--text-primary)" }}
+                        >
                           {u.username}
                         </p>
-                        <p className="text-slate-500 text-xs truncate">{u.email}</p>
+                        <p
+                          className="text-xs truncate"
+                          style={{ color: "var(--text-faint)" }}
+                        >
+                          {u.email}
+                        </p>
                       </div>
                     </div>
 
@@ -410,7 +493,12 @@ export default function AdminPage() {
                         onChange={(e) =>
                           handleRoleChange(u._id, e.target.value)
                         }
-                        className="bg-white/5 border border-white/[0.08] text-slate-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500/40 transition disabled:opacity-50 max-w-[90px]"
+                        className="border rounded-lg text-xs px-2 py-1.5 outline-none transition disabled:opacity-50 max-w-[90px]"
+                        style={{
+                          background: "var(--bg-input)",
+                          borderColor: "var(--border)",
+                          color: "var(--text-primary)",
+                        }}
                       >
                         <option value="camper" className="bg-[#111827]">
                           camper

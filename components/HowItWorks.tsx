@@ -1,4 +1,7 @@
+"use client";
+
 import { MapPin, ClipboardList, Flame } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const steps = [
   {
@@ -21,59 +24,118 @@ const steps = [
   },
 ];
 
+function getInitialTheme(): "dark" | "light" {
+  if (typeof window === "undefined") return "dark";
+  return (localStorage.getItem("theme") as "dark" | "light") ?? "dark";
+}
+
 export default function HowItWorks() {
+  const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
+
+  useEffect(() => {
+    function onThemeChange(e: Event) {
+      setTheme((e as CustomEvent).detail);
+    }
+    window.addEventListener("themechange", onThemeChange);
+    return () => window.removeEventListener("themechange", onThemeChange);
+  }, []);
+
+  const isDark = theme === "dark";
+
   return (
-    <section className="px-6 md:px-16 py-24 bg-[#020617] overflow-hidden">
+    <section
+      className="px-6 md:px-16 py-24 overflow-hidden"
+      style={{ background: isDark ? "#020617" : "#e8edf5" }}
+    >
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col gap-2 text-center mb-32">
           <span className="text-orange-500 text-xs font-bold uppercase tracking-[0.3em]">Simple</span>
-          <h2 className="text-4xl font-bold text-white">How It Works</h2>
+          <h2
+            className="text-4xl font-bold"
+            style={{ color: isDark ? "#ffffff" : "#0f172a" }}
+          >
+            How It Works
+          </h2>
         </div>
 
         <div className="relative">
-          {/* THE GLOWING LINE */}
+          {/* Glowing line */}
           <div className="hidden md:block absolute top-[-60px] left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-transparent via-orange-500/50 to-transparent">
             <div className="absolute inset-0 bg-orange-500 blur-[4px] opacity-40" />
           </div>
 
           <div className="flex flex-col md:flex-row items-stretch justify-center relative z-10">
             {steps.map((step, index) => (
-              <div 
-                key={step.number} 
+              <div
+                key={step.number}
                 className="relative group w-full"
-                style={{ 
-                  marginLeft: index === 0 ? '0' : '-3rem', 
-                  zIndex: 10 - index 
-                }}
+                style={{ marginLeft: index === 0 ? "0" : "-3rem", zIndex: 10 - index }}
               >
-                {/* NODE - Adjusted with translate-x to center over the visible card area */}
+                {/* Timeline node */}
                 <div className="hidden md:flex absolute top-[-68px] left-1/2 -translate-x-1/2 md:translate-x-[0.5rem] z-30">
-                  <div className="w-4 h-4 rounded-full bg-[#020617] border-2 border-orange-500 shadow-[0_0_12px_rgba(249,115,22,1)]" />
+                  <div
+                    className="w-4 h-4 rounded-full border-2 border-orange-500 shadow-[0_0_12px_rgba(249,115,22,1)]"
+                    style={{ background: isDark ? "#020617" : "#e8edf5" }}
+                  />
                 </div>
 
-                {/* THE CARD */}
-                <div 
-                  className="relative h-full p-10 py-16 bg-[#111827]/40 border-y border-white/10 backdrop-blur-sm
-                    transition-all duration-500 hover:bg-[#111827]/60 min-h-[380px] flex flex-col justify-center
+                {/* Border wrapper */}
+                <div
+                  className="relative h-full min-h-[380px] transition-all duration-500
                     md:[clip-path:polygon(0%_0%,_88%_0%,_100%_50%,_88%_100%,_0%_100%,_12%_50%)]"
+                  style={{
+                    background: isDark
+                      ? "rgba(249,115,22,0.25)"
+                      : "rgba(249,115,22,0.35)",
+                    padding: "1.5px",
+                  }}
                 >
-                  <div className="flex flex-col items-center text-center pl-6">
-                    <div className="mb-8 p-4 rounded-full bg-orange-500/10 border border-orange-500/20 group-hover:scale-110 transition-transform">
-                      {step.icon}
-                    </div>
+                  {/* Card inner */}
+                  <div
+                    className="relative h-full p-10 py-16 backdrop-blur-sm
+                      transition-all duration-500 min-h-[380px] flex flex-col justify-center
+                      md:[clip-path:polygon(0%_0%,_88%_0%,_100%_50%,_88%_100%,_0%_100%,_12%_50%)]"
+                    style={{
+                      background: isDark
+                        ? "rgba(17,24,39,0.40)"
+                        : "rgba(255,255,255,0.60)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = isDark
+                        ? "rgba(17,24,39,0.60)"
+                        : "rgba(255,255,255,0.85)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = isDark
+                        ? "rgba(17,24,39,0.40)"
+                        : "rgba(255,255,255,0.60)";
+                    }}
+                  >
+                    <div className="flex flex-col items-center text-center pl-6">
+                      {/* Icon */}
+                      <div className="mb-8 p-4 rounded-full bg-orange-500/10 border border-orange-500/20 group-hover:scale-110 transition-transform">
+                        {step.icon}
+                      </div>
 
-                    <div className="mb-4">
-                      <span className="text-orange-500 font-mono text-xs font-bold tracking-[0.2em] block mb-1">
-                        STEP {step.number}
-                      </span>
-                      <h3 className="text-2xl font-bold text-white tracking-tight">
-                        {step.title.toUpperCase()}
-                      </h3>
-                    </div>
+                      <div className="mb-4">
+                        <span className="text-orange-500 font-mono text-xs font-bold tracking-[0.2em] block mb-1">
+                          STEP {step.number}
+                        </span>
+                        <h3
+                          className="text-2xl font-bold tracking-tight"
+                          style={{ color: isDark ? "#ffffff" : "#0f172a" }}
+                        >
+                          {step.title.toUpperCase()}
+                        </h3>
+                      </div>
 
-                    <p className="text-slate-400 text-sm leading-relaxed max-w-[240px]">
-                      {step.description}
-                    </p>
+                      <p
+                        className="text-sm leading-relaxed max-w-[240px]"
+                        style={{ color: isDark ? "#94a3b8" : "#475569" }}
+                      >
+                        {step.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
