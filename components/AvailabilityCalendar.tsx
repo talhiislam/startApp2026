@@ -157,21 +157,21 @@ export default function AvailabilityCalendar({
         const base = "w-full h-8 flex items-center justify-center text-xs rounded-md transition-colors select-none ";
 
         if (isPast) {
-            return base + "text-slate-700 cursor-not-allowed";
+            return base + "cursor-not-allowed text-[var(--text-ghost)]";
         }
         if (disabled) {
             return base + "text-red-500 opacity-55 line-through cursor-not-allowed bg-red-500/8 rounded-md";
         }
         if (isStart || isEnd) {
-            return base + "bg-orange-500 text-white font-medium cursor-pointer rounded-md z-10";
+            return base + "bg-[var(--accent)] text-white font-medium cursor-pointer rounded-md z-10";
         }
         if (inRange) {
-            return base + "bg-orange-500/15 text-orange-300 cursor-pointer rounded-none";
+            return base + "bg-[var(--accent-subtle)] text-[var(--accent-soft)] cursor-pointer rounded-none";
         }
         if (isToday) {
-            return base + "text-orange-400 font-semibold cursor-pointer hover:bg-white/5";
+            return base + "text-[var(--accent-soft)] font-semibold cursor-pointer hover:bg-[var(--bg-hover)]";
         }
-        return base + "text-slate-300 cursor-pointer hover:bg-white/5";
+        return base + "text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-hover)]";
     }
 
     return (
@@ -180,16 +180,16 @@ export default function AvailabilityCalendar({
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                 <button
                     onClick={prevMonth}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 18, padding: "2px 6px", borderRadius: 4 }}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 18, padding: "2px 6px", borderRadius: 4 }}
                 >
                     ‹
                 </button>
-                <span style={{ color: "#e2e8f0", fontSize: 13, fontWeight: 500 }}>
+                <span style={{ color: "var(--text-primary)", fontSize: 13, fontWeight: 500 }}>
                     {loading ? "Loading..." : monthLabel}
                 </span>
                 <button
                     onClick={nextMonth}
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 18, padding: "2px 6px", borderRadius: 4 }}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 18, padding: "2px 6px", borderRadius: 4 }}
                 >
                     ›
                 </button>
@@ -198,7 +198,7 @@ export default function AvailabilityCalendar({
             {/* Day-of-week headers */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: 4 }}>
                 {DAYS.map((d) => (
-                    <div key={d} style={{ textAlign: "center", fontSize: 11, color: "#475569", fontWeight: 500, paddingBottom: 4 }}>
+                    <div key={d} style={{ textAlign: "center", fontSize: 11, color: "var(--text-ghost)", fontWeight: 500, paddingBottom: 4 }}>
                         {d}
                     </div>
                 ))}
@@ -229,14 +229,14 @@ export default function AvailabilityCalendar({
             {/* Legend */}
             <div className="flex items-center gap-4 mt-3 px-1">
                 <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-orange-500" />
-                    <span className="text-xs text-slate-500">Selected</span>
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--accent)" }} />
+                    <span className="text-xs" style={{ color: "var(--text-faint)" }}>Selected</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                     <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-                    <span className="text-xs text-slate-500">Unavailable</span>
+                    <span className="text-xs" style={{ color: "var(--text-faint)" }}>Unavailable</span>
                 </div>
-                <span className="text-xs text-slate-600 ml-auto">Capacity: {capacity}</span>
+                <span className="text-xs ml-auto" style={{ color: "var(--text-ghost)" }}>Capacity: {capacity}</span>
             </div>
         </div>
     );

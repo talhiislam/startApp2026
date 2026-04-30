@@ -58,8 +58,8 @@ function CampsiteGallery({
 
   if (images.length === 0) {
     return (
-      <div className="relative w-full h-80 rounded-2xl overflow-hidden bg-[#111827] flex items-center justify-center">
-        <span className="text-slate-600 text-sm">No images available</span>
+      <div className="relative w-full h-80 rounded-2xl overflow-hidden flex items-center justify-center" style={{ background: "var(--bg-card)" }}>
+        <span className="text-sm" style={{ color: "var(--text-ghost)" }}>No images available</span>
         <span
           className={`absolute top-4 left-4 text-xs font-medium px-3 py-1 rounded-full capitalize ${typeColors[type]}`}
         >
@@ -433,7 +433,7 @@ export default function CampsiteDetail() {
     return (
       <div className="min-h-screen px-6 md:px-16 pt-6 pb-12 md:py-12 flex flex-col gap-8">
         {/* Back */}
-        <div className="w-24 h-4 bg-white/[0.06] rounded-full animate-pulse" />
+        <div className="w-24 h-4 rounded-full animate-pulse" style={{ background: "var(--bg-hover-strong)" }} />
 
         {/* Gallery skeleton */}
         <div
@@ -447,30 +447,31 @@ export default function CampsiteDetail() {
           <div className="flex-1 flex flex-col gap-6">
             {/* Title */}
             <div className="flex flex-col gap-2">
-              <div className="w-64 h-7 bg-white/[0.06] rounded-lg animate-pulse" />
-              <div className="w-48 h-4 bg-white/[0.04] rounded-lg animate-pulse" />
+              <div className="w-64 h-7 rounded-lg animate-pulse" style={{ background: "var(--bg-hover-strong)" }} />
+              <div className="w-48 h-4 rounded-lg animate-pulse" style={{ background: "var(--bg-hover)" }} />
             </div>
 
             <div className="h-px" style={{ background: "var(--border-subtle)" }} />
 
             {/* About */}
             <div className="flex flex-col gap-2">
-              <div className="w-16 h-3 bg-white/[0.04] rounded animate-pulse" />
-              <div className="w-full h-4 bg-white/[0.06] rounded animate-pulse" />
-              <div className="w-full h-4 bg-white/[0.06] rounded animate-pulse" />
-              <div className="w-3/4 h-4 bg-white/[0.06] rounded animate-pulse" />
+              <div className="w-16 h-3 rounded animate-pulse" style={{ background: "var(--bg-hover)" }} />
+              <div className="w-full h-4 rounded animate-pulse" style={{ background: "var(--bg-hover-strong)" }} />
+              <div className="w-full h-4 rounded animate-pulse" style={{ background: "var(--bg-hover-strong)" }} />
+              <div className="w-3/4 h-4 rounded animate-pulse" style={{ background: "var(--bg-hover-strong)" }} />
             </div>
 
             <div className="h-px" style={{ background: "var(--border-subtle)" }} />
 
             {/* Amenities */}
             <div className="flex flex-col gap-3">
-              <div className="w-20 h-3 bg-white/[0.04] rounded animate-pulse" />
+              <div className="w-20 h-3 rounded animate-pulse" style={{ background: "var(--bg-hover)" }} />
               <div className="flex flex-wrap gap-2">
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className="w-20 h-7 bg-white/[0.06] rounded-full animate-pulse"
+                    className="w-20 h-7 rounded-full animate-pulse"
+                    style={{ background: "var(--bg-hover-strong)" }}
                   />
                 ))}
               </div>
@@ -486,11 +487,11 @@ export default function CampsiteDetail() {
                 border: "1px solid var(--border)",
               }}
             >
-              <div className="w-40 h-7 bg-white/[0.06] rounded-lg animate-pulse" />
+              <div className="w-40 h-7 rounded-lg animate-pulse" style={{ background: "var(--bg-hover-strong)" }} />
               <div className="h-px" style={{ background: "var(--border-subtle)" }} />
-              <div className="w-full h-64 bg-white/[0.04] rounded-xl animate-pulse" />
-              <div className="w-full h-10 bg-white/[0.06] rounded-xl animate-pulse" />
-              <div className="w-full h-12 bg-orange-500/20 rounded-xl animate-pulse" />
+              <div className="w-full h-64 rounded-xl animate-pulse" style={{ background: "var(--bg-hover)" }} />
+              <div className="w-full h-10 rounded-xl animate-pulse" style={{ background: "var(--bg-hover-strong)" }} />
+              <div className="w-full h-12 rounded-xl animate-pulse" style={{ background: "var(--accent-subtle)" }} />
             </div>
           </div>
         </div>
@@ -499,7 +500,7 @@ export default function CampsiteDetail() {
 
   if (notFound || !campsite)
     return (
-      <div className="min-h-screen px-6 md:px-16 py-12 text-slate-400 text-sm">
+      <div className="min-h-screen px-6 md:px-16 py-12 text-sm" style={{ color: "var(--text-muted)" }}>
         Campsite not found.
       </div>
     );
@@ -534,8 +535,8 @@ export default function CampsiteDetail() {
               <button
                 onClick={handleSaveToggle}
                 disabled={savingToggle}
-                className={`text-3xl leading-none transition shrink-0
-                ${saved ? "text-orange-500" : "text-slate-600 hover:text-slate-400"}`}
+                className="text-3xl leading-none transition shrink-0"
+                style={{ color: saved ? "var(--accent)" : "var(--text-ghost)" }}
               >
                 {saved ? "\u2665" : "\u2661"}
               </button>
@@ -544,7 +545,7 @@ export default function CampsiteDetail() {
               <span>
                 {"\u{1F4CD}"} {campsite.wilaya}, {campsite.region}
               </span>
-              <span className="text-orange-400 font-medium">
+              <span className="font-medium" style={{ color: "var(--accent-soft)" }}>
                 {"\u2605"} {campsite.averageRating}
               </span>
               <span>{campsite.reviewCount} reviews</span>
@@ -593,7 +594,7 @@ export default function CampsiteDetail() {
               Hosted by
             </p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold shrink-0 overflow-hidden">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 overflow-hidden" style={{ background: "var(--accent)" }}>
                 {campsite.owner?.avatar ? (
                   <img
                     src={campsite.owner.avatar}
@@ -633,7 +634,7 @@ export default function CampsiteDetail() {
                   <p className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
                     Location
                   </p>
-                  <div className="h-64 w-full rounded-2xl overflow-hidden border border-white/[0.08]">
+                  <div className="h-64 w-full rounded-2xl overflow-hidden border" style={{ borderColor: "var(--border)" }}>
                     <CampsiteMap
                       lat={campsite.coordinates.lat}
                       lng={campsite.coordinates.lng}
@@ -668,8 +669,8 @@ export default function CampsiteDetail() {
                 </p>
                 <button
                   onClick={openAuthPrompt}
-                  className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition"
-                >
+                  className="text-white text-sm font-medium px-5 py-2.5 rounded-xl transition bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
+                  >
                   Sign in
                 </button>
               </div>
@@ -683,10 +684,10 @@ export default function CampsiteDetail() {
               }}
             >
               <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-bold text-orange-400">
+                <span className="text-2xl font-bold" style={{ color: "var(--accent-soft)" }}>
                   {campsite.pricePerNight.toLocaleString()} DZD
                 </span>
-                <span className="text-slate-500 text-sm">/ night</span>
+                <span className="text-sm" style={{ color: "var(--text-faint)" }}>/ night</span>
               </div>
 
               <div className="h-px" style={{ background: "var(--border-subtle)" }} />
@@ -697,12 +698,12 @@ export default function CampsiteDetail() {
                   <p className="text-green-400 text-sm font-medium">
                     Booking confirmed!
                   </p>
-                  <p className="text-slate-500 text-xs">
+                  <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                     Head to My Trips to manage it.
                   </p>
                   <button
                     onClick={() => router.push("/trips")}
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2.5 rounded-xl transition"
+                    className="w-full text-white text-sm font-medium py-2.5 rounded-xl transition bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
                   >
                     View My Trips
                   </button>
@@ -737,7 +738,7 @@ export default function CampsiteDetail() {
                       >
                         -
                       </button>
-                      <span className="text-sm text-slate-200 w-4 text-center">
+                      <span className="text-sm w-4 text-center" style={{ color: "var(--text-secondary)" }}>
                         {guests}
                       </span>
                       <button
@@ -770,13 +771,13 @@ export default function CampsiteDetail() {
                           </span>
                           <span>{total.toLocaleString()} DZD</span>
                         </div>
-                        <div className="flex justify-between text-sm font-medium text-slate-100 pt-2 border-t border-white/[0.06]">
+                        <div className="flex justify-between text-sm font-medium pt-2 border-t" style={{ color: "var(--text-primary)", borderColor: "var(--border-subtle)" }}>
                           <span>Total</span>
                           <span>{total.toLocaleString()} DZD</span>
                         </div>
                       </>
                     ) : (
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                         Select dates to see the total price.
                       </p>
                     )}
@@ -791,12 +792,12 @@ export default function CampsiteDetail() {
                   <button
                     onClick={handleBook}
                     disabled={booking}
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-3 rounded-xl transition disabled:opacity-50"
+                    className="w-full text-white text-sm font-medium py-3 rounded-xl transition disabled:opacity-50 bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
                   >
                     {booking ? "Booking..." : "Book Now"}
                   </button>
 
-                  <p className="text-xs text-slate-500 text-center">
+                  <p className="text-xs text-center" style={{ color: "var(--text-faint)" }}>
                     You won&apos;t be charged yet
                   </p>
                 </>
@@ -836,11 +837,13 @@ export default function CampsiteDetail() {
                   onMouseEnter={() => setHoveredStar(star)}
                   onMouseLeave={() => setHoveredStar(0)}
                   onClick={() => setReviewRating(star)}
-                  className={`text-2xl transition ${
-                    star <= (hoveredStar || reviewRating)
-                      ? "text-orange-400"
-                      : "text-slate-600"
-                  }`}
+                  className="text-2xl transition"
+                  style={{
+                    color:
+                      star <= (hoveredStar || reviewRating)
+                        ? "var(--accent-soft)"
+                        : "var(--text-ghost)",
+                  }}
                 >
                   {"\u2605"}
                 </button>
@@ -869,7 +872,7 @@ export default function CampsiteDetail() {
             <button
               onClick={handleReviewSubmit}
               disabled={submittingReview}
-              className="self-start bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
+              className="self-start text-white text-sm font-medium px-4 py-2 rounded-lg transition disabled:opacity-50 bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
             >
               {submittingReview ? "Submitting..." : "Submit Review"}
             </button>
@@ -880,7 +883,8 @@ export default function CampsiteDetail() {
           <p className="text-sm" style={{ color: "var(--text-faint)" }}>
             <button
               onClick={openAuthPrompt}
-              className="text-orange-500 hover:underline"
+              className="hover:underline"
+              style={{ color: "var(--accent)" }}
             >
               Sign in
             </button>{" "}
@@ -915,7 +919,7 @@ export default function CampsiteDetail() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold overflow-hidden shrink-0">
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold overflow-hidden shrink-0" style={{ background: "var(--accent)" }}>
                       {review.user.avatar ? (
                         <img
                           src={review.user.avatar}
@@ -937,9 +941,9 @@ export default function CampsiteDetail() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-orange-400 text-sm">
+                    <span className="text-sm" style={{ color: "var(--accent-soft)" }}>
                       {"\u2605".repeat(review.rating)}
-                      <span className="text-slate-600">
+                      <span style={{ color: "var(--text-ghost)" }}>
                         {"\u2606".repeat(5 - review.rating)}
                       </span>
                     </span>
@@ -953,7 +957,8 @@ export default function CampsiteDetail() {
                     {session?.user.username === review.user.username && (
                       <button
                         onClick={() => setReviewToDelete(review._id)}
-                        className="w-6 h-6 rounded-full bg-white/5 hover:bg-red-500/20 text-slate-600 hover:text-red-400 flex items-center justify-center text-xs transition"
+                        className="w-6 h-6 rounded-full hover:bg-red-500/20 hover:text-red-400 flex items-center justify-center text-xs transition"
+                        style={{ background: "var(--bg-hover)", color: "var(--text-ghost)" }}
                       >
                         ✕
                       </button>

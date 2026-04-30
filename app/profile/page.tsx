@@ -177,7 +177,7 @@ export default function ProfilePage() {
   }
 
   const inputClass =
-    "p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition w-full";
+    "p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition w-full";
   const inputStyle = {
     background: "var(--bg-input)",
     border: "1px solid var(--border)",
@@ -196,7 +196,7 @@ export default function ProfilePage() {
 
   if (!profile)
     return (
-      <div className="flex items-center justify-center h-64 text-slate-400">
+      <div className="flex items-center justify-center h-64" style={{ color: "var(--text-muted)" }}>
         Loading...
       </div>
     );
@@ -204,7 +204,7 @@ export default function ProfilePage() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-6">
       <Card className="p-6 flex items-center gap-6">
-        <label className="relative w-20 h-20 rounded-full bg-orange-500 flex items-center justify-center text-white text-3xl font-bold shrink-0 cursor-pointer group">
+        <label className="relative w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold shrink-0 cursor-pointer group" style={{ background: "var(--accent)" }}>
           {showAvatar ? (
             <img
               src={proxiedAvatarSrc}
@@ -350,7 +350,7 @@ export default function ProfilePage() {
                   <div className="flex gap-3 mt-2">
                     <button
                       onClick={() => setEditing(true)}
-                      className="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition"
+                      className="px-4 py-2 rounded-lg text-white text-sm font-medium transition bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
                     >
                       Edit Profile
                     </button>
@@ -359,7 +359,12 @@ export default function ProfilePage() {
                       <button
                         onClick={handleBecomeOwner}
                         disabled={becomingOwner}
-                        className="px-4 py-2 rounded-lg bg-white/5 border border-white/[0.08] text-slate-300 text-sm font-medium hover:bg-white/10 transition disabled:opacity-50"
+                        className="px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
+                        style={{
+                          background: "var(--bg-hover)",
+                          border: "1px solid var(--border)",
+                          color: "var(--text-secondary)",
+                        }}
                       >
                         {becomingOwner ? "Upgrading..." : "Become an Owner"}
                       </button>
@@ -447,13 +452,14 @@ export default function ProfilePage() {
                   <div className="flex gap-3 mt-2">
                     <button
                       onClick={handleProfileSave}
-                      className="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition"
+                      className="px-4 py-2 rounded-lg text-white text-sm font-medium transition bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
                     >
                       Save Changes
                     </button>
                     <button
                       onClick={() => setEditing(false)}
-                      className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 text-sm font-medium hover:bg-white/10 transition"
+                      className="px-4 py-2 rounded-lg text-sm font-medium transition"
+                      style={{ background: "var(--bg-hover)", color: "var(--text-muted)" }}
                     >
                       Cancel
                     </button>
@@ -482,7 +488,7 @@ export default function ProfilePage() {
                     className="flex flex-col items-center justify-center rounded-xl p-6 gap-2"
                     style={{ background: "var(--bg-hover)" }}
                   >
-                    <span className="text-3xl font-bold text-orange-500">
+                    <span className="text-3xl font-bold" style={{ color: "var(--accent)" }}>
                       {value}
                     </span>
                     <span
@@ -571,7 +577,7 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={handlePasswordSave}
-                  className="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition self-start"
+                  className="px-4 py-2 rounded-lg text-white text-sm font-medium transition self-start bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
                 >
                   Update Password
                 </button>

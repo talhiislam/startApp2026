@@ -324,7 +324,7 @@ export default function DashboardPage() {
   }
 
   const inputClass =
-    "p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition w-full text-sm";
+    "p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition w-full text-sm";
   const inputStyle = {
     background: "var(--bg-input)",
     border: "1px solid var(--border)",
@@ -334,7 +334,7 @@ export default function DashboardPage() {
 
   if (status === "loading" || loading)
     return (
-      <div className="min-h-screen flex items-center justify-center text-slate-400 text-sm">
+      <div className="min-h-screen flex items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
         Loading...
       </div>
     );
@@ -343,7 +343,7 @@ export default function DashboardPage() {
     <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
+          <span className="text-sm font-medium uppercase tracking-widest" style={{ color: "var(--accent)" }}>
             Owner
           </span>
           <h1
@@ -355,7 +355,7 @@ export default function DashboardPage() {
           <p className="text-sm" style={{ color: "var(--text-faint)" }}>
             {campsites.length} campsite{campsites.length !== 1 ? "s" : ""} ·{" "}
             {bookings.filter((b) => b.status === "pending").length} pending ·{" "}
-            <span className="text-orange-400/80">
+            <span style={{ color: "var(--accent-soft)" }}>
               {bookings
                 .filter(
                   (b) => b.status === "confirmed" || b.status === "completed",
@@ -368,7 +368,7 @@ export default function DashboardPage() {
         </div>
         <button
           onClick={openCreate}
-          className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition"
+          className="text-white text-sm font-medium px-5 py-2.5 rounded-xl transition bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
         >
           + New Campsite
         </button>
@@ -455,7 +455,7 @@ export default function DashboardPage() {
                 onChange={(e) => setForm({ ...form, region: e.target.value })}
               >
                 {regions.map((r) => (
-                  <option key={r} value={r} className="bg-[#111827] capitalize">
+                  <option key={r} value={r} className="capitalize" style={{ background: "var(--bg-input)", color: "var(--text-primary)" }}>
                     {r}
                   </option>
                 ))}
@@ -475,7 +475,7 @@ export default function DashboardPage() {
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
               >
                 {types.map((t) => (
-                  <option key={t} value={t} className="bg-[#111827] capitalize">
+                  <option key={t} value={t} className="capitalize" style={{ background: "var(--bg-input)", color: "var(--text-primary)" }}>
                     {t}
                   </option>
                 ))}
@@ -574,7 +574,7 @@ export default function DashboardPage() {
                 className={`flex flex-col gap-2 cursor-pointer w-fit ${uploadingImages ? "cursor-not-allowed" : ""}`}
               >
                 <div
-                  className="flex items-center gap-2 hover:bg-white/10 transition px-4 py-2.5 rounded-lg text-sm"
+                  className="flex items-center gap-2 transition px-4 py-2.5 rounded-lg text-sm"
                   style={{
                     background: "var(--bg-hover)",
                     border: "1px solid var(--border)",
@@ -600,8 +600,8 @@ export default function DashboardPage() {
                     style={{ background: "var(--bg-hover)" }}
                   >
                     <div
-                      className="h-full bg-orange-500 rounded-full transition-all duration-200"
-                      style={{ width: `${uploadProgress}%` }}
+                      className="h-full rounded-full transition-all duration-200"
+                      style={{ width: `${uploadProgress}%`, background: "var(--accent)" }}
                     />
                   </div>
                 )}
@@ -634,7 +634,7 @@ export default function DashboardPage() {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition disabled:opacity-50"
+              className="text-white text-sm font-medium px-5 py-2.5 rounded-xl transition disabled:opacity-50 bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
             >
               {submitting
                 ? "Saving..."
@@ -644,7 +644,8 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={closeForm}
-              className="bg-white/5 hover:bg-white/10 text-slate-400 text-sm font-medium px-5 py-2.5 rounded-xl transition"
+              className="text-sm font-medium px-5 py-2.5 rounded-xl transition"
+              style={{ background: "var(--bg-hover)", color: "var(--text-muted)" }}
             >
               Cancel
             </button>
@@ -660,7 +661,8 @@ export default function DashboardPage() {
           </p>
           <button
             onClick={openCreate}
-            className="text-orange-500 text-sm hover:underline"
+            className="text-sm hover:underline"
+            style={{ color: "var(--accent)" }}
           >
             Create your first campsite -&gt;
           </button>
@@ -709,7 +711,7 @@ export default function DashboardPage() {
                     <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                       {c.wilaya}, {c.region}
                     </p>
-                    <p className="text-orange-400 text-sm font-medium">
+                    <p className="text-sm font-medium" style={{ color: "var(--accent-soft)" }}>
                       {c.pricePerNight.toLocaleString()} DZD / night
                     </p>
                     {(() => {
@@ -737,7 +739,7 @@ export default function DashboardPage() {
                             {stats.completed} completed
                           </span>
                           <span style={{ color: "var(--border)" }}>·</span>
-                          <span className="text-orange-400/70 text-xs font-medium">
+                          <span className="text-xs font-medium" style={{ color: "var(--accent-soft)" }}>
                             {stats.revenue.toLocaleString()} DZD earned
                           </span>
                         </div>
@@ -779,18 +781,18 @@ export default function DashboardPage() {
                         setExpandedSiteId(isExpanded ? null : c._id)
                       }
                       disabled={siteBookings.length === 0}
-                      className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition disabled:opacity-30 disabled:cursor-not-allowed
-                        ${
-                          isExpanded
-                            ? "bg-orange-500/10 border-orange-500/40 text-orange-400"
-                            : activeCount > 0
-                              ? "border-orange-500/40 text-orange-400 hover:bg-orange-500/10"
-                              : "border-white/[0.08] text-slate-400 hover:text-slate-200"
-                        }`}
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition disabled:opacity-30 disabled:cursor-not-allowed"
+                      style={
+                        isExpanded
+                          ? { background: "var(--accent-subtle)", borderColor: "var(--accent-border)", color: "var(--accent-soft)" }
+                          : activeCount > 0
+                            ? { borderColor: "var(--accent-border)", color: "var(--accent-soft)" }
+                            : { borderColor: "var(--border)", color: "var(--text-muted)" }
+                      }
                     >
                       Bookings
                       {activeCount > 0 && (
-                        <span className="bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                        <span className="text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none" style={{ background: "var(--accent)" }}>
                           {activeCount}
                         </span>
                       )}
@@ -831,7 +833,7 @@ export default function DashboardPage() {
                         }}
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden" style={{ background: "var(--accent)" }}>
                             {booking.user.avatar ? (
                               <img
                                 src={booking.user.avatar}
@@ -867,7 +869,7 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="text-orange-400 text-sm font-medium">
+                          <span className="text-sm font-medium" style={{ color: "var(--accent-soft)" }}>
                             {booking.totalPrice.toLocaleString()} DZD
                           </span>
                           <span
@@ -915,7 +917,8 @@ export default function DashboardPage() {
                                   })
                                 }
                                 disabled={processingBookingId === booking._id}
-                                className="text-xs text-slate-400 hover:text-slate-200 border border-white/[0.08] px-3 py-1 rounded-lg transition disabled:opacity-50"
+                                className="text-xs border px-3 py-1 rounded-lg transition disabled:opacity-50"
+                                style={{ color: "var(--text-muted)", borderColor: "var(--border)" }}
                               >
                                 Complete
                               </button>
@@ -950,7 +953,7 @@ export default function DashboardPage() {
         message={
           <>
             This will permanently remove{" "}
-            <span style={{ color: "#cbd5e1" }}>
+            <span style={{ color: "var(--text-secondary)" }}>
               {campsites.find((c) => c._id === deleteConfirm)?.name ??
                 "this campsite"}
             </span>{" "}

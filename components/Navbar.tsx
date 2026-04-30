@@ -111,7 +111,7 @@ export default function Navbar() {
   const navLinkClass = (href: string) =>
     `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
       pathname === href
-        ? "text-orange-500"
+        ? "text-[var(--accent)]"
         : "hover:bg-[var(--bg-hover)]"
     }`;
 
@@ -121,7 +121,7 @@ export default function Navbar() {
       <nav
         className="fixed top-0 left-0 right-0 h-[72px] hidden md:flex items-center justify-between px-12 backdrop-blur-xl border-b z-[1000]"
         style={{
-          background: "rgba(var(--bg-base-rgb, 10,14,23), 0.85)",
+          background: "color-mix(in srgb, var(--bg-base) 85%, transparent)",
           borderColor: "var(--border)",
           backgroundColor: "color-mix(in srgb, var(--bg-base) 85%, transparent)",
         }}
@@ -249,7 +249,7 @@ export default function Navbar() {
               <li>
                 <Link
                   href="/auth/signup"
-                  className="px-4 py-2 rounded-lg text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all duration-300 bg-[var(--accent)] hover:bg-[var(--accent-hover)]"
                 >
                   Sign Up
                 </Link>
@@ -320,7 +320,8 @@ export default function Navbar() {
             <img
               src={visibleAvatarSrc}
               alt="avatar"
-              className="w-8 h-8 rounded-full object-cover ring-1 ring-orange-500/40"
+              className="w-8 h-8 rounded-full object-cover ring-1"
+              style={{ boxShadow: "0 0 0 1px var(--accent-border)" }}
               onError={(e) => {
                 setFailedAvatarSrc(avatarSrc);
                 e.currentTarget.src = "/default-avatar.png";

@@ -84,7 +84,7 @@ export default async function Home() {
       <section className="px-6 md:px-16 py-20 flex flex-col gap-10">
         <div className="flex items-end justify-between">
           <div className="flex flex-col gap-2">
-            <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
+            <span className="text-sm font-medium uppercase tracking-widest" style={{ color: "var(--accent)" }}>
               Featured
             </span>
             <h2
@@ -137,7 +137,7 @@ export default async function Home() {
       {/* Reviews */}
       <section className="px-6 md:px-16 py-20 flex flex-col gap-10">
         <div className="flex flex-col gap-2 text-center">
-          <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
+          <span className="text-sm font-medium uppercase tracking-widest" style={{ color: "var(--accent)" }}>
             Reviews
           </span>
           <h2
@@ -159,7 +159,7 @@ export default async function Home() {
             >
               <div className="flex gap-1">
                 {Array.from({ length: review.rating }).map((_, i) => (
-                  <span key={i} className="text-orange-400 text-sm">★</span>
+                  <span key={i} className="text-sm" style={{ color: "var(--accent-soft)" }}>★</span>
                 ))}
               </div>
               <p

@@ -133,7 +133,7 @@ export default function TripsPage() {
 
   if (status === "loading")
     return (
-      <div className="min-h-screen flex items-center justify-center text-slate-400 text-sm">
+      <div className="min-h-screen flex items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
         Loading...
       </div>
     );
@@ -142,7 +142,7 @@ export default function TripsPage() {
     <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
+        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: "var(--accent)" }}>
           My Trips
         </span>
         <h1
@@ -207,7 +207,7 @@ export default function TripsPage() {
               </h2>
 
               {loadingBookings ? (
-                <p className="text-slate-500 text-sm">Loading bookings...</p>
+                <p className="text-sm" style={{ color: "var(--text-faint)" }}>Loading bookings...</p>
               ) : bookings.length === 0 ? (
                 <div className="flex flex-col items-center gap-3 py-12 text-center">
                   <span className="text-4xl">🏕️</span>
@@ -216,7 +216,8 @@ export default function TripsPage() {
                   </p>
                   <button
                     onClick={() => router.push("/explore")}
-                    className="text-orange-500 text-sm hover:underline"
+                    className="text-sm hover:underline"
+                    style={{ color: "var(--accent)" }}
                   >
                     Explore campsites →
                   </button>
@@ -233,7 +234,7 @@ export default function TripsPage() {
                       }}
                     >
                       {/* Render a fallback block when the campsite was removed but the booking still exists */}
-                      <div className="w-full h-40 md:w-36 md:h-auto shrink-0 self-stretch border-r border-white/[0.04] bg-[#0f172a] flex items-center justify-center">
+                      <div className="w-full h-40 md:w-36 md:h-auto shrink-0 self-stretch border-r flex items-center justify-center" style={{ borderColor: "var(--border-ghost)", background: "var(--bg-input)" }}>
                         {booking.site?.images?.[0] ? (
                           <img
                             src={booking.site.images[0]}
@@ -241,7 +242,7 @@ export default function TripsPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-slate-600 text-xs text-center px-4">
+                          <span className="text-xs text-center px-4" style={{ color: "var(--text-ghost)" }}>
                             Campsite unavailable
                           </span>
                         )}
@@ -301,7 +302,7 @@ export default function TripsPage() {
                           </span>
 
                           <div className="flex items-center md:flex-col md:items-end gap-3">
-                            <span className="text-orange-400 text-sm font-medium">
+                            <span className="text-sm font-medium" style={{ color: "var(--accent-soft)" }}>
                               {booking.totalPrice.toLocaleString()} DZD
                             </span>
 
@@ -337,7 +338,7 @@ export default function TripsPage() {
               </h2>
 
               {loadingSaved ? (
-                <p className="text-slate-500 text-sm">
+                <p className="text-sm" style={{ color: "var(--text-faint)" }}>
                   Loading saved campsites...
                 </p>
               ) : savedSites.length === 0 ? (
@@ -348,7 +349,8 @@ export default function TripsPage() {
                   </p>
                   <button
                     onClick={() => router.push("/explore")}
-                    className="text-orange-500 text-sm hover:underline"
+                    className="text-sm hover:underline"
+                    style={{ color: "var(--accent)" }}
                   >
                     Browse campsites →
                   </button>
@@ -389,7 +391,7 @@ export default function TripsPage() {
               >
                 Trip Notes
               </h2>
-              <p className="text-slate-500 text-xs">
+              <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                 Jot down packing lists, ideas, or plans.{" "}
                 {notesSaving ? (
                   <span style={{ color: "var(--text-ghost)" }}>Saving...</span>

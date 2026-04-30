@@ -31,7 +31,7 @@ export default function CampsiteCard({
           overflow: "hidden",
           transition: "border-color 0.3s",
         }}
-        className="hover:border-orange-500/40"
+        className="hover:border-[var(--accent-border)]"
       >
         {/* Image */}
         <div className="relative h-48 overflow-hidden">
@@ -71,7 +71,7 @@ export default function CampsiteCard({
             📍 {location}, {region}
           </p>
           {price !== undefined && (
-            <p className="text-orange-400 text-sm font-medium mt-1">
+            <p className="text-sm font-medium mt-1" style={{ color: "var(--accent-soft)" }}>
               {price.toLocaleString()} DZD{" "}
               <span
                 style={{ color: "var(--text-faint)" }}

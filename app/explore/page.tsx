@@ -230,7 +230,7 @@ export default function ExplorePage() {
     <div className="min-h-screen px-6 md:px-16 py-12 flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
+        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: "var(--accent)" }}>
           Discover
         </span>
         <h1
@@ -260,7 +260,7 @@ export default function ExplorePage() {
             }}
             onKeyDown={handleSearchKeyDown}
             placeholder="Search by name, wilaya, amenities..."
-            className="w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-orange-500/40 transition"
+            className="w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--accent-border)] transition"
             style={{
               background: "var(--bg-card)",
               borderColor: "var(--border)",
@@ -278,7 +278,7 @@ export default function ExplorePage() {
               }}
             >
               {suggestionLoading ? (
-                <div className="px-4 py-3 text-xs text-slate-500">
+                <div className="px-4 py-3 text-xs" style={{ color: "var(--text-faint)" }}>
                   Searching...
                 </div>
               ) : (
@@ -286,10 +286,11 @@ export default function ExplorePage() {
                   <button
                     key={s._id}
                     onClick={() => handleSuggestionClick(s)}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 transition text-left"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 transition text-left"
+                    style={{ background: "transparent" }}
                   >
                     {/* Thumbnail */}
-                    <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-white/[0.04]">
+                    <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0" style={{ background: "var(--bg-hover)" }}>
                       {s.images[0] ? (
                         <img
                           src={s.images[0]}
@@ -343,14 +344,14 @@ export default function ExplorePage() {
             </svg>
             <span className="hidden md:inline">Filters</span>
             {hasActiveFilters && (
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent-soft)" }} />
             )}
           </button>
 
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="flex-1 min-w-0 md:flex-none md:w-auto border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-orange-500/40 transition"
+            className="flex-1 min-w-0 md:flex-none md:w-auto border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--accent-border)] transition"
             style={{
               background: "var(--bg-card)",
               borderColor:
@@ -359,7 +360,7 @@ export default function ExplorePage() {
             }}
           >
             {sortOptions.map((o) => (
-              <option key={o.value} value={o.value} className="bg-[#111827]">
+              <option key={o.value} value={o.value} style={{ background: "var(--bg-card)", color: "var(--text-primary)" }}>
                 {o.label}
               </option>
             ))}
@@ -401,15 +402,18 @@ export default function ExplorePage() {
         >
           {/* Region */}
           <div className="flex flex-col gap-2">
-            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">
+            <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
               Region
             </span>
             <button
               onClick={() => setRegion("")}
               className={`text-left text-sm px-3 py-1.5 rounded-lg transition ${
-                region === "" ? "bg-orange-500/20 text-orange-400" : ""
+                region === "" ? "" : ""
               }`}
-              style={{ color: region === "" ? undefined : "var(--text-muted)" }}
+              style={{
+                color: region === "" ? "var(--accent-soft)" : "var(--text-muted)",
+                background: region === "" ? "var(--accent-subtle)" : undefined,
+              }}
             >
               All
             </button>
@@ -418,9 +422,12 @@ export default function ExplorePage() {
                 key={r}
                 onClick={() => setRegion(r)}
                 className={`text-left text-sm px-3 py-1.5 rounded-lg capitalize transition ${
-                  region === r ? "bg-orange-500/20 text-orange-400" : ""
+                  region === r ? "" : ""
                 }`}
-                style={{ color: region === r ? undefined : "var(--text-muted)" }}
+                style={{
+                  color: region === r ? "var(--accent-soft)" : "var(--text-muted)",
+                  background: region === r ? "var(--accent-subtle)" : undefined,
+                }}
               >
                 {r}
               </button>
@@ -429,15 +436,18 @@ export default function ExplorePage() {
 
           {/* Type */}
           <div className="flex flex-col gap-2">
-            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">
+            <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
               Type
             </span>
             <button
               onClick={() => setType("")}
               className={`text-left text-sm px-3 py-1.5 rounded-lg transition ${
-                type === "" ? "bg-orange-500/20 text-orange-400" : ""
+                type === "" ? "" : ""
               }`}
-              style={{ color: type === "" ? undefined : "var(--text-muted)" }}
+              style={{
+                color: type === "" ? "var(--accent-soft)" : "var(--text-muted)",
+                background: type === "" ? "var(--accent-subtle)" : undefined,
+              }}
             >
               All
             </button>
@@ -446,9 +456,12 @@ export default function ExplorePage() {
                 key={t}
                 onClick={() => setType(t)}
                 className={`text-left text-sm px-3 py-1.5 rounded-lg capitalize transition ${
-                  type === t ? "bg-orange-500/20 text-orange-400" : ""
+                  type === t ? "" : ""
                 }`}
-                style={{ color: type === t ? undefined : "var(--text-muted)" }}
+                style={{
+                  color: type === t ? "var(--accent-soft)" : "var(--text-muted)",
+                  background: type === t ? "var(--accent-subtle)" : undefined,
+                }}
               >
                 {t}
               </button>
@@ -457,7 +470,7 @@ export default function ExplorePage() {
 
           {/* Min Price */}
           <div className="flex flex-col gap-2">
-            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">
+            <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
               Min Price
             </span>
             {minPrices.map((p) => (
@@ -465,11 +478,13 @@ export default function ExplorePage() {
                 key={p.value}
                 onClick={() => setMinPrice(p.value)}
                 className={`text-left text-sm px-3 py-1.5 rounded-lg transition ${
-                  minPrice === p.value ? "bg-orange-500/20 text-orange-400" : ""
+                  minPrice === p.value ? "" : ""
                 }`}
                 style={{
                   color:
-                    minPrice === p.value ? undefined : "var(--text-muted)",
+                    minPrice === p.value ? "var(--accent-soft)" : "var(--text-muted)",
+                  background:
+                    minPrice === p.value ? "var(--accent-subtle)" : undefined,
                 }}
               >
                 {p.label}
@@ -479,7 +494,7 @@ export default function ExplorePage() {
 
           {/* Max Price */}
           <div className="flex flex-col gap-2">
-            <span className="text-slate-400 text-xs font-medium uppercase tracking-widest">
+            <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
               Max Price
             </span>
             {prices.map((p) => (
@@ -487,11 +502,13 @@ export default function ExplorePage() {
                 key={p.value}
                 onClick={() => setMaxPrice(p.value)}
                 className={`text-left text-sm px-3 py-1.5 rounded-lg transition ${
-                  maxPrice === p.value ? "bg-orange-500/20 text-orange-400" : ""
+                  maxPrice === p.value ? "" : ""
                 }`}
                 style={{
                   color:
-                    maxPrice === p.value ? undefined : "var(--text-muted)",
+                    maxPrice === p.value ? "var(--accent-soft)" : "var(--text-muted)",
+                  background:
+                    maxPrice === p.value ? "var(--accent-subtle)" : undefined,
                 }}
               >
                 {p.label}
@@ -504,14 +521,16 @@ export default function ExplorePage() {
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="text-xs text-slate-500 hover:text-orange-400 transition"
+              className="text-xs transition"
+              style={{ color: "var(--text-faint)" }}
             >
               Clear all
             </button>
           )}
           <button
             onClick={() => setDrawerOpen(false)}
-            className="text-slate-500 hover:text-slate-300 text-sm transition ml-auto"
+            className="text-sm transition ml-auto"
+            style={{ color: "var(--text-faint)" }}
           >
             {"\u2715"} Close
           </button>
@@ -536,8 +555,8 @@ export default function ExplorePage() {
       {/* Grid or Map */}
       {view === "map" ? (
         <div
-          style={{ height: "calc(100vh - 260px)" }}
-          className="rounded-2xl overflow-hidden border border-white/[0.08]"
+          style={{ height: "calc(100vh - 260px)", borderColor: "var(--border)" }}
+          className="rounded-2xl overflow-hidden border"
         >
           <ExploreMap campsites={campsites} />
         </div>
@@ -546,8 +565,8 @@ export default function ExplorePage() {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="border border-white/[0.08] rounded-2xl h-64 animate-pulse"
-              style={{ background: "var(--bg-card)" }}
+              className="border rounded-2xl h-64 animate-pulse"
+              style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
             />
           ))}
         </div>
@@ -562,7 +581,8 @@ export default function ExplorePage() {
               setSearch("");
               clearFilters();
             }}
-            className="text-orange-500 text-sm hover:underline"
+            className="text-sm hover:underline"
+            style={{ color: "var(--accent)" }}
           >
             Clear search and filters
           </button>
@@ -589,7 +609,7 @@ export default function ExplorePage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                className="px-3 py-2 rounded-lg text-sm disabled:opacity-30 disabled:cursor-not-allowed transition"
                 style={{ color: "var(--text-muted)" }}
               >
                 {"\u2190"} Prev
@@ -608,7 +628,8 @@ export default function ExplorePage() {
                   p === "..." ? (
                     <span
                       key={`ellipsis-${i}`}
-                      className="px-2 text-slate-600 text-sm"
+                      className="px-2 text-sm"
+                      style={{ color: "var(--text-ghost)" }}
                     >
                       {"\u2026"}
                     </span>
@@ -618,9 +639,14 @@ export default function ExplorePage() {
                       onClick={() => setPage(p as number)}
                       className={`w-9 h-9 rounded-lg text-sm font-medium transition ${
                         page === p
-                          ? "bg-orange-500 text-white"
-                          : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                          ? "text-white"
+                          : ""
                       }`}
+                      style={
+                        page === p
+                          ? { background: "var(--accent)" }
+                          : { color: "var(--text-muted)" }
+                      }
                     >
                       {p}
                     </button>
@@ -630,7 +656,7 @@ export default function ExplorePage() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                className="px-3 py-2 rounded-lg text-sm disabled:opacity-30 disabled:cursor-not-allowed transition"
                 style={{ color: "var(--text-muted)" }}
               >
                 Next {"\u2192"}

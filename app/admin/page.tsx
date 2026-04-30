@@ -133,7 +133,7 @@ export default function AdminPage() {
 
   if (status === "loading")
     return (
-      <div className="min-h-screen flex items-center justify-center text-slate-400 text-sm">
+      <div className="min-h-screen flex items-center justify-center text-sm" style={{ color: "var(--text-muted)" }}>
         Loading...
       </div>
     );
@@ -142,7 +142,7 @@ export default function AdminPage() {
     <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <span className="text-orange-500 text-sm font-medium uppercase tracking-widest">
+        <span className="text-sm font-medium uppercase tracking-widest" style={{ color: "var(--accent)" }}>
           Admin
         </span>
         <h1
@@ -174,7 +174,7 @@ export default function AdminPage() {
             >
               {tab}
               {tab === "Campsites" && pendingCampsites.length > 0 && (
-                <span className="ml-2 text-xs bg-orange-500 text-white px-1.5 py-0.5 rounded-full">
+                <span className="ml-2 text-xs text-white px-1.5 py-0.5 rounded-full" style={{ background: "var(--accent)" }}>
                   {pendingCampsites.length}
                 </span>
               )}
@@ -194,7 +194,7 @@ export default function AdminPage() {
                   style={{ color: "var(--text-primary)" }}
                 >
                   Pending Approval
-                  <span className="ml-2 text-sm text-slate-500 font-normal">
+                  <span className="ml-2 text-sm font-normal" style={{ color: "var(--text-faint)" }}>
                     ({pendingCampsites.length})
                   </span>
                 </h2>
@@ -218,7 +218,7 @@ export default function AdminPage() {
                       }}
                     >
                       {/* Image: md:h-auto + md:w-36 ensures it stretches to match text height */}
-                      <div className="w-full h-40 md:h-auto md:w-36 shrink-0 border-r border-white/[0.06]">
+                      <div className="w-full h-40 md:h-auto md:w-36 shrink-0 border-r" style={{ borderColor: "var(--border-subtle)" }}>
                         <img
                           src={c.images[0] ?? ""}
                           alt={c.name}
@@ -254,7 +254,7 @@ export default function AdminPage() {
                               className="text-xs flex items-center gap-1"
                               style={{ color: "var(--text-faint)" }}
                             >
-                              <span className="opacity-70">👤</span> {c.owner?.username} <span className="text-slate-600">•</span> {c.owner?.email}
+                              <span className="opacity-70">👤</span> {c.owner?.username} <span style={{ color: "var(--text-ghost)" }}>•</span> {c.owner?.email}
                             </p>
                           </div>
                         </div>
@@ -319,7 +319,7 @@ export default function AdminPage() {
                   style={{ color: "var(--text-primary)" }}
                 >
                   Approved
-                  <span className="ml-2 text-sm text-slate-500 font-normal">
+                  <span className="ml-2 text-sm font-normal" style={{ color: "var(--text-faint)" }}>
                     ({approvedCampsites.length})
                   </span>
                 </h2>
@@ -343,7 +343,7 @@ export default function AdminPage() {
                       }}
                     >
                       {/* Image: md:h-auto + md:w-36 ensures it stretches to match text height */}
-                      <div className="w-full h-40 md:h-auto md:w-36 shrink-0 border-r border-white/[0.06]">
+                      <div className="w-full h-40 md:h-auto md:w-36 shrink-0 border-r" style={{ borderColor: "var(--border-subtle)" }}>
                         <img
                           src={c.images[0] ?? ""}
                           alt={c.name}
@@ -379,7 +379,7 @@ export default function AdminPage() {
                               className="text-xs flex items-center gap-1"
                               style={{ color: "var(--text-faint)" }}
                             >
-                              <span className="opacity-70">👤</span> {c.owner?.username} <span className="text-slate-600">•</span> {c.owner?.email}
+                              <span className="opacity-70">👤</span> {c.owner?.username} <span style={{ color: "var(--text-ghost)" }}>•</span> {c.owner?.email}
                             </p>
                           </div>
                         </div>
@@ -454,7 +454,7 @@ export default function AdminPage() {
                     }}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden" style={{ background: "var(--accent)" }}>
                         {u.avatar ? (
                           <img
                             src={u.avatar}
@@ -500,13 +500,13 @@ export default function AdminPage() {
                           color: "var(--text-primary)",
                         }}
                       >
-                        <option value="camper" className="bg-[#111827]">
+                        <option value="camper" style={{ background: "var(--bg-input)", color: "var(--text-primary)" }}>
                           camper
                         </option>
-                        <option value="owner" className="bg-[#111827]">
+                        <option value="owner" style={{ background: "var(--bg-input)", color: "var(--text-primary)" }}>
                           owner
                         </option>
-                        <option value="admin" className="bg-[#111827]">
+                        <option value="admin" style={{ background: "var(--bg-input)", color: "var(--text-primary)" }}>
                           admin
                         </option>
                       </select>
@@ -525,7 +525,7 @@ export default function AdminPage() {
         message={
           <>
             This will take{" "}
-            <span style={{ color: "#cbd5e1" }}>
+            <span style={{ color: "var(--text-secondary)" }}>
               {campsites.find((c) => c._id === revokeConfirm)?.name ??
                 "this campsite"}
             </span>{" "}
