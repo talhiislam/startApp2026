@@ -41,7 +41,10 @@ export default function Signup() {
       return;
     }
 
-    router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
+    const emailSent = result.emailSent !== false;
+    router.push(
+      `/auth/verify?email=${encodeURIComponent(email)}&sent=${emailSent ? "1" : "0"}`,
+    );
   }
 
   return (

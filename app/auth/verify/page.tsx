@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Card from "@/components/Card";
 
@@ -8,6 +8,7 @@ function VerifyPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
+  const sent = searchParams.get("sent");
 
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,6 +16,7 @@ function VerifyPageContent() {
   const [error, setError] = useState("");
   const [resendMessage, setResendMessage] = useState("");
   const [countdown, setCountdown] = useState(0);
+  const hasAutoResent = useRef(false);
 
   useEffect(() => {
     if (!email) router.push("/auth/signup");
@@ -25,6 +27,37 @@ function VerifyPageContent() {
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
   }, [countdown]);
+
+  useEffect(() => {
+    if (!email || sent !== "0" || hasAutoResent.current) return;
+
+    hasAutoResent.current = true;
+
+    async function retryInitialSend() {
+      setError("");
+      setResendMessage("");
+      setResending(true);
+
+      const res = await fetch("/api/auth/resend-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      setResending(false);
+
+      if (!res.ok) {
+        setError(data.error ?? "We couldn't send the verification email.");
+        return;
+      }
+
+      setResendMessage("We just sent your verification code.");
+      setCountdown(60);
+    }
+
+    void retryInitialSend();
+  }, [email, sent]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -81,7 +114,7 @@ function VerifyPageContent() {
           <p className="text-sm text-slate-400">
             We sent a 6-digit code to{" "}
             <span className="text-slate-200 font-medium">{email}</span>. Enter
-            it bbelow to verify your account.
+            it below to verify your account.
           </p>
         </div>
 

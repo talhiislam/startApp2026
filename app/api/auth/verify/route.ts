@@ -5,7 +5,9 @@ import VerificationCode from "@/models/VerificationCode";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, code } = await req.json();
+    const body = await req.json();
+    const email = body.email?.trim().toLowerCase();
+    const code = body.code?.trim();
 
     if (!email || !code)
       return NextResponse.json(
@@ -28,7 +30,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await User.findByIdAndUpdate({ email }, { isVerified: true });
+    const user = await User.findOneAndUpdate(
+      { email },
+      { isVerified: true },
+      { new: true },
+    );
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "No account found with this email." },
+        { status: 404 },
+      );
+    }
+
     await VerificationCode.deleteMany({ email });
 
     return NextResponse.json({ success: true });

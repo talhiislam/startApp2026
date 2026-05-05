@@ -7,7 +7,10 @@ import { sendVerificationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, username, password } = await req.json();
+    const body = await req.json();
+    const email = body.email?.trim().toLowerCase();
+    const username = body.username?.trim();
+    const password = body.password;
 
     if (!email || !username || !password) {
       return NextResponse.json(
@@ -18,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     await connectToDatabase();
 
-    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return NextResponse.json(
         { error: "Email already in use"},
@@ -36,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({
-      email: email.toLowerCase(),
+      email,
       username,
       password: hashedPassword,
       role: "camper",
@@ -46,17 +49,21 @@ export async function POST(req: NextRequest) {
     // Generate and store verification code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-    await VerificationCode.create({ email: email.toLowerCase(), code, expiresAt });
+    await VerificationCode.deleteMany({ email });
+    await VerificationCode.create({ email, code, expiresAt });
 
     // Send verification email (non-blocking — don't fail registration if email fails)
+    let emailSent = true;
     try {
-      await sendVerificationEmail(email.toLowerCase(), code);
+      await sendVerificationEmail(email, code);
     } catch (emailError) {
+      emailSent = false;
       console.error("Failed to send verification email:", emailError);
     }
 
     return NextResponse.json({
       success: true,
+      emailSent,
       message: "Account created. Please verify you email.",
     });
   } catch (error) {

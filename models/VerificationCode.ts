@@ -20,7 +20,7 @@ const VerificationCodeSchema = new Schema<IVerificationCode>(
 VerificationCodeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const VerificationCode: Model<IVerificationCode> =
-  mongoose.models.VerificatiionCode ||
+  mongoose.models.VerificationCode ||
   mongoose.model<IVerificationCode>("VerificationCode", VerificationCodeSchema);
 
 export default VerificationCode;
