@@ -9,18 +9,32 @@ function getResend() {
 
 type EmailPayload = Parameters<ReturnType<typeof getResend>["emails"]["send"]>[0];
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function sendEmail(payload: EmailPayload) {
   if (!process.env.RESEND_API_KEY) {
     throw new Error("RESEND_API_KEY is not configured.");
   }
 
-  const response = await getResend().emails.send(payload);
+  let lastError: Error | null = null;
 
-  if (response.error) {
-    throw new Error(response.error.message);
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const response = await getResend().emails.send(payload);
+
+    if (!response.error) {
+      return response;
+    }
+
+    lastError = new Error(response.error.message);
+
+    if (attempt < 2) {
+      await sleep(750);
+    }
   }
 
-  return response;
+  throw lastError ?? new Error("Email sending failed.");
 }
 
 function baseTemplate(title: string, body: string): string {
