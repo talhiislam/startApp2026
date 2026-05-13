@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Providers from "@/components/Providers";
 import Footer from "@/components/Footer";
 import ToastProvider from "@/components/ToastProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 export { playfair };
 
@@ -69,6 +70,7 @@ export default function RootLayout({
             <Footer />
           </ToastProvider>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
