@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     siteName: "SahaTour",
     type: "website",
     locale: "en_US",
-    url: "https://sahatour.vercel.app",
+    url: "https://sahatour.me",
     title: "SahaTour — Discover Algeria's Best Campsites",
     description:
       "Find and book the best camping spots across Algeria — from Sahara dunes to Kabylie forests and Mediterranean shores.",
