@@ -10,7 +10,7 @@ export default function Card({
       className={className}
       style={{
         background: "var(--bg-card)",
-        border: "1 px solid var(--border)",
+        border: "1px solid var(--border)",
         borderRadius: "1rem",
         boxShadow: "var(--shadow-card)",
       }}
