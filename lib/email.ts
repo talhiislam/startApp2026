@@ -295,3 +295,64 @@ export async function sendCampsiteRejectedEmail(
         html: baseTemplate("Campsite not approved", body),
     });
 }
+
+// ── Support request (to admin) ──
+export async function sendSupportRequestEmail(
+    userEmail: string,
+    username: string,
+    category: string,
+    message: string,
+) {
+    const body = `
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#e2e8f0;">New support request</h1>
+      <p style="margin:0 0 24px;font-size:14px;color:#94a3b8;line-height:1.6;">
+        <strong style="color:#f97316;">${username}</strong> (${userEmail}) submitted a support request.
+      </p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0e17;border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;margin-bottom:28px;">
+        <tr><td style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <span style="font-size:12px;color:#475569;text-transform:uppercase;letter-spacing:0.05em;">Category</span><br/>
+          <span style="font-size:14px;color:#e2e8f0;font-weight:600;">${category}</span>
+        </td></tr>
+        <tr><td style="padding:14px 20px;">
+          <span style="font-size:12px;color:#475569;text-transform:uppercase;letter-spacing:0.05em;">Message</span><br/>
+          <span style="font-size:14px;color:#e2e8f0;">${message}</span>
+        </td></tr>
+      </table>
+      <a href="${SITE}/admin" style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 24px;border-radius:10px;">
+        View in Admin Panel
+      </a>`;
+
+    return sendEmail({
+        from: FROM,
+        to: FROM,
+        subject: `[Support] ${category} — from ${username}`,
+        html: baseTemplate("New support request", body),
+    });
+}
+
+// ── Support request resolved (to user) ──
+export async function sendSupportResolvedEmail(
+    userEmail: string,
+    username: string,
+    category: string,
+) {
+    const body = `
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#e2e8f0;">Your request has been resolved</h1>
+      <p style="margin:0 0 24px;font-size:14px;color:#94a3b8;line-height:1.6;">
+        Hi <strong style="color:#e2e8f0;">${username}</strong>, your support request regarding 
+        <strong style="color:#f97316;">${category}</strong> has been reviewed and resolved by our team.
+      </p>
+      <p style="margin:0 0 24px;font-size:14px;color:#94a3b8;line-height:1.6;">
+        If you're still experiencing issues, feel free to submit a new request.
+      </p>
+      <a href="${SITE}/support" style="display:inline-block;background:#f97316;color:#fff;text-decoration:none;font-size:14px;font-weight:600;padding:12px 24px;border-radius:10px;">
+        Submit a new request
+      </a>`;
+
+    return sendEmail({
+        from: FROM,
+        to: userEmail,
+        subject: `Your support request has been resolved — SahaTour`,
+        html: baseTemplate("Request resolved", body),
+    });
+}

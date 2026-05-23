@@ -3,9 +3,12 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+
 import { useToast } from "@/components/ToastProvider";
 import Card from "@/components/Card";
 import ConfirmModal from "@/components/ConfirmModal";
+import SupportTab from "@/components/SupportTab";
+
 import { typeColors, typeLabels } from "@/types/campsite";
 
 type AdminCampsite = {
@@ -30,7 +33,7 @@ type AdminUser = {
   createdAt: string;
 };
 
-const tabs = ["Campsites", "Users"];
+const tabs = ["Campsites", "Users", "Support"];
 
 const roleColors = {
   camper: "text-green-400 bg-green-400/10",
@@ -516,6 +519,9 @@ export default function AdminPage() {
               )}
             </div>
           )}
+
+          {/* Support Tab */}
+          {activeTab === "Support" && <SupportTab />}
         </Card>
       </div>
 
