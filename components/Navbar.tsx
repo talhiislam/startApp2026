@@ -73,12 +73,14 @@ export default function Navbar() {
 
   const logoSrc = theme === "light" ? "/logo_light.png" : "/logo_dark.png";
 
-  const user = session?.user;
+  const user = session?.user ?? null;
   const avatarSrc = user?.id
     ? "/api/profile/avatar"
     : user?.avatar || user?.image || "/default-avatar.png";
   const visibleAvatarSrc =
-    failedAvatarSrc === avatarSrc ? "/default-avatar.png" : avatarSrc;
+    !avatarSrc || failedAvatarSrc === avatarSrc
+      ? "/default-avatar.png"
+      : avatarSrc;
 
   useEffect(() => {
     function onThemeChange(e: Event) {
