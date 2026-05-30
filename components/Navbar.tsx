@@ -74,9 +74,11 @@ export default function Navbar() {
   const logoSrc = theme === "light" ? "/logo_light.png" : "/logo_dark.png";
 
   const user = session?.user ?? null;
-  const avatarSrc = user?.id
-    ? "/api/profile/avatar"
-    : user?.avatar || user?.image || "/default-avatar.png";
+  const avatarSrc = user
+    ? user.id
+      ? "/api/profile/avatar"
+      : user.avatar || user.image || "/default-avatar.png"
+    : "/default-avatar.png";
   const visibleAvatarSrc =
     !avatarSrc || failedAvatarSrc === avatarSrc
       ? "/default-avatar.png"
@@ -169,7 +171,7 @@ export default function Navbar() {
                     alt="avatar"
                     className="w-8 h-8 rounded-full object-cover"
                     onError={(e) => {
-                      setFailedAvatarSrc(avatarSrc);
+                      if (avatarSrc) setFailedAvatarSrc(avatarSrc);
                       e.currentTarget.src = "/default-avatar.png";
                     }}
                   />
@@ -320,7 +322,7 @@ export default function Navbar() {
               className="w-8 h-8 rounded-full object-cover ring-1"
               style={{ boxShadow: "0 0 0 1px var(--accent-border)" }}
               onError={(e) => {
-                setFailedAvatarSrc(avatarSrc);
+                if (avatarSrc) setFailedAvatarSrc(avatarSrc);
                 e.currentTarget.src = "/default-avatar.png";
               }}
             />
@@ -358,7 +360,7 @@ export default function Navbar() {
                   alt="avatar"
                   className="w-10 h-10 rounded-full object-cover"
                   onError={(e) => {
-                    setFailedAvatarSrc(avatarSrc);
+                    if (avatarSrc) setFailedAvatarSrc(avatarSrc);
                     e.currentTarget.src = "/default-avatar.png";
                   }}
                 />
