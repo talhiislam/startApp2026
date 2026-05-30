@@ -11,7 +11,11 @@ function getInitialTheme(): "dark" | "light" {
 }
 
 export default function Hero() {
-  const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    setTheme(getInitialTheme());
+  }, []);
 
   useEffect(() => {
     function onThemeChange(e: Event) {

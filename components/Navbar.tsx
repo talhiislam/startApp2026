@@ -63,7 +63,11 @@ export default function Navbar() {
   const [failedAvatarSrc, setFailedAvatarSrc] = useState("");
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [authPromptOpen, setAuthPromptOpen] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    setTheme(getInitialTheme());
+  }, []);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
 

@@ -8,7 +8,11 @@ function getInitialTheme(): "dark" | "light" {
 }
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<"dark" | "light">(getInitialTheme);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    setTheme(getInitialTheme());
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute(
