@@ -94,7 +94,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/login");
     if (status === "authenticated") {
-      if (session.user.role !== "owner" && session.user.role !== "admin") {
+      if (session?.user?.role !== "owner" && session?.user?.role !== "admin") {
         router.push("/");
       }
     }
