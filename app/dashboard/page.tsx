@@ -834,14 +834,14 @@ export default function DashboardPage() {
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden" style={{ background: "var(--accent)" }}>
-                            {booking.user.avatar ? (
+                            {booking.user?.avatar ? (
                               <img
                                 src={booking.user.avatar}
                                 alt={booking.user.username}
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              booking.user.username[0].toUpperCase()
+                              booking.user?.username?.[0]?.toUpperCase() ?? "?"
                             )}
                           </div>
                           <div className="flex flex-col gap-0.5 min-w-0">
@@ -849,7 +849,7 @@ export default function DashboardPage() {
                               className="text-sm font-medium truncate"
                               style={{ color: "var(--text-primary)" }}
                             >
-                              {booking.user.username}
+                              {booking.user?.username ?? "Deleted user"}
                             </p>
                             <p
                               className="text-xs"
