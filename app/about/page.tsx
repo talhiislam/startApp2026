@@ -23,16 +23,16 @@ const team: TeamMember[] = [
     email: "hadef.anis@univ-oeb.dz",
   },
   {
-    initials: "??",
-    name: "Member name",
-    role: "Role placeholder",
-    email: "email@univ-oeb.dz",
+    initials: "TI",
+    name: "TALHI Islam",
+    role: "Mobile application · UI/UX",
+    email: "akramzd987@gmail.com",
   },
   {
-    initials: "??",
-    name: "Member name",
-    role: "Role placeholder",
-    email: "email@univ-oeb.dz",
+    initials: "LN",
+    name: "LACHGAR Naoufel",
+    role: "Frontend developement · Business operations",
+    email: "noufel.work11@gmail.com",
   },
 ];
 
