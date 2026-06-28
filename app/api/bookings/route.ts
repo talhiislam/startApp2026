@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { getAuthUser } from "@/lib/getAuthUser";
 import { connectToDatabase } from "@/lib/mongodb";
 import { sendNewBookingEmail } from "@/lib/email";
 
@@ -8,36 +7,34 @@ import Booking from "@/models/Booking";
 import CampingSite from "@/models/CampingSite";
 import User from "@/models/User";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session)
+export async function GET(req: NextRequest) {
+  const authUser = await getAuthUser(req);
+  if (!authUser)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await connectToDatabase();
 
   const now = new Date();
 
-  // Auto-cancel pending bookings whose check-in has passed
   await Booking.updateMany(
     {
-      user: session.user.id,
+      user: authUser.id,
       status: "pending",
       checkIn: { $lt: now },
     },
     { status: "cancelled" },
   );
 
-  // Auto-complete any confirmed bookings whose checkout has passed
   await Booking.updateMany(
     {
-      user: session.user.id,
+      user: authUser.id,
       status: "confirmed",
       checkOut: { $lt: now },
     },
     { status: "completed" },
   );
 
-  const bookings = await Booking.find({ user: session.user.id })
+  const bookings = await Booking.find({ user: authUser.id })
     .populate("site", "name wilaya region images pricePerNight type")
     .sort({ createdAt: -1 });
 
@@ -45,8 +42,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session)
+  const authUser = await getAuthUser(req);
+  if (!authUser)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { siteId, checkIn, checkOut, guests } = await req.json();
@@ -74,7 +71,6 @@ export async function POST(req: NextRequest) {
   if (!site)
     return NextResponse.json({ error: "Campsite not found" }, { status: 404 });
 
-  // Capacity conflict check
   const overlapping = await Booking.find({
     site: siteId,
     status: { $in: ["pending", "confirmed"] },
@@ -115,9 +111,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Prevent same user double-booking for overlapping dates
   const userOverlap = await Booking.findOne({
-    user: session.user.id,
+    user: authUser.id,
     status: { $in: ["pending", "confirmed"] },
     checkIn: { $lt: checkOutDate },
     checkOut: { $gt: checkInDate },
@@ -136,7 +131,7 @@ export async function POST(req: NextRequest) {
   const totalPrice = nights * site.pricePerNight;
 
   const booking = await Booking.create({
-    user: session.user.id,
+    user: authUser.id,
     site: siteId,
     checkIn: checkInDate,
     checkOut: checkOutDate,
@@ -145,14 +140,13 @@ export async function POST(req: NextRequest) {
     status: "pending",
   });
 
-  // Notify owner
   try {
     const owner = await User.findById(site.owner).select("email username");
     if (owner) {
       await sendNewBookingEmail(
         owner.email,
         owner.username,
-        session.user.username,
+        authUser.username,
         site.name,
         checkInDate.toLocaleDateString("en-GB"),
         checkOutDate.toLocaleDateString("en-GB"),
@@ -161,7 +155,7 @@ export async function POST(req: NextRequest) {
       );
     }
   } catch (emailError) {
-    console.error("Failed to send now booking email:", emailError);
+    console.error("Failed to send booking email:", emailError);
   }
 
   return NextResponse.json({ success: true, data: booking }, { status: 201 });

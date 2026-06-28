@@ -2,7 +2,7 @@ import { StyleSheet, View, Text, TextInput, Pressable, Alert, ScrollView, Activi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { router } from 'expo-router';
-import { API_URL } from '../../constants/api';
+import { apiFetch } from '../../lib/api';
 
 const CATEGORIES = [
   { id: 'campsite', label: 'Campsite Issue' },
@@ -26,13 +26,12 @@ export default function SupportScreen() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/support`, {
+      const res = await apiFetch('/support', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ category, message }),
       });
       const data = await res.json();
-      
+
       if (res.ok) {
         Alert.alert('Success', 'Your support request has been sent! We will contact you shortly.', [
           { text: 'OK', onPress: () => router.back() }
@@ -115,12 +114,12 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#1e293b', alignItems: 'center', justifyContent: 'center' },
   backText: { color: '#f1f5f9', fontSize: 20 },
   headerTitle: { color: '#f1f5f9', fontSize: 18, fontWeight: 'bold' },
-  
+
   content: { padding: 24 },
   intro: { color: '#f1f5f9', fontSize: 22, fontWeight: 'bold', marginBottom: 24 },
-  
+
   label: { color: '#94a3b8', fontSize: 14, fontWeight: '600', marginBottom: 12, marginTop: 10 },
-  
+
   categories: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
   catBtn: {
     paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20,

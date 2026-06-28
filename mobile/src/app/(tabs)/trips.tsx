@@ -1,9 +1,9 @@
-import { StyleSheet, View, ScrollView, Text, Pressable, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, Text, Pressable, ActivityIndicator, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useCallback } from 'react';
-import { API_URL } from '../../constants/api';
 import { useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { apiFetch } from '../../lib/api';
 
 const STATUS_COLOR: Record<string, string> = {
   pending: '#f97316',
@@ -20,36 +20,47 @@ export default function TripsScreen() {
   const insets = useSafeAreaInsets();
   const [trips, setTrips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchTrips = useCallback(() => {
-    setLoading(true);
-    fetch(`${API_URL}/bookings`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setTrips(data.data.map((b: any) => {
-            const checkIn = new Date(b.checkIn);
-            const checkOut = new Date(b.checkOut);
-            const nights = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
-            return {
-              id: b._id,
-              campsite: b.site?.name || 'Unknown Campsite',
-              wilaya: b.site?.wilaya || '',
-              checkIn: checkIn.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-              checkOut: checkOut.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
-              status: b.status,
-              price: b.totalPrice,
-              nights,
-              guests: b.guests,
-            };
-          }));
-        }
-      })
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
+  const fetchTrips = useCallback(async () => {
+    try {
+      const res = await apiFetch('/bookings');
+      const data = await res.json();
+      if (data.success) {
+        setTrips(data.data.map((b: any) => {
+          const checkIn = new Date(b.checkIn);
+          const checkOut = new Date(b.checkOut);
+          const nights = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+          return {
+            id: b._id,
+            campsite: b.site?.name || 'Unknown Campsite',
+            wilaya: b.site?.wilaya || '',
+            checkIn: checkIn.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+            checkOut: checkOut.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+            status: b.status,
+            price: b.totalPrice,
+            nights,
+            guests: b.guests,
+          };
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   }, []);
 
-  useFocusEffect(fetchTrips);
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      fetchTrips().finally(() => setLoading(false));
+    }, [fetchTrips]),
+  );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchTrips();
+    setRefreshing(false);
+  }, [fetchTrips]);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -59,7 +70,18 @@ export default function TripsScreen() {
         <Text style={styles.subtitle}>Your booking history</Text>
       </LinearGradient>
 
-      <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#f97316"
+            colors={['#f97316']}
+          />
+        }
+      >
         {loading ? (
           <ActivityIndicator size="large" color="#f97316" style={{ marginTop: 60 }} />
         ) : trips.length === 0 ? (

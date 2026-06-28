@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { API_URL } from '../../constants/api';
+import { apiFetch } from '../../lib/api';
 
 export default function SavedCampsitesScreen() {
   const insets = useSafeAreaInsets();
@@ -14,7 +14,7 @@ export default function SavedCampsitesScreen() {
 
   const fetchSaved = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/saved`);
+      const res = await apiFetch('/saved');
       const data = await res.json();
       if (data.success) {
         setCampsites(data.data.map((c: any) => ({

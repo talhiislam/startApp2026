@@ -3,8 +3,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { API_URL } from '../../constants/api';
 import { LinearGradient } from 'expo-linear-gradient';
+import { apiFetch } from '../../lib/api';
 
 type User = { name?: string; username?: string; email: string };
 
@@ -28,12 +28,12 @@ export default function ProfileScreen() {
       else router.replace('/login');
     });
 
-    fetch(`${API_URL}/bookings`)
+    apiFetch('/bookings')
       .then(res => res.json())
       .then(data => { if (data.success) setTripCount(data.data.length); })
       .catch(() => {});
 
-    fetch(`${API_URL}/saved`)
+    apiFetch('/saved')
       .then(res => res.json())
       .then(data => { if (data.success) setSavedCount(data.data.length); })
       .catch(() => {});
@@ -44,7 +44,7 @@ export default function ProfileScreen() {
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Sign Out', style: 'destructive', onPress: async () => {
-          await AsyncStorage.removeItem('user');
+          await AsyncStorage.multiRemove(['user', 'authToken']);
           router.replace('/login');
         }
       },
@@ -94,13 +94,13 @@ export default function ProfileScreen() {
 
         {/* Edit profile button */}
         <View style={styles.actionRow}>
-          <Pressable 
+          <Pressable
             style={({ pressed }) => [styles.editBtn, pressed && { opacity: 0.8 }]}
             onPress={() => router.push('/profile/edit')}
           >
             <Text style={styles.editBtnText}>✏️  Edit Profile</Text>
           </Pressable>
-          <Pressable 
+          <Pressable
             style={({ pressed }) => [styles.shareBtn, pressed && { opacity: 0.8 }]}
             onPress={() => Alert.alert('Coming Soon', 'Sharing feature is under development.')}
           >

@@ -2,7 +2,7 @@ import { StyleSheet, View, Text, TextInput, Pressable, Alert, ScrollView, Activi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { router } from 'expo-router';
-import { API_URL } from '../../constants/api';
+import { apiFetch } from '../../lib/api';
 
 export default function SecurityScreen() {
   const insets = useSafeAreaInsets();
@@ -27,13 +27,12 @@ export default function SecurityScreen() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/profile/password`, {
+      const res = await apiFetch('/profile/password', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
-      
+
       if (res.ok) {
         Alert.alert('Success', 'Password updated successfully', [
           { text: 'OK', onPress: () => router.back() }
@@ -63,7 +62,7 @@ export default function SecurityScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Change Password</Text>
           <Text style={styles.cardSub}>Ensure your account is using a long, random password to stay secure.</Text>
-          
+
           <View style={styles.field}>
             <Text style={styles.label}>Current Password</Text>
             <TextInput
@@ -134,9 +133,9 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#1e293b', alignItems: 'center', justifyContent: 'center' },
   backText: { color: '#f1f5f9', fontSize: 20 },
   headerTitle: { color: '#f1f5f9', fontSize: 18, fontWeight: 'bold' },
-  
+
   content: { padding: 20 },
-  
+
   card: {
     backgroundColor: '#1e293b', borderRadius: 20, padding: 20,
     borderWidth: 1, borderColor: '#334155'

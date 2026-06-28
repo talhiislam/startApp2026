@@ -20,30 +20,24 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       if (isLogin) {
-        // Fetch CSRF token for NextAuth
-        const csrfRes = await fetch(`${API_URL}/auth/csrf`);
-        const { csrfToken } = await csrfRes.json();
-
-        // Call NextAuth credentials callback
-        const res = await fetch(`${API_URL}/auth/callback/credentials`, {
+        const res = await fetch(`${API_URL}/auth/mobile-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, csrfToken, redirect: false, json: 'true' }),
+          body: JSON.stringify({ email, password }),
         });
         const data = await res.json();
 
-        if (res.ok && data.url && !data.error) {
-          // Success! Fetch session to get user info. React Native fetch keeps the HTTP-only cookie automatically.
-          const sessionRes = await fetch(`${API_URL}/auth/session`);
-          const session = await sessionRes.json();
-          if (session?.user) {
-            await AsyncStorage.setItem('user', JSON.stringify(session.user));
-            router.replace('/(tabs)');
-          } else {
-            Alert.alert('Error', 'Failed to retrieve session');
-          }
+        if (res.ok && data.success) {
+          await AsyncStorage.setItem('authToken', data.token);
+          await AsyncStorage.setItem('user', JSON.stringify(data.user));
+          router.replace('/(tabs)');
+        } else if (res.status === 403) {
+          Alert.alert(
+            'Email Not Verified',
+            'Please check your inbox and verify your email before signing in.',
+          );
         } else {
-          Alert.alert('Error', 'Invalid credentials');
+          Alert.alert('Sign In Failed', data.error || 'Invalid credentials');
         }
       } else {
         if (!name) { Alert.alert('Error', 'Please enter your name'); setLoading(false); return; }
@@ -54,8 +48,12 @@ export default function LoginScreen() {
         });
         const data = await res.json();
         if (res.ok) {
-          // Automatically switch to login tab after successful signup
-          Alert.alert('Success', 'Account created! Please sign in.');
+          Alert.alert(
+            'Account Created',
+            data.emailSent
+              ? 'Please check your email to verify your account, then sign in.'
+              : 'Account created! You can now sign in.',
+          );
           setIsLogin(true);
         } else {
           Alert.alert('Error', data.error || 'Registration failed');
@@ -95,14 +93,14 @@ export default function LoginScreen() {
         {/* Name field (signup only) */}
         {!isLogin && (
           <View style={styles.field}>
-            <Text style={styles.label}>Full Name</Text>
+            <Text style={styles.label}>Username</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ahmed Benali"
+              placeholder="ahmed_benali"
               placeholderTextColor="#475569"
               value={name}
               onChangeText={setName}
-              autoCapitalize="words"
+              autoCapitalize="none"
             />
           </View>
         )}

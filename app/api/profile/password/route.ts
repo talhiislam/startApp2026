@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { getAuthUser } from "@/lib/getAuthUser";
 import { connectToDatabase } from "@/lib/mongodb";
 import { sendPasswordChangedEmail } from "@/lib/email";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
 export async function PUT(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json(
+    const authUser = await getAuthUser(req);
+    if (!authUser) return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 },
     );
@@ -16,15 +15,15 @@ export async function PUT(req: NextRequest) {
     const { currentPassword, newPassword } = await req.json();
 
     await connectToDatabase();
-    const user = await User.findOne({ username: session.user.username });
+    const user = await User.findById(authUser.id);
 
     if (!user || !user.password) {
         return NextResponse.json(
             { error: "No password set on this account" },
             { status: 400 }
-        );   
+        );
     }
-    
+
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
         return NextResponse.json(
@@ -34,10 +33,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const hashed = await bcrypt.hash(newPassword, 10);
-    await User.findOneAndUpdate(
-        { username: session.user.username },
-        { password: hashed }
-    );
+    await User.findByIdAndUpdate(authUser.id, { password: hashed });
 
     try {
         await sendPasswordChangedEmail(user.email, user.username);

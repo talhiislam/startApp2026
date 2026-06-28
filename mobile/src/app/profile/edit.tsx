@@ -2,8 +2,8 @@ import { StyleSheet, View, Text, TextInput, Pressable, Alert, ScrollView, Activi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import { router } from 'expo-router';
-import { API_URL } from '../../constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiFetch } from '../../lib/api';
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -14,7 +14,7 @@ export default function EditProfileScreen() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/profile`)
+    apiFetch('/profile')
       .then(res => res.json())
       .then(data => {
         if (data && !data.error) {
@@ -30,22 +30,20 @@ export default function EditProfileScreen() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/profile`, {
+      const res = await apiFetch('/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullName, phone, city }),
       });
       const data = await res.json();
-      
+
       if (res.ok) {
-        // Update local storage so the profile tab reflects changes immediately
         const userStr = await AsyncStorage.getItem('user');
         if (userStr) {
           const userObj = JSON.parse(userStr);
           userObj.username = fullName || userObj.username;
           await AsyncStorage.setItem('user', JSON.stringify(userObj));
         }
-        
+
         Alert.alert('Success', 'Profile updated successfully!', [
           { text: 'OK', onPress: () => router.back() }
         ]);
@@ -134,7 +132,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#1e293b', alignItems: 'center', justifyContent: 'center' },
   backText: { color: '#f1f5f9', fontSize: 20 },
   headerTitle: { color: '#f1f5f9', fontSize: 18, fontWeight: 'bold' },
-  
+
   content: { padding: 24 },
   field: { marginBottom: 20 },
   label: { color: '#94a3b8', fontSize: 13, fontWeight: '600', marginBottom: 8 },

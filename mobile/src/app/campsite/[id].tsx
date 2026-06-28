@@ -7,6 +7,7 @@ import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import { API_URL } from '../../constants/api';
+import { apiFetch } from '../../lib/api';
 import { LinearGradient } from 'expo-linear-gradient';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 
@@ -58,9 +59,8 @@ export default function CampsiteDetailScreen() {
       const checkOut = new Date(checkIn);
       checkOut.setDate(checkOut.getDate() + nights);
 
-      const res = await fetch(`${API_URL}/bookings`, {
+      const res = await apiFetch('/bookings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ siteId: id, checkIn: checkIn.toISOString(), checkOut: checkOut.toISOString(), guests }),
       });
 
@@ -70,8 +70,13 @@ export default function CampsiteDetailScreen() {
           { text: 'View Trips', onPress: () => router.push('/(tabs)/trips') },
           { text: 'Stay Here', style: 'cancel' },
         ]);
+      } else if (res.status === 401) {
+        Alert.alert('Sign In Required', 'Please sign in to make a booking.', [
+          { text: 'Sign In', onPress: () => router.push('/login') },
+          { text: 'Cancel', style: 'cancel' },
+        ]);
       } else {
-        Alert.alert('Booking Failed', data.error || 'Please sign in first.');
+        Alert.alert('Booking Failed', data.error || 'Something went wrong. Please try again.');
       }
     } catch (e) {
       Alert.alert('Network Error', 'Please check your connection and try again.');
@@ -217,10 +222,10 @@ export default function CampsiteDetailScreen() {
                       <Text style={styles.bookingDate}>{checkInDate}</Text>
                     </View>
                     <View style={styles.stepper}>
-                      <Pressable style={styles.stepBtn} onPress={() => setCheckInOffset(o => Math.max(0, o - 1))}>
+                      <Pressable style={styles.stepBtn} onPress={() => setCheckInOffset(o => Math.max(1, o - 1))}>
                         <Text style={styles.stepText}>−</Text>
                       </Pressable>
-                      <Text style={styles.stepVal}>{checkInOffset === 0 ? 'Today' : `+${checkInOffset}d`}</Text>
+                      <Text style={styles.stepVal}>{`+${checkInOffset}d`}</Text>
                       <Pressable style={styles.stepBtn} onPress={() => setCheckInOffset(o => o + 1)}>
                         <Text style={styles.stepText}>+</Text>
                       </Pressable>
@@ -437,7 +442,6 @@ const styles = StyleSheet.create({
   priceSummaryText: { color: '#94a3b8', fontSize: 13 },
   priceSummaryTotal: { color: '#f97316', fontSize: 18, fontWeight: 'bold' },
 
-  // Map
   mapContainer: { borderRadius: 18, overflow: 'hidden', borderWidth: 1, borderColor: '#334155' },
   map: { width: '100%', height: 280 },
   mapInfoBar: {
@@ -450,7 +454,6 @@ const styles = StyleSheet.create({
   noMapEmoji: { fontSize: 40 },
   noMapText: { color: '#64748b', fontSize: 14 },
 
-  // Footer
   footer: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     backgroundColor: '#1e293b', borderTopWidth: 1, borderTopColor: '#334155',
