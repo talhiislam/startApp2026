@@ -1,0 +1,44 @@
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export interface IUser extends Document {
+  email: string;
+  username: string;
+  password?: string;
+  role: "camper" | "owner" | "admin";
+  phone?: string;
+  fullName?: string;
+  city?: string;
+  dateOfBirth?: Date;
+  avatar?: string;
+  savedSites: mongoose.Types.ObjectId[];
+  notes?: string;
+  isVerified: boolean;
+  createdAt: Date;
+}
+
+const UserSchema = new Schema<IUser>(
+  {
+    email: { type: String, required: true, unique: true },
+    username: { type: String, required: true },
+    password: { type: String }, // optional if not using email
+    role: {
+      type: String,
+      enum: ["camper", "owner", "admin"],
+      default: "camper",
+    },
+    phone: { type: String },
+    fullName: { type: String },
+    city: { type: String },
+    dateOfBirth: { type: Date },
+    avatar: { type: String },
+    savedSites: [{ type: Schema.Types.ObjectId, ref: "CampingSite" }],
+    notes: { type: String, default: ""},
+    isVerified: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
+
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+
+export default User;
