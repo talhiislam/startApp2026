@@ -19,8 +19,8 @@ export async function POST() {
 
     await connectToDatabase();
 
-    await User.findOneAndUpdate(
-        { username: session.user.username },
+    await User.findByIdAndUpdate(
+        session.user.id,
         { role: "owner" }
     );
 

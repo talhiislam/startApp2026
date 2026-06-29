@@ -36,7 +36,13 @@ export async function POST(req: NextRequest) {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     await VerificationCode.create({ email, code, expiresAt });
-    await sendVerificationEmail(email, code);
+
+    try {
+      await sendVerificationEmail(email, code);
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+      // Code was created — client can still verify; don't surface email failures as 500
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
