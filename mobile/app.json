@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "SahaTour",
-    "slug": "mobile",
+    "slug": "sahatour-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -39,7 +39,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "24d0bf7f-76b6-472b-82d6-3c45924fd886"
+        "projectId": "739087f8-0219-451f-a7be-c28ce944a2f2"
       }
     }
   }
