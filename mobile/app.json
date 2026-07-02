@@ -39,8 +39,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "739087f8-0219-451f-a7be-c28ce944a2f2"
+        "projectId": "ad7b05d7-5abb-4214-9fe2-cdede9192ad7"
       }
-    }
+    },
+    "owner": "talhiislam"
   }
 }
