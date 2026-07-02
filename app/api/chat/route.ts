@@ -1,153 +1,93 @@
 import { NextRequest } from "next/server";
-import { connectToDatabase } from "@/lib/mongodb";
-import CampingSite from "@/models/CampingSite";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return new Response("GEMINI_API_KEY not set", { status: 500 });
-  }
-
-  const { messages } = (await request.json()) as {
-    messages: Array<{ role: "user" | "assistant"; content: string }>;
-  };
-
-  if (!messages?.length) {
-    return new Response("No messages", { status: 400 });
-  }
-
-  // Fetch campsites for context
-  let campsiteContext = "";
   try {
-    await connectToDatabase();
-    const campsites = await CampingSite.find({ isApproved: true })
-      .select("name wilaya region type pricePerNight amenities capacity averageRating")
-      .limit(30)
-      .lean();
-
-    if (campsites.length > 0) {
-      campsiteContext =
-        "Available campsites on SahaTour:\n" +
-        campsites
-          .map((c) => {
-            const amenities = (c.amenities as string[]).slice(0, 4).join(", ");
-            const rating =
-              (c.averageRating as number) > 0
-                ? `, rated ${(c.averageRating as number).toFixed(1)}/5`
-                : "";
-            return `• ${c.name} — ${c.wilaya} (${c.region}), ${c.type}, ${c.pricePerNight} DZD/night${amenities ? `, amenities: ${amenities}` : ""}${rating}`;
-          })
-          .join("\n");
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return new Response("Missing GEMINI_API_KEY", { status: 500 });
     }
-  } catch {
-    // Continue without DB context
-  }
 
-  const systemInstruction = `You are SahaTour AI, a friendly camping assistant for Algeria. Help users find campsites and plan outdoor trips.
+    const body = await request.json() as {
+      messages: Array<{ role: "user" | "assistant"; content: string }>;
+    };
+    const messages = body.messages ?? [];
+    if (!messages.length) {
+      return new Response("No messages", { status: 400 });
+    }
 
-${campsiteContext}
+    const lastMessage = messages[messages.length - 1].content;
+    const history = messages.slice(0, -1).map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }));
 
-Rules:
-- Reply in the SAME language the user uses (Arabic, French, English, or Algerian Darija).
-- Recommend specific campsites from the list above when relevant.
-- Give practical camping tips: weather, gear, safety, best seasons by region.
-- Be concise and use bullet points for lists.`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
 
-  // Build Gemini-format contents
-  const contents = messages.map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content }],
-  }));
-
-  // Call Gemini REST API directly (works with any key format)
-  const model = "gemini-2.0-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
-
-  let geminiRes: Response;
-  try {
-    geminiRes = await fetch(url, {
+    const geminiRes = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        system_instruction: { parts: [{ text: systemInstruction }] },
-        contents,
+        system_instruction: {
+          parts: [
+            {
+              text: "You are SahaTour AI, a friendly camping assistant for Algeria. Help users find campsites and plan outdoor trips. Always reply in the SAME language the user writes in (Arabic, French, or English).",
+            },
+          ],
+        },
+        contents: [
+          ...history,
+          { role: "user", parts: [{ text: lastMessage }] },
+        ],
         generationConfig: { maxOutputTokens: 1024 },
       }),
     });
-  } catch (err) {
-    console.error("Gemini fetch error:", err);
-    return new Response("Failed to reach Gemini API", { status: 502 });
-  }
 
-  if (!geminiRes.ok) {
-    const errText = await geminiRes.text();
-    console.error("Gemini API error:", geminiRes.status, errText);
-    // Return error as streaming text so chat UI shows it
-    return new Response(
-      new ReadableStream({
-        start(c) {
-          c.enqueue(new TextEncoder().encode(`[DEBUG] Gemini ${geminiRes.status}: ${errText}`));
-          c.close();
-        },
-      }),
-      { headers: { "Content-Type": "text/plain; charset=utf-8" } }
-    );
-  }
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      // Return error visibly in chat instead of crashing
+      return new Response(
+        `[Gemini error ${geminiRes.status}]: ${errText}`,
+        { headers: { "Content-Type": "text/plain; charset=utf-8" } }
+      );
+    }
 
-  // Stream SSE chunks → extract text → forward as plain text
-  const readableStream = new ReadableStream({
-    async start(controller) {
-      const reader = geminiRes.body!.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const jsonStr = line.slice(6).trim();
-            if (jsonStr === "[DONE]" || !jsonStr) continue;
-            try {
-              const parsed = JSON.parse(jsonStr) as {
-                candidates?: Array<{
-                  content?: { parts?: Array<{ text?: string }> };
-                }>;
-              };
-              const text =
-                parsed.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-              if (text) {
-                controller.enqueue(new TextEncoder().encode(text));
-              }
-            } catch {
-              // skip malformed JSON
-            }
+    // Stream SSE → extract text chunks → forward as plain text
+    const { readable, writable } = new TransformStream({
+      transform(chunk, controller) {
+        const text = new TextDecoder().decode(chunk);
+        for (const line of text.split("\n")) {
+          if (!line.startsWith("data: ")) continue;
+          const json = line.slice(6).trim();
+          if (!json || json === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(json) as {
+              candidates?: Array<{
+                content?: { parts?: Array<{ text?: string }> };
+              }>;
+            };
+            const part = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (part) controller.enqueue(new TextEncoder().encode(part));
+          } catch {
+            /* skip malformed line */
           }
         }
-      } catch (err) {
-        console.error("Stream read error:", err);
-        controller.enqueue(
-          new TextEncoder().encode("Sorry, something went wrong. Please try again.")
-        );
-      } finally {
-        controller.close();
-      }
-    },
-  });
+      },
+    });
 
-  return new Response(readableStream, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-cache",
-    },
-  });
+    geminiRes.body!.pipeTo(writable).catch(() => {});
+
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+      },
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return new Response(`Server error: ${msg}`, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
 }
