@@ -53,11 +53,18 @@ Guidelines:
       });
     }
 
-    // Parse SSE stream and forward only the text chunks
-    const { readable, writable } = new TransformStream({
+    // Buffer incomplete SSE lines across chunks, then forward text
+    let buffer = "";
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+
+    const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>({
       transform(chunk, controller) {
-        const text = new TextDecoder().decode(chunk);
-        for (const line of text.split("\n")) {
+        buffer += decoder.decode(chunk, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";           // keep last incomplete line
+
+        for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
           const json = line.slice(6).trim();
           if (!json || json === "[DONE]") continue;
@@ -68,10 +75,23 @@ Guidelines:
               }>;
             };
             const part = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (part) controller.enqueue(new TextEncoder().encode(part));
-          } catch {
-            // skip malformed chunk
-          }
+            if (part) controller.enqueue(encoder.encode(part));
+          } catch { /* skip */ }
+        }
+      },
+      flush(controller) {
+        // process any leftover bytes
+        if (buffer.startsWith("data: ")) {
+          const json = buffer.slice(6).trim();
+          try {
+            const parsed = JSON.parse(json) as {
+              candidates?: Array<{
+                content?: { parts?: Array<{ text?: string }> };
+              }>;
+            };
+            const part = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (part) controller.enqueue(encoder.encode(part));
+          } catch { /* skip */ }
         }
       },
     });
