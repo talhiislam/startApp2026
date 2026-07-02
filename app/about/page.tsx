@@ -17,14 +17,8 @@ type TeamMember = {
   email: string;
 };
 
-const DEFAULT_MEMBERS: TeamMember[] = [
-  { _id: "1", initials: "HA", name: "HADEF Ahmed Anis", role: "Full-stack development · UI/UX", email: "hadef.anis@univ-oeb.dz" },
-  { _id: "2", initials: "??", name: "Member name", role: "Role placeholder", email: "email@univ-oeb.dz" },
-  { _id: "3", initials: "??", name: "Member name", role: "Role placeholder", email: "email@univ-oeb.dz" },
-];
-
 export default function AboutPage() {
-  const [team, setTeam] = useState<TeamMember[]>(DEFAULT_MEMBERS);
+  const [team, setTeam] = useState<TeamMember[]>([]);
 
   useEffect(() => {
     fetch("/api/team")
