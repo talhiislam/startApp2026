@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     images: images ?? [],
     coordinates: coordinates ?? { lat: 0, lng: 0 },
     owner: session.user.id,
-    isApproved: false,
+    isApproved: session.user.role === "admin",
   });
 
   return NextResponse.json({ success: true, data: campsite }, { status: 201 });
