@@ -645,14 +645,9 @@ export default function AdminPage() {
                       style={{ background: "var(--bg-input)", border: "1px solid var(--border)", color: teamForm.role ? "var(--text-primary)" : "var(--text-muted)" }}
                     >
                       <option value="" disabled>Select role</option>
-                      <option value="Full-stack development">Full-stack development</option>
-                      <option value="Frontend development">Frontend development</option>
-                      <option value="Backend development">Backend development</option>
-                      <option value="UI/UX Design">UI/UX Design</option>
-                      <option value="Full-stack development · UI/UX">Full-stack development · UI/UX</option>
-                      <option value="Mobile development">Mobile development</option>
-                      <option value="Database & DevOps">Database & DevOps</option>
-                      <option value="Project Manager">Project Manager</option>
+                      <option value="owner">owner</option>
+                      <option value="admin">admin</option>
+                      <option value="camper">camper</option>
                     </select>
                     <input
                       placeholder="Email"
