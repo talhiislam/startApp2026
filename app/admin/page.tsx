@@ -638,13 +638,22 @@ export default function AdminPage() {
                       className="rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500"
                       style={{ background: "var(--bg-input)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
                     />
-                    <input
-                      placeholder="Role"
+                    <select
                       value={teamForm.role}
                       onChange={(e) => setTeamForm((f) => ({ ...f, role: e.target.value }))}
                       className="rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500"
-                      style={{ background: "var(--bg-input)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
-                    />
+                      style={{ background: "var(--bg-input)", border: "1px solid var(--border)", color: teamForm.role ? "var(--text-primary)" : "var(--text-muted)" }}
+                    >
+                      <option value="" disabled>Select role</option>
+                      <option value="Full-stack development">Full-stack development</option>
+                      <option value="Frontend development">Frontend development</option>
+                      <option value="Backend development">Backend development</option>
+                      <option value="UI/UX Design">UI/UX Design</option>
+                      <option value="Full-stack development · UI/UX">Full-stack development · UI/UX</option>
+                      <option value="Mobile development">Mobile development</option>
+                      <option value="Database & DevOps">Database & DevOps</option>
+                      <option value="Project Manager">Project Manager</option>
+                    </select>
                     <input
                       placeholder="Email"
                       type="email"
