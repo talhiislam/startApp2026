@@ -11,16 +11,17 @@ async function requireAdmin() {
   return null;
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const denied = await requireAdmin();
   if (denied) return denied;
 
+  const { id } = await params;
   const body = await req.json();
   const { initials, name, role, email, order } = body;
 
   await connectToDatabase();
   const member = await TeamMember.findByIdAndUpdate(
-    params.id,
+    id,
     { initials, name, role, email, order },
     { new: true, runValidators: true }
   );
@@ -29,12 +30,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({ success: true, data: member });
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const denied = await requireAdmin();
   if (denied) return denied;
 
+  const { id } = await params;
   await connectToDatabase();
-  const member = await TeamMember.findByIdAndDelete(params.id);
+  const member = await TeamMember.findByIdAndDelete(id);
   if (!member) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json({ success: true });
 }
