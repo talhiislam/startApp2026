@@ -18,28 +18,87 @@ const SUGGESTIONS = [
   "أنصحني بأفضل أماكن التخييم في الجزائر",
 ];
 
+function InlineText({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**"))
+          return <strong key={i}>{part.slice(2, -2)}</strong>;
+        if (part.startsWith("*") && part.endsWith("*"))
+          return <em key={i}>{part.slice(1, -1)}</em>;
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
+}
+
 function MarkdownText({ text }: { text: string }) {
   const lines = text.split("\n");
+  const elements: React.ReactNode[] = [];
+  let i = 0;
 
-  return (
-    <span className="whitespace-pre-wrap">
-      {lines.map((line, i) => {
-        // Bold: **text**
-        const parts = line.split(/(\*\*[^*]+\*\*)/g);
-        return (
-          <span key={i}>
-            {parts.map((part, j) => {
-              if (part.startsWith("**") && part.endsWith("**")) {
-                return <strong key={j}>{part.slice(2, -2)}</strong>;
-              }
-              return part;
-            })}
-            {i < lines.length - 1 && "\n"}
-          </span>
-        );
-      })}
-    </span>
-  );
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Headings: ### or ## or #
+    const headingMatch = line.match(/^(#{1,3})\s+(.+)/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      const sizeClass = level === 1 ? "text-base" : level === 2 ? "text-sm" : "text-sm";
+      elements.push(
+        <p key={i} className={`${sizeClass} font-semibold mt-2 mb-0.5`}>
+          <InlineText text={headingMatch[2]} />
+        </p>
+      );
+      i++;
+      continue;
+    }
+
+    // Bullet: * or - or •
+    if (/^[\*\-•]\s+/.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^[\*\-•]\s+/.test(lines[i])) {
+        items.push(lines[i].replace(/^[\*\-•]\s+/, ""));
+        i++;
+      }
+      elements.push(
+        <ul key={`ul-${i}`} className="list-none flex flex-col gap-0.5 my-1">
+          {items.map((item, j) => (
+            <li key={j} className="flex gap-1.5">
+              <span className="mt-1 shrink-0 w-1 h-1 rounded-full" style={{ background: "var(--accent)", marginTop: "7px" }} />
+              <span><InlineText text={item} /></span>
+            </li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    // Horizontal rule
+    if (/^---+$/.test(line.trim())) {
+      elements.push(<hr key={i} className="my-2 opacity-20" />);
+      i++;
+      continue;
+    }
+
+    // Empty line → spacing
+    if (line.trim() === "") {
+      elements.push(<div key={i} className="h-1.5" />);
+      i++;
+      continue;
+    }
+
+    // Normal paragraph
+    elements.push(
+      <p key={i} className="leading-relaxed">
+        <InlineText text={line} />
+      </p>
+    );
+    i++;
+  }
+
+  return <div className="flex flex-col gap-0.5">{elements}</div>;
 }
 
 function ThinkingDots() {
@@ -133,11 +192,10 @@ export default function ChatPage() {
       );
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
-        const msg = (err as Error).message || "Unknown error";
         setMessages((prev) =>
           prev.map((m, idx) =>
             idx === assistantIdx
-              ? { ...m, content: `Error: ${msg}`, streaming: false }
+              ? { ...m, content: "Sorry, something went wrong. Please try again.", streaming: false }
               : m
           )
         );

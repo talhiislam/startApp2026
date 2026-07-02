@@ -22,45 +22,68 @@ export async function POST(request: NextRequest) {
       parts: [{ text: m.content }],
     }));
 
-    // Non-streaming first to verify connectivity
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:streamGenerateContent?alt=sse&key=${apiKey}`;
 
     const geminiRes = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         system_instruction: {
-          parts: [{ text: "You are SahaTour AI, a camping assistant for Algeria. Reply in the same language the user writes in." }],
+          parts: [
+            {
+              text: `You are SahaTour AI, a friendly camping assistant for Algeria. Help users discover great campsites and plan outdoor trips across Algeria.
+
+Guidelines:
+- Always reply in the SAME language the user writes in (Arabic, French, English, or Algerian Darija).
+- Give practical tips: best camping regions, gear recommendations, safety, best seasons.
+- Be warm, concise, and use bullet points for lists.
+- Mention Algerian regions like Sahara, Kabylie, Hoggar, Coastal when relevant.`,
+            },
+          ],
         },
         contents,
         generationConfig: { maxOutputTokens: 1024 },
       }),
     });
 
-    const responseText = await geminiRes.text();
-
     if (!geminiRes.ok) {
-      return new Response(`[Gemini ${geminiRes.status}]: ${responseText}`, {
+      const errText = await geminiRes.text();
+      return new Response(`[Gemini ${geminiRes.status}]: ${errText}`, {
         headers: { "Content-Type": "text/plain; charset=utf-8" },
       });
     }
 
-    let answer = "No answer";
-    try {
-      const parsed = JSON.parse(responseText) as {
-        candidates?: Array<{
-          content?: { parts?: Array<{ text?: string }> };
-        }>;
-      };
-      answer = parsed.candidates?.[0]?.content?.parts?.[0]?.text ?? "Empty response";
-    } catch {
-      answer = `Parse error: ${responseText}`;
-    }
-
-    return new Response(answer, {
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    // Parse SSE stream and forward only the text chunks
+    const { readable, writable } = new TransformStream({
+      transform(chunk, controller) {
+        const text = new TextDecoder().decode(chunk);
+        for (const line of text.split("\n")) {
+          if (!line.startsWith("data: ")) continue;
+          const json = line.slice(6).trim();
+          if (!json || json === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(json) as {
+              candidates?: Array<{
+                content?: { parts?: Array<{ text?: string }> };
+              }>;
+            };
+            const part = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (part) controller.enqueue(new TextEncoder().encode(part));
+          } catch {
+            // skip malformed chunk
+          }
+        }
+      },
     });
 
+    geminiRes.body!.pipeTo(writable).catch(() => {});
+
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+      },
+    });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     return new Response(`Server error: ${msg}`, {
