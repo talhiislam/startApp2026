@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { playfair } from "@/lib/fonts";
 
 const stats = [
@@ -9,34 +10,29 @@ const stats = [
 ];
 
 type TeamMember = {
+  _id: string;
   initials: string;
   name: string;
   role: string;
   email: string;
 };
 
-const team: TeamMember[] = [
-  {
-    initials: "HA",
-    name: "HADEF Ahmed Anis",
-    role: "Full-stack development · UI/UX",
-    email: "hadef.anis@univ-oeb.dz",
-  },
-  {
-    initials: "??",
-    name: "Member name",
-    role: "Role placeholder",
-    email: "email@univ-oeb.dz",
-  },
-  {
-    initials: "??",
-    name: "Member name",
-    role: "Role placeholder",
-    email: "email@univ-oeb.dz",
-  },
+const DEFAULT_MEMBERS: TeamMember[] = [
+  { _id: "1", initials: "HA", name: "HADEF Ahmed Anis", role: "Full-stack development · UI/UX", email: "hadef.anis@univ-oeb.dz" },
+  { _id: "2", initials: "??", name: "Member name", role: "Role placeholder", email: "email@univ-oeb.dz" },
+  { _id: "3", initials: "??", name: "Member name", role: "Role placeholder", email: "email@univ-oeb.dz" },
 ];
 
 export default function AboutPage() {
+  const [team, setTeam] = useState<TeamMember[]>(DEFAULT_MEMBERS);
+
+  useEffect(() => {
+    fetch("/api/team")
+      .then((r) => r.json())
+      .then((d) => { if (d.success && d.data.length > 0) setTeam(d.data); })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen px-6 md:px-16 py-16 md:py-24">
       <div className="max-w-5xl mx-auto flex flex-col gap-16">
@@ -61,7 +57,7 @@ export default function AboutPage() {
             style={{ color: "var(--text-muted)" }}
           >
             Finding and booking campsites across Algeria was scattered and
-            mostly word-of-mouth. SahaTour brings it all in one place â€” a
+            mostly word-of-mouth. SahaTour brings it all in one place — a
             trusted platform where campers discover great spots and owners
             reach adventurers across the country.
           </p>
@@ -121,7 +117,7 @@ export default function AboutPage() {
           <div className="flex flex-col gap-4">
             {team.map((member) => (
               <div
-                key={member.email}
+                key={member._id}
                 className="flex items-center gap-5 rounded-2xl p-5"
                 style={{
                   background: "var(--bg-card)",
