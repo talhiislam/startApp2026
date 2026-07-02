@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { playfair } from "@/lib/fonts";
 
 const stats = [
-  { value: "58", label: "Wilayas covered" },
+  { value: "69", label: "Wilayas covered" },
   { value: "5", label: "Regions mapped" },
   { value: "4", label: "Campsite types" },
 ];
