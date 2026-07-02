@@ -159,7 +159,7 @@ export default function AdminPage() {
     }
     setSavingTeam(true);
     if (editingMember) {
-      const res = await fetch(`/api/admin/team/${editingMember._id}`, {
+      const res = await fetch(`/api/admin/team?id=${editingMember._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(teamForm),
@@ -192,7 +192,7 @@ export default function AdminPage() {
   }
 
   async function handleDeleteMember(id: string) {
-    const res = await fetch(`/api/admin/team/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/team?id=${id}`, { method: "DELETE" });
     if (res.ok) {
       setTeamMembers((prev) => prev.filter((m) => m._id !== id));
       toast("success", "Member removed", "");

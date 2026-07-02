@@ -34,3 +34,37 @@ export async function POST(req: NextRequest) {
   const member = await TeamMember.create({ initials, name, role, email, order: order ?? 0 });
   return NextResponse.json({ success: true, data: member }, { status: 201 });
 }
+
+export async function PUT(req: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
+  const body = await req.json();
+  const { initials, name, role, email, order } = body;
+
+  await connectToDatabase();
+  const member = await TeamMember.findByIdAndUpdate(
+    id,
+    { initials, name, role, email, order },
+    { new: true, runValidators: true }
+  );
+
+  if (!member) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json({ success: true, data: member });
+}
+
+export async function DELETE(req: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
+  await connectToDatabase();
+  const member = await TeamMember.findByIdAndDelete(id);
+  if (!member) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json({ success: true });
+}
