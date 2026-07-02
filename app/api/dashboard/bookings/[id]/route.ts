@@ -7,6 +7,7 @@ import { sendBookingStatusEmail } from "@/lib/email";
 import Booking from "@/models/Booking";
 import CampingSite from "@/models/CampingSite";
 import User from "@/models/User";
+import type { ICampingSite } from "@/models/CampingSite";
 
 export async function PUT(
   req: NextRequest,
@@ -25,11 +26,12 @@ export async function PUT(
 
   await connectToDatabase();
 
-  const booking = await Booking.findById(id).populate("site");
+  // Fetch booking and the campsite in one round-trip
+  const booking = await Booking.findById(id);
   if (!booking)
     return NextResponse.json({ error: "Booking not found" }, { status: 404 });
 
-  // Verify the booking belongs to one of the owner's campsites
+  // Fetch the site separately to verify ownership
   const site = await CampingSite.findById(booking.site);
   if (!site || site.owner.toString() !== session.user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

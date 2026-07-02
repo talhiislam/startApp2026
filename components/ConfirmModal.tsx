@@ -237,7 +237,7 @@ export default function ConfirmModal({
                 padding: "10px 0",
                 borderRadius: "10px",
                 background: "var(--bg-hover)",
-                border: "0.5px solid var(-text-primary)",
+                border: "0.5px solid var(--text-primary)",
                 color: "var(--text-primary)",
                 fontSize: "13px",
                 fontWeight: 500,

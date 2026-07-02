@@ -1,18 +1,17 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { NextRequest, NextResponse } from "next/server";
+import { getAuthUser } from "@/lib/getAuthUser";
 import { connectToDatabase } from "@/lib/mongodb";
 
 import User from "@/models/User";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session)
+export async function GET(req: NextRequest) {
+  const authUser = await getAuthUser(req);
+  if (!authUser)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await connectToDatabase();
 
-  const user = await User.findOne({ username: session.user.username }).populate(
+  const user = await User.findById(authUser.id).populate(
     "savedSites",
     "name wilaya region images pricePerNight type",
   );

@@ -13,6 +13,8 @@ export interface IUser extends Document {
   savedSites: mongoose.Types.ObjectId[];
   notes?: string;
   isVerified: boolean;
+  mobileToken?: string;
+  mobileTokenExpiry?: Date;
   createdAt: Date;
 }
 
@@ -34,6 +36,8 @@ const UserSchema = new Schema<IUser>(
     savedSites: [{ type: Schema.Types.ObjectId, ref: "CampingSite" }],
     notes: { type: String, default: ""},
     isVerified: { type: Boolean, default: false },
+    mobileToken: { type: String },
+    mobileTokenExpiry: { type: Date },
   },
   { timestamps: true },
 );

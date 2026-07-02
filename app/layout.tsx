@@ -8,9 +8,10 @@ import ToastProvider from "@/components/ToastProvider";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-export { playfair };
+
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://sahatour.me"),
   title: {
     default: "Sahatour — Discover Algeria's Best Campsites",
     template: "%s — SahaTour",

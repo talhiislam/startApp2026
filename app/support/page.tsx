@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ToastProvider";
@@ -15,13 +15,19 @@ const categories = [
 ];
 
 export default function SupportPage() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const { toast } = useToast();
 
     const [category, setCategory] = useState("bug");
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.push("/auth/login");
+        }
+    }, [status, router]);
 
     async function handleSubmit() {
         if (message.trim().length < 10) {

@@ -8,6 +8,7 @@ import { useToast } from "@/components/ToastProvider";
 import Card from "@/components/Card";
 import ConfirmModal from "@/components/ConfirmModal";
 import SupportTab from "@/components/SupportTab";
+import ProductsTab from "@/components/ProductsTab";
 
 import { typeColors, typeLabels } from "@/types/campsite";
 
@@ -33,7 +34,16 @@ type AdminUser = {
   createdAt: string;
 };
 
-const tabs = ["Campsites", "Users", "Support"];
+type TeamMember = {
+  _id: string;
+  initials: string;
+  name: string;
+  role: string;
+  email: string;
+  order: number;
+};
+
+const tabs = ["Campsites", "Users", "Products", "Team", "Support"];
 
 const roleColors = {
   camper: "text-green-400 bg-green-400/10",
@@ -54,6 +64,14 @@ export default function AdminPage() {
   const { toast } = useToast();
   const [revokeConfirm, setRevokeConfirm] = useState<string | null>(null);
 
+  // Team state
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loadingTeam, setLoadingTeam] = useState(true);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [teamForm, setTeamForm] = useState({ initials: "", name: "", role: "", email: "", order: 0 });
+  const [savingTeam, setSavingTeam] = useState(false);
+
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/login");
     if (status === "authenticated" && session?.user?.role !== "admin") {
@@ -73,10 +91,13 @@ export default function AdminPage() {
 
     fetch("/api/admin/users")
       .then((r) => r.json())
-      .then((d) => {
-        if (d.success) setUsers(d.data);
-      })
+      .then((d) => { if (d.success) setUsers(d.data); })
       .finally(() => setLoadingUsers(false));
+
+    fetch("/api/admin/team")
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setTeamMembers(d.data); })
+      .finally(() => setLoadingTeam(false));
   }, [status]);
 
   async function handleApprove(id: string) {
@@ -129,6 +150,55 @@ export default function AdminPage() {
       toast("error", "Something went wrong", "Could not update this user's role.");
     }
     setProcessingId(null);
+  }
+
+  async function handleSaveMember() {
+    if (!teamForm.initials || !teamForm.name || !teamForm.role || !teamForm.email) {
+      toast("error", "Missing fields", "Please fill all fields.");
+      return;
+    }
+    setSavingTeam(true);
+    if (editingMember) {
+      const res = await fetch(`/api/admin/team?id=${editingMember._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(teamForm),
+      });
+      if (res.ok) {
+        const { data } = await res.json();
+        setTeamMembers((prev) => prev.map((m) => (m._id === data._id ? data : m)));
+        toast("success", "Member updated", "");
+        setEditingMember(null);
+      } else {
+        toast("error", "Something went wrong", "");
+      }
+    } else {
+      const res = await fetch("/api/admin/team", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(teamForm),
+      });
+      if (res.ok) {
+        const { data } = await res.json();
+        setTeamMembers((prev) => [...prev, data]);
+        toast("success", "Member added", "");
+        setShowAddMember(false);
+      } else {
+        toast("error", "Something went wrong", "");
+      }
+    }
+    setTeamForm({ initials: "", name: "", role: "", email: "", order: 0 });
+    setSavingTeam(false);
+  }
+
+  async function handleDeleteMember(id: string) {
+    const res = await fetch(`/api/admin/team?id=${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setTeamMembers((prev) => prev.filter((m) => m._id !== id));
+      toast("success", "Member removed", "");
+    } else {
+      toast("error", "Something went wrong", "");
+    }
   }
 
   const pendingCampsites = campsites.filter((c) => !c.isApproved);
@@ -513,6 +583,147 @@ export default function AdminPage() {
                           admin
                         </option>
                       </select>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* Products Tab */}
+          {activeTab === "Products" && <ProductsTab />}
+
+          {/* Team Tab */}
+          {activeTab === "Team" && (
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold" style={{ color: "var(--text-primary)" }}>
+                  Team Members
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowAddMember(true);
+                    setEditingMember(null);
+                    setTeamForm({ initials: "", name: "", role: "", email: "", order: teamMembers.length });
+                  }}
+                  className="text-xs px-3 py-1.5 rounded-lg font-medium transition"
+                  style={{ background: "var(--accent)", color: "#fff" }}
+                >
+                  + Add Member
+                </button>
+              </div>
+
+              {/* Add / Edit Form */}
+              {(showAddMember || editingMember) && (
+                <div
+                  className="rounded-xl p-5 flex flex-col gap-3"
+                  style={{ background: "var(--bg-hover)", border: "1px solid var(--border)" }}
+                >
+                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                    {editingMember ? "Edit Member" : "New Member"}
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      placeholder="Initials (e.g. HA)"
+                      maxLength={4}
+                      value={teamForm.initials}
+                      onChange={(e) => setTeamForm((f) => ({ ...f, initials: e.target.value }))}
+                      className="rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500"
+                      style={{ background: "var(--bg-input)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                    />
+                    <input
+                      placeholder="Full name"
+                      value={teamForm.name}
+                      onChange={(e) => setTeamForm((f) => ({ ...f, name: e.target.value }))}
+                      className="rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500"
+                      style={{ background: "var(--bg-input)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                    />
+                    <input
+                      placeholder="Role"
+                      value={teamForm.role}
+                      onChange={(e) => setTeamForm((f) => ({ ...f, role: e.target.value }))}
+                      className="rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500"
+                      style={{ background: "var(--bg-input)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                    />
+                    <input
+                      placeholder="Email"
+                      type="email"
+                      value={teamForm.email}
+                      onChange={(e) => setTeamForm((f) => ({ ...f, email: e.target.value }))}
+                      className="rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500"
+                      style={{ background: "var(--bg-input)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <button
+                      onClick={() => { setShowAddMember(false); setEditingMember(null); }}
+                      className="text-xs px-3 py-1.5 rounded-lg transition"
+                      style={{ border: "1px solid var(--border)", color: "var(--text-muted)" }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveMember}
+                      disabled={savingTeam}
+                      className="text-xs px-3 py-1.5 rounded-lg font-medium transition disabled:opacity-50"
+                      style={{ background: "var(--accent)", color: "#fff" }}
+                    >
+                      {savingTeam ? "Saving..." : "Save"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Members List */}
+              {loadingTeam ? (
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>Loading...</p>
+              ) : teamMembers.length === 0 ? (
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>No team members yet.</p>
+              ) : (
+                teamMembers.map((member) => (
+                  <div
+                    key={member._id}
+                    className="flex items-center justify-between gap-4 rounded-xl px-4 py-3"
+                    style={{ background: "var(--bg-hover)", border: "1px solid var(--border-subtle)" }}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                        style={{ background: "var(--accent)" }}
+                      >
+                        {member.initials}
+                      </div>
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+                          {member.name}
+                        </p>
+                        <p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
+                          {member.role}
+                        </p>
+                        <p className="text-xs truncate" style={{ color: "var(--text-faint)" }}>
+                          {member.email}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => {
+                          setEditingMember(member);
+                          setShowAddMember(false);
+                          setTeamForm({ initials: member.initials, name: member.name, role: member.role, email: member.email, order: member.order });
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-lg transition"
+                        style={{ border: "1px solid var(--border)", color: "var(--text-muted)" }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteMember(member._id)}
+                        className="text-xs px-3 py-1.5 rounded-lg transition"
+                        style={{ border: "1px solid rgba(248,113,113,0.3)", color: "#f87171" }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))

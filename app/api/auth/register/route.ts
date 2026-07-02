@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/User";
 import VerificationCode from "@/models/VerificationCode";
@@ -38,12 +38,16 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // If no email service is configured, auto-verify the account (dev mode)
+    const hasEmailService = !!process.env.RESEND_API_KEY;
+
     await User.create({
       email,
       username,
       password: hashedPassword,
       role: "camper",
-      isVerified: false,
+      isVerified: !hasEmailService, // auto-verify if no email service
     });
 
     // Generate and store verification code
@@ -52,19 +56,30 @@ export async function POST(req: NextRequest) {
     await VerificationCode.deleteMany({ email });
     await VerificationCode.create({ email, code, expiresAt });
 
-    // Send verification email (non-blocking — don't fail registration if email fails)
-    let emailSent = true;
-    try {
-      await sendVerificationEmail(email, code);
-    } catch (emailError) {
-      emailSent = false;
-      console.error("Failed to send verification email:", emailError);
+    let emailSent = false;
+    let autoVerified = !hasEmailService;
+
+    if (!hasEmailService) {
+      console.log(`[DEV] Verification code for ${email}: ${code}`);
+    } else {
+      try {
+        await sendVerificationEmail(email, code);
+        emailSent = true;
+      } catch (emailError) {
+        console.error("Failed to send verification email:", emailError);
+        // Email delivery failed — auto-verify so the user is not permanently locked out
+        await User.findOneAndUpdate({ email }, { isVerified: true });
+        autoVerified = true;
+      }
     }
 
     return NextResponse.json({
       success: true,
       emailSent,
-      message: "Account created. Please verify you email.",
+      autoVerified,
+      message: emailSent
+        ? "Account created. Please check your email for a verification code."
+        : "Account created successfully.",
     });
   } catch (error) {
     console.error(error);

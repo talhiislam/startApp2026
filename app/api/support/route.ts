@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { getAuthUser } from "@/lib/getAuthUser";
 import { connectToDatabase } from "@/lib/mongodb";
 import { sendSupportRequestEmail } from "@/lib/email";
 
@@ -8,8 +7,8 @@ import SupportRequest from "@/models/SupportRequest";
 import User from "@/models/User";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session)
+  const authUser = await getAuthUser(req);
+  if (!authUser)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { category, message } = await req.json();
@@ -36,14 +35,13 @@ export async function POST(req: NextRequest) {
   await connectToDatabase();
 
   const request = await SupportRequest.create({
-    user: session.user.id,
+    user: authUser.id,
     category,
     message: message.trim(),
   });
 
-  // Notify admin via email
   try {
-    const user = await User.findById(session.user.id).select("email username");
+    const user = await User.findById(authUser.id).select("email username");
     if (user) {
       await sendSupportRequestEmail(
         user.email,

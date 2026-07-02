@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -153,15 +153,20 @@ export default function ExplorePage() {
     if (sort !== "newest") params.set("sort", sort);
     params.set("page", String(page));
 
-    const res = await fetch(`/api/campsites?${params.toString()}`);
-    const data = await res.json();
+    try {
+      const res = await fetch(`/api/campsites?${params.toString()}`);
+      const data = await res.json();
 
-    if (data.success) {
-      setCampsites(data.data);
-      setTotal(data.total);
-      setTotalPages(data.totalPages);
+      if (data.success) {
+        setCampsites(data.data);
+        setTotal(data.total);
+        setTotalPages(data.totalPages);
+      }
+    } catch (error) {
+      console.error("Failed to fetch campsites:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [debouncedSearch, region, type, minPrice, maxPrice, sort, page]);
 
   useEffect(() => {

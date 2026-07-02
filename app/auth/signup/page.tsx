@@ -6,9 +6,27 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Card from "@/components/Card";
 
+function EyeIcon({ open }: { open: boolean }) {
+  return open ? (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+      <line x1="2" x2="22" y1="2" y2="22" />
+    </svg>
+  );
+}
+
 export default function Signup() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -39,6 +57,11 @@ export default function Signup() {
 
     if (!res.ok) {
       setError(result.error);
+      return;
+    }
+
+    if (result.autoVerified) {
+      router.push("/auth/login?verified=true");
       return;
     }
 
@@ -90,20 +113,40 @@ export default function Signup() {
             className="rounded-lg p-3 placeholder:text-slate-500 transition focus:outline-none focus:ring-2 focus:ring-orange-500"
             style={inputStyle}
           />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            className="rounded-lg p-3 placeholder:text-slate-500 transition focus:outline-none focus:ring-2 focus:ring-orange-500"
-            style={inputStyle}
-          />
-          <input
-            name="confirmPassword"
-            type="password"
-            placeholder="Confirm password"
-            className="rounded-lg p-3 placeholder:text-slate-500 transition focus:outline-none focus:ring-2 focus:ring-orange-500"
-            style={inputStyle}
-          />
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="w-full rounded-lg p-3 pr-10 placeholder:text-slate-500 transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+              style={inputStyle}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 transition"
+              style={{ color: "var(--text-muted)" }}
+            >
+              <EyeIcon open={showPassword} />
+            </button>
+          </div>
+          <div className="relative">
+            <input
+              name="confirmPassword"
+              type={showConfirm ? "text" : "password"}
+              placeholder="Confirm password"
+              className="w-full rounded-lg p-3 pr-10 placeholder:text-slate-500 transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+              style={inputStyle}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirm(!showConfirm)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 transition"
+              style={{ color: "var(--text-muted)" }}
+            >
+              <EyeIcon open={showConfirm} />
+            </button>
+          </div>
           <button
             type="submit"
             disabled={loading}
