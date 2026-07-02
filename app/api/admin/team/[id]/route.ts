@@ -11,13 +11,15 @@ async function requireAdmin() {
   return null;
 }
 
-type Context = { params: Promise<{ id: string }> };
+function getIdFromUrl(req: NextRequest) {
+  return req.nextUrl.pathname.split("/").pop() ?? "";
+}
 
-export async function PUT(req: NextRequest, context: Context) {
+export async function PUT(req: NextRequest) {
   const denied = await requireAdmin();
   if (denied) return denied;
 
-  const { id } = await context.params;
+  const id = getIdFromUrl(req);
   const body = await req.json();
   const { initials, name, role, email, order } = body;
 
@@ -32,11 +34,11 @@ export async function PUT(req: NextRequest, context: Context) {
   return NextResponse.json({ success: true, data: member });
 }
 
-export async function DELETE(_req: NextRequest, context: Context) {
+export async function DELETE(req: NextRequest) {
   const denied = await requireAdmin();
   if (denied) return denied;
 
-  const { id } = await context.params;
+  const id = getIdFromUrl(req);
   await connectToDatabase();
   const member = await TeamMember.findByIdAndDelete(id);
   if (!member) return NextResponse.json({ error: "Not found" }, { status: 404 });
