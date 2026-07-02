@@ -85,9 +85,16 @@ Rules:
   if (!geminiRes.ok) {
     const errText = await geminiRes.text();
     console.error("Gemini API error:", geminiRes.status, errText);
-    return new Response(`Gemini error ${geminiRes.status}: ${errText}`, {
-      status: 502,
-    });
+    // Return error as streaming text so chat UI shows it
+    return new Response(
+      new ReadableStream({
+        start(c) {
+          c.enqueue(new TextEncoder().encode(`[DEBUG] Gemini ${geminiRes.status}: ${errText}`));
+          c.close();
+        },
+      }),
+      { headers: { "Content-Type": "text/plain; charset=utf-8" } }
+    );
   }
 
   // Stream SSE chunks → extract text → forward as plain text

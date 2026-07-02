@@ -101,7 +101,10 @@ export default function ChatPage() {
         signal: abortRef.current.signal,
       });
 
-      if (!res.ok) throw new Error("Request failed");
+      if (!res.ok) {
+        const errText = await res.text().catch(() => `HTTP ${res.status}`);
+        throw new Error(errText);
+      }
 
       const reader = res.body?.getReader();
       if (!reader) throw new Error("No stream");
@@ -130,14 +133,11 @@ export default function ChatPage() {
       );
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
+        const msg = (err as Error).message || "Unknown error";
         setMessages((prev) =>
           prev.map((m, idx) =>
             idx === assistantIdx
-              ? {
-                  ...m,
-                  content: "Sorry, something went wrong. Please try again.",
-                  streaming: false,
-                }
+              ? { ...m, content: `Error: ${msg}`, streaming: false }
               : m
           )
         );
