@@ -3,7 +3,7 @@
 import { playfair } from "@/lib/fonts";
 
 const stats = [
-  { value: "48", label: "Wilayas covered" },
+  { value: "58", label: "Wilayas covered" },
   { value: "5", label: "Regions mapped" },
   { value: "4", label: "Campsite types" },
 ];
