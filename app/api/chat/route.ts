@@ -1,16 +1,14 @@
 import { NextRequest } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { connectToDatabase } from "@/lib/mongodb";
 import CampingSite from "@/models/CampingSite";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
-
 export async function POST(request: NextRequest) {
-  if (!process.env.GEMINI_API_KEY) {
-    return new Response("GEMINI_API_KEY is not configured", { status: 500 });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return new Response("GEMINI_API_KEY not set", { status: 500 });
   }
 
   const { messages } = (await request.json()) as {
@@ -18,10 +16,10 @@ export async function POST(request: NextRequest) {
   };
 
   if (!messages?.length) {
-    return new Response("No messages provided", { status: 400 });
+    return new Response("No messages", { status: 400 });
   }
 
-  // Fetch approved campsites for context
+  // Fetch campsites for context
   let campsiteContext = "";
   try {
     await connectToDatabase();
@@ -56,39 +54,82 @@ Rules:
 - Reply in the SAME language the user uses (Arabic, French, English, or Algerian Darija).
 - Recommend specific campsites from the list above when relevant.
 - Give practical camping tips: weather, gear, safety, best seasons by region.
-- Be concise and use bullet points for lists.
-- If asked about a campsite not in the list, suggest similar available ones.`;
+- Be concise and use bullet points for lists.`;
 
-  // Separate history from the last user message
-  const history = messages.slice(0, -1).map((m) => ({
+  // Build Gemini-format contents
+  const contents = messages.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }],
   }));
-  const lastUserMessage = messages[messages.length - 1].content;
 
-  const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
-    systemInstruction,
-  });
+  // Call Gemini REST API directly (works with any key format)
+  const model = "gemini-2.0-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
 
-  const chat = model.startChat({ history });
+  let geminiRes: Response;
+  try {
+    geminiRes = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemInstruction }] },
+        contents,
+        generationConfig: { maxOutputTokens: 1024 },
+      }),
+    });
+  } catch (err) {
+    console.error("Gemini fetch error:", err);
+    return new Response("Failed to reach Gemini API", { status: 502 });
+  }
 
+  if (!geminiRes.ok) {
+    const errText = await geminiRes.text();
+    console.error("Gemini API error:", geminiRes.status, errText);
+    return new Response(`Gemini error ${geminiRes.status}: ${errText}`, {
+      status: 502,
+    });
+  }
+
+  // Stream SSE chunks → extract text → forward as plain text
   const readableStream = new ReadableStream({
     async start(controller) {
+      const reader = geminiRes.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
       try {
-        const result = await chat.sendMessageStream(lastUserMessage);
-        for await (const chunk of result.stream) {
-          const text = chunk.text();
-          if (text) {
-            controller.enqueue(new TextEncoder().encode(text));
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === "[DONE]" || !jsonStr) continue;
+            try {
+              const parsed = JSON.parse(jsonStr) as {
+                candidates?: Array<{
+                  content?: { parts?: Array<{ text?: string }> };
+                }>;
+              };
+              const text =
+                parsed.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+              if (text) {
+                controller.enqueue(new TextEncoder().encode(text));
+              }
+            } catch {
+              // skip malformed JSON
+            }
           }
         }
       } catch (err) {
-        console.error("Gemini stream error:", err);
+        console.error("Stream read error:", err);
         controller.enqueue(
-          new TextEncoder().encode(
-            "Sorry, something went wrong. Please try again."
-          )
+          new TextEncoder().encode("Sorry, something went wrong. Please try again.")
         );
       } finally {
         controller.close();
