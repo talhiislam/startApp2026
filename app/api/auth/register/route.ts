@@ -56,31 +56,29 @@ export async function POST(req: NextRequest) {
     await VerificationCode.deleteMany({ email });
     await VerificationCode.create({ email, code, expiresAt });
 
-    let emailSent = true;
+    let emailSent = false;
+    let autoVerified = !hasEmailService;
 
     if (!hasEmailService) {
-      // Dev mode: print code to console, skip email sending
-      console.log(`\n========================================`);
-      console.log(`📧 [DEV MODE] Verification code for ${email}: ${code}`);
-      console.log(`   Account auto-verified (no email service configured)`);
-      console.log(`========================================\n`);
-      emailSent = false;
+      console.log(`[DEV] Verification code for ${email}: ${code}`);
     } else {
-      // Production mode: send verification email
       try {
         await sendVerificationEmail(email, code);
+        emailSent = true;
       } catch (emailError) {
-        emailSent = false;
         console.error("Failed to send verification email:", emailError);
+        // Email delivery failed — auto-verify so the user is not permanently locked out
+        await User.findOneAndUpdate({ email }, { isVerified: true });
+        autoVerified = true;
       }
     }
 
     return NextResponse.json({
       success: true,
       emailSent,
-      autoVerified: !hasEmailService,
-      message: hasEmailService
-        ? "Account created. Please verify your email."
+      autoVerified,
+      message: emailSent
+        ? "Account created. Please check your email for a verification code."
         : "Account created successfully.",
     });
   } catch (error) {
