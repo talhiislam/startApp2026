@@ -8,6 +8,7 @@ import { useToast } from "@/components/ToastProvider";
 import Card from "@/components/Card";
 import ConfirmModal from "@/components/ConfirmModal";
 import SupportTab from "@/components/SupportTab";
+import ProductsTab from "@/components/ProductsTab";
 
 import { typeColors, typeLabels } from "@/types/campsite";
 
@@ -33,7 +34,7 @@ type AdminUser = {
   createdAt: string;
 };
 
-const tabs = ["Campsites", "Users", "Support"];
+const tabs = ["Campsites", "Users", "Products", "Support"];
 
 const roleColors = {
   camper: "text-green-400 bg-green-400/10",
@@ -519,6 +520,9 @@ export default function AdminPage() {
               )}
             </div>
           )}
+
+          {/* Products Tab */}
+          {activeTab === "Products" && <ProductsTab />}
 
           {/* Support Tab */}
           {activeTab === "Support" && <SupportTab />}
